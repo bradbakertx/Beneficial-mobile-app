@@ -89,31 +89,13 @@ export default function ActiveInspectionsScreen() {
       
       const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
       console.log('Cancel response:', response.data);
+      console.log('Emails sent successfully, removing inspection from local state');
       
-      // Show success message
-      const successMessage = `Calendar notifications sent to:\n• ${response.data.notifications_sent.customer}\n• ${response.data.notifications_sent.owner}`;
+      // Remove from local state immediately (no success dialog)
+      setInspections(inspections.filter(i => i.id !== inspection.id));
       
-      if (Platform.OS === 'web') {
-        alert(`Inspection Cancelled!\n\n${successMessage}`);
-        console.log('Removing inspection from local state');
-        setInspections(inspections.filter(i => i.id !== inspection.id));
-        router.push('/(tabs)');
-      } else {
-        Alert.alert(
-          'Inspection Cancelled',
-          successMessage,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                console.log('Removing inspection from local state');
-                setInspections(inspections.filter(i => i.id !== inspection.id));
-                router.push('/(tabs)');
-              }
-            }
-          ]
-        );
-      }
+      // Navigate back to dashboard
+      router.push('/(tabs)');
     } catch (error: any) {
       console.error('Error cancelling inspection:', error);
       console.error('Error details:', error.response?.data);
