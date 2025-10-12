@@ -154,7 +154,16 @@ export default function ActiveInspectionsScreen() {
       </View>
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>ID: {item.id.substring(0, 8)}...</Text>
+        <TouchableOpacity 
+          style={styles.cancelButton}
+          onPress={(e) => {
+            e.stopPropagation(); // Prevent card click
+            handleCancelInspection(item);
+          }}
+        >
+          <Ionicons name="close-circle" size={20} color="#FF3B30" />
+          <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
+        </TouchableOpacity>
         <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
       </View>
     </TouchableOpacity>
