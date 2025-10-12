@@ -96,16 +96,6 @@ export default function DashboardScreen() {
           </View>
         </View>
 
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.greeting}>Hello, {user?.name}!</Text>
-            <Text style={styles.roleText}>{getRoleTitle()}</Text>
-          </View>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleBadgeText}>{user?.role?.toUpperCase()}</Text>
-          </View>
-        </View>
-
         {/* Stats Cards */}
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
