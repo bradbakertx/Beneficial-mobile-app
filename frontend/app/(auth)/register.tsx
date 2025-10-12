@@ -229,6 +229,12 @@ const styles = StyleSheet.create({
   backButton: {
     marginBottom: 16,
   },
+  logo: {
+    width: 80,
+    height: 80,
+    marginBottom: 16,
+    alignSelf: 'center',
+  },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
