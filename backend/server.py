@@ -138,7 +138,7 @@ async def get_me(current_user: UserInDB = Depends(get_current_user_from_token)):
 @api_router.post("/quotes", response_model=QuoteResponse)
 async def create_quote(
     quote_data: QuoteCreate,
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Create a new quote request (Customer only)"""
     if current_user.role != UserRole.customer:
@@ -165,7 +165,7 @@ async def create_quote(
 
 @api_router.get("/quotes", response_model=List[QuoteResponse])
 async def get_my_quotes(
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get quotes for current customer"""
     if current_user.role != UserRole.customer:
@@ -178,7 +178,7 @@ async def get_my_quotes(
 @api_router.get("/quotes/{quote_id}", response_model=QuoteResponse)
 async def get_quote(
     quote_id: str,
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get a specific quote"""
     quote = await db.quotes.find_one({"id": quote_id})
@@ -197,7 +197,7 @@ async def get_quote(
 @api_router.get("/admin/quotes", response_model=List[QuoteResponse])
 async def get_all_quotes(
     status: QuoteStatus = None,
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get all quotes (Owner only)"""
     if current_user.role != UserRole.owner:
@@ -215,7 +215,7 @@ async def get_all_quotes(
 async def set_quote_price(
     quote_id: str,
     quote_amount: float = Query(..., description="Quote amount"),
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Set price for a quote (Owner only)"""
     if current_user.role != UserRole.owner:
@@ -248,7 +248,7 @@ async def schedule_inspection(
     quote_id: str = Query(...),
     preferred_date: str = Query(None),
     preferred_time: str = Query(None),
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Schedule an inspection (Customer only)"""
     if current_user.role != UserRole.customer:
@@ -283,7 +283,7 @@ async def schedule_inspection(
 
 @api_router.get("/inspections", response_model=List[InspectionResponse])
 async def get_my_inspections(
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get inspections for current customer"""
     if current_user.role != UserRole.customer:
@@ -296,7 +296,7 @@ async def get_my_inspections(
 @api_router.get("/inspections/{inspection_id}", response_model=InspectionResponse)
 async def get_inspection(
     inspection_id: str,
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get a specific inspection"""
     inspection = await db.inspections.find_one({"id": inspection_id})
@@ -314,7 +314,7 @@ async def get_inspection(
 
 @api_router.get("/admin/inspections/pending-scheduling", response_model=List[InspectionResponse])
 async def get_pending_inspections(
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get all pending scheduling inspections (Owner only)"""
     if current_user.role != UserRole.owner:
@@ -328,7 +328,7 @@ async def get_pending_inspections(
 
 @api_router.get("/admin/inspections/confirmed", response_model=List[InspectionResponse])
 async def get_confirmed_inspections(
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get all confirmed/scheduled inspections (Owner only)"""
     if current_user.role != UserRole.owner:
@@ -345,7 +345,7 @@ async def set_inspection_datetime(
     inspection_id: str,
     scheduled_date: str = Query(...),
     scheduled_time: str = Query(...),
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Set date and time for an inspection (Owner only)"""
     if current_user.role != UserRole.owner:
@@ -376,7 +376,7 @@ async def set_inspection_datetime(
 
 @api_router.get("/admin/dashboard/stats")
 async def get_dashboard_stats(
-    current_user: UserInDB = Depends(lambda creds=Depends(): get_current_user(creds, db))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get dashboard statistics (Owner only)"""
     if current_user.role != UserRole.owner:
