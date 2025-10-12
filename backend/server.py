@@ -15,7 +15,8 @@ from models import (
     QuoteCreate, QuoteResponse, QuoteInDB, QuoteStatus,
     InspectionCreate, InspectionResponse, InspectionInDB, InspectionStatus,
     QuotePriceUpdate, InspectionDateTimeUpdate,
-    MessageCreate, MessageResponse, MessageInDB, ConversationSummary
+    MessageCreate, MessageResponse, MessageInDB, ConversationSummary,
+    ManualInspectionCreate, ManualInspectionResponse, ManualInspectionInDB
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
