@@ -36,12 +36,16 @@ export default function QuotesScreen() {
   const fetchQuotes = async () => {
     try {
       const endpoint = user?.role === 'owner' ? '/admin/quotes' : '/quotes';
+      console.log('Fetching quotes from:', endpoint, 'User role:', user?.role);
       const response = await api.get(endpoint);
+      console.log('Quotes response:', response.data);
       setQuotes(response.data);
     } catch (error: any) {
       console.error('Error fetching quotes:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
       if (error.response?.status !== 401) {
-        Alert.alert('Error', 'Failed to fetch quotes');
+        Alert.alert('Error', `Failed to fetch quotes: ${error.response?.data?.detail || error.message}`);
       }
     } finally {
       setLoading(false);
