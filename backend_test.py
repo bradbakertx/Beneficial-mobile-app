@@ -21,447 +21,331 @@ class BackendTester:
         self.session_token = None
         self.headers = {"Content-Type": "application/json"}
         
-    def log_result(self, test_name, success, message, response_data=None):
-        """Log test result"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}: {message}")
+    def login(self):
+        """Login and get session token"""
+        print("🔐 Testing login...")
         
-        self.test_results.append({
-            "test": test_name,
-            "success": success,
-            "message": message,
-            "response_data": response_data
-        })
-        
-    def make_request(self, method, endpoint, data=None, params=None, auth_required=True):
-        """Make HTTP request with proper headers"""
-        url = f"{self.base_url}{endpoint}"
-        headers = {"Content-Type": "application/json"}
-        
-        if auth_required and self.auth_token:
-            headers["Authorization"] = f"Bearer {self.auth_token}"
-            
-        try:
-            if method.upper() == "GET":
-                response = self.session.get(url, headers=headers, params=params, timeout=10)
-            elif method.upper() == "POST":
-                response = self.session.post(url, headers=headers, json=data, params=params, timeout=10)
-            elif method.upper() == "PATCH":
-                response = self.session.patch(url, headers=headers, json=data, params=params, timeout=10)
-            else:
-                raise ValueError(f"Unsupported method: {method}")
-                
-            return response
-        except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
-            return None
-    
-    def test_connectivity(self):
-        """Test connectivity to both URLs and choose the working one"""
-        print("\n=== Testing API Connectivity ===")
-        
-        # Test external URL first
-        try:
-            response = requests.get(f"{self.external_url}/", timeout=5)
-            if response.status_code == 200:
-                self.base_url = self.external_url
-                data = response.json()
-                self.log_result("External API Connectivity", True, f"External API accessible: {data.get('message', 'OK')}")
-                return True
-        except Exception as e:
-            self.log_result("External API Connectivity", False, f"External API failed: {e}")
-        
-        # Test local URL
-        try:
-            response = requests.get(f"{self.local_url}/", timeout=5)
-            if response.status_code == 200:
-                self.base_url = self.local_url
-                data = response.json()
-                self.log_result("Local API Connectivity", True, f"Local API accessible: {data.get('message', 'OK')}")
-                return True
-        except Exception as e:
-            self.log_result("Local API Connectivity", False, f"Local API failed: {e}")
-        
-        self.log_result("API Connectivity", False, "Both external and local APIs are unreachable")
-        return False
-    
-    def test_authentication_login(self):
-        """Test user login"""
-        print("\n=== Testing Authentication - Login ===")
-        
-        response = self.make_request("POST", "/auth/login", data=TEST_CREDENTIALS, auth_required=False)
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if "session_token" in data and "user" in data:
-                self.auth_token = data["session_token"]
-                self.user_data = data["user"]
-                self.log_result("Login", True, f"Login successful for {data['user']['email']} (Role: {data['user']['role']})")
-                return True
-            else:
-                self.log_result("Login", False, "Login response missing required fields")
-                return False
-        else:
-            status_code = response.status_code if response else "No Response"
-            error_msg = response.json().get("detail", "Unknown error") if response else "Connection failed"
-            self.log_result("Login", False, f"Login failed (Status: {status_code}, Error: {error_msg})")
-            return False
-    
-    def test_authentication_me(self):
-        """Test /auth/me endpoint"""
-        print("\n=== Testing Authentication - Get Me ===")
-        
-        if not self.auth_token:
-            self.log_result("Get Me", False, "No auth token available")
-            return False
-            
-        response = self.make_request("GET", "/auth/me")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if data.get("email") == TEST_CREDENTIALS["email"]:
-                self.log_result("Get Me", True, f"User info retrieved: {data['name']} ({data['role']})")
-                return True
-            else:
-                self.log_result("Get Me", False, "User info mismatch")
-                return False
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("Get Me", False, f"Get me failed (Status: {status_code})")
-            return False
-    
-    def test_authentication_register(self):
-        """Test user registration with new user"""
-        print("\n=== Testing Authentication - Register ===")
-        
-        # Create unique test user
-        test_user = {
-            "email": f"test_{uuid.uuid4().hex[:8]}@example.com",
-            "password": "TestPassword123!",
-            "name": "Test Customer",
-            "role": "customer"
+        login_data = {
+            "email": TEST_EMAIL,
+            "password": TEST_PASSWORD
         }
         
-        response = self.make_request("POST", "/auth/register", data=test_user, auth_required=False)
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if "session_token" in data and "user" in data:
-                self.log_result("Register", True, f"Registration successful for {data['user']['email']}")
-                return True
-            else:
-                self.log_result("Register", False, "Registration response missing required fields")
-                return False
-        else:
-            status_code = response.status_code if response else "No Response"
-            error_msg = response.json().get("detail", "Unknown error") if response else "Connection failed"
-            self.log_result("Register", False, f"Registration failed (Status: {status_code}, Error: {error_msg})")
-            return False
-    
-    def test_quotes_create(self):
-        """Test quote creation (requires customer role)"""
-        print("\n=== Testing Quotes - Create ===")
-        
-        if not self.auth_token:
-            self.log_result("Create Quote", False, "No auth token available")
-            return False, None
+        try:
+            response = requests.post(f"{BASE_URL}/auth/login", json=login_data)
+            print(f"Login response status: {response.status_code}")
             
-        # Check if user is owner (owners can't create quotes, only customers can)
-        if self.user_data and self.user_data.get("role") == "owner":
-            # Test that owners are properly blocked
-            quote_data = {
-                "property_address": "123 Test Street, Austin, TX 78701",
-                "property_type": "Single Family Home",
-                "property_size": 2500,
-                "additional_notes": "Test quote from owner (should fail)"
-            }
-            
-            response = self.make_request("POST", "/quotes", data=quote_data)
-            
-            if response and response.status_code == 403:
-                self.log_result("Create Quote (Owner Block)", True, "Correctly blocked owner from creating quotes")
-                return False, None
-            else:
-                self.log_result("Create Quote (Owner Block)", False, "Failed to block owner from creating quotes")
-                return False, None
-        else:
-            # Test normal quote creation for customer
-            quote_data = {
-                "property_address": "456 Customer Lane, Austin, TX 78702",
-                "property_type": "Townhouse",
-                "property_size": 1800,
-                "additional_notes": "Test quote creation"
-            }
-            
-            response = self.make_request("POST", "/quotes", data=quote_data)
-            
-            if response and response.status_code == 200:
+            if response.status_code == 200:
                 data = response.json()
-                if "id" in data and data.get("property_address") == quote_data["property_address"]:
-                    self.log_result("Create Quote", True, f"Quote created successfully (ID: {data['id']})")
-                    return True, data["id"]
-                else:
-                    self.log_result("Create Quote", False, "Quote response missing required fields")
-                    return False, None
-            else:
-                status_code = response.status_code if response else "No Response"
-                self.log_result("Create Quote", False, f"Quote creation failed (Status: {status_code})")
-                return False, None
-    
-    def test_quotes_list(self):
-        """Test listing quotes"""
-        print("\n=== Testing Quotes - List ===")
-        
-        if not self.auth_token:
-            self.log_result("List Quotes", False, "No auth token available")
-            return False
-            
-        response = self.make_request("GET", "/quotes")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                self.log_result("List Quotes", True, f"Retrieved {len(data)} quotes")
+                self.session_token = data.get("session_token")
+                self.headers["Authorization"] = f"Bearer {self.session_token}"
+                print("✅ Login successful")
+                print(f"User: {data.get('user', {}).get('name')} ({data.get('user', {}).get('role')})")
                 return True
             else:
-                self.log_result("List Quotes", False, "Invalid response format")
+                print(f"❌ Login failed: {response.text}")
                 return False
-        elif response and response.status_code == 403:
-            # If user is owner, they should be blocked from customer quotes endpoint
-            self.log_result("List Quotes (Role Check)", True, "Correctly blocked non-customer from customer quotes")
-            return True
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("List Quotes", False, f"List quotes failed (Status: {status_code})")
+                
+        except Exception as e:
+            print(f"❌ Login error: {e}")
             return False
     
-    def test_admin_quotes(self):
-        """Test admin quotes endpoint (owner only)"""
-        print("\n=== Testing Admin Quotes ===")
+    def get_confirmed_inspections(self):
+        """Get all confirmed inspections"""
+        print("\n📋 Getting confirmed inspections...")
         
-        if not self.auth_token:
-            self.log_result("Admin Quotes", False, "No auth token available")
-            return False
+        try:
+            response = requests.get(f"{BASE_URL}/admin/inspections/confirmed", headers=self.headers)
+            print(f"Get confirmed inspections status: {response.status_code}")
             
-        response = self.make_request("GET", "/admin/quotes")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                self.log_result("Admin Quotes", True, f"Retrieved {len(data)} quotes as admin")
-                return True
+            if response.status_code == 200:
+                inspections = response.json()
+                print(f"✅ Found {len(inspections)} confirmed inspections")
+                return inspections
             else:
-                self.log_result("Admin Quotes", False, "Invalid response format")
+                print(f"❌ Failed to get inspections: {response.text}")
+                return []
+                
+        except Exception as e:
+            print(f"❌ Error getting inspections: {e}")
+            return []
+    
+    def get_manual_inspection(self, inspection_id):
+        """Get manual inspection by ID"""
+        print(f"\n🔍 Getting manual inspection {inspection_id}...")
+        
+        try:
+            response = requests.get(f"{BASE_URL}/admin/manual-inspection/{inspection_id}", headers=self.headers)
+            print(f"Get manual inspection status: {response.status_code}")
+            
+            if response.status_code == 200:
+                inspection = response.json()
+                print("✅ Manual inspection retrieved")
+                print(f"Client: {inspection.get('client_name')} ({inspection.get('client_email')})")
+                print(f"Address: {inspection.get('property_address')}")
+                print(f"Date/Time: {inspection.get('inspection_date')} {inspection.get('inspection_time')}")
+                return inspection
+            else:
+                print(f"❌ Failed to get manual inspection: {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Error getting manual inspection: {e}")
+            return None
+    
+    def create_manual_inspection(self):
+        """Create a manual inspection for testing"""
+        print("\n➕ Creating manual inspection for testing...")
+        
+        inspection_data = {
+            "client_name": "Test Client Original",
+            "client_email": "original@test.com",
+            "client_phone": "5551234567",
+            "property_address": "123 Original St",
+            "property_city": "Austin",
+            "property_zip": "78701",
+            "square_feet": 2000,
+            "year_built": 2020,
+            "foundation_type": "Slab",
+            "property_type": "Single Family",
+            "num_buildings": 1,
+            "num_units": 1,
+            "fee_amount": 500.00,
+            "inspection_date": "2025-01-25",
+            "inspection_time": "10:00"
+        }
+        
+        try:
+            response = requests.post(f"{BASE_URL}/admin/manual-inspection", json=inspection_data, headers=self.headers)
+            print(f"Create manual inspection status: {response.status_code}")
+            
+            if response.status_code == 200:
+                inspection = response.json()
+                print("✅ Manual inspection created")
+                print(f"ID: {inspection.get('id')}")
+                return inspection.get('id')
+            else:
+                print(f"❌ Failed to create manual inspection: {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Error creating manual inspection: {e}")
+            return None
+    
+    def update_manual_inspection(self, inspection_id, update_data):
+        """Update manual inspection"""
+        print(f"\n✏️ Updating manual inspection {inspection_id}...")
+        print(f"Update data: {json.dumps(update_data, indent=2)}")
+        
+        try:
+            response = requests.patch(f"{BASE_URL}/admin/manual-inspection/{inspection_id}", json=update_data, headers=self.headers)
+            print(f"Update manual inspection status: {response.status_code}")
+            
+            if response.status_code == 200:
+                inspection = response.json()
+                print("✅ Manual inspection updated")
+                print(f"Updated client: {inspection.get('client_name')} ({inspection.get('client_email')})")
+                print(f"Updated address: {inspection.get('property_address')}")
+                print(f"Updated date/time: {inspection.get('inspection_date')} {inspection.get('inspection_time')}")
+                return inspection
+            else:
+                print(f"❌ Failed to update manual inspection: {response.text}")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Error updating manual inspection: {e}")
+            return None
+    
+    def verify_sync_to_inspections(self, inspection_id, expected_data):
+        """Verify that manual inspection changes are synced to inspections collection"""
+        print(f"\n🔄 Verifying sync to inspections collection for {inspection_id}...")
+        
+        inspections = self.get_confirmed_inspections()
+        
+        # Find the inspection with matching ID
+        target_inspection = None
+        for inspection in inspections:
+            if inspection.get('id') == inspection_id:
+                target_inspection = inspection
+                break
+        
+        if not target_inspection:
+            print(f"❌ CRITICAL: Inspection {inspection_id} not found in confirmed inspections")
+            return False
+        
+        print("🔍 Checking sync of displayable fields...")
+        
+        # Check critical sync fields
+        sync_checks = []
+        
+        # customer_name should match client_name
+        expected_customer_name = expected_data.get('client_name')
+        actual_customer_name = target_inspection.get('customer_name')
+        if expected_customer_name and actual_customer_name == expected_customer_name:
+            print(f"✅ customer_name synced: {actual_customer_name}")
+            sync_checks.append(True)
+        elif expected_customer_name:
+            print(f"❌ customer_name NOT synced. Expected: {expected_customer_name}, Got: {actual_customer_name}")
+            sync_checks.append(False)
+        
+        # customer_email should match client_email
+        expected_customer_email = expected_data.get('client_email')
+        actual_customer_email = target_inspection.get('customer_email')
+        if expected_customer_email and actual_customer_email == expected_customer_email:
+            print(f"✅ customer_email synced: {actual_customer_email}")
+            sync_checks.append(True)
+        elif expected_customer_email:
+            print(f"❌ customer_email NOT synced. Expected: {expected_customer_email}, Got: {actual_customer_email}")
+            sync_checks.append(False)
+        
+        # property_address should be formatted with city and zip
+        expected_address_parts = [
+            expected_data.get('property_address'),
+            expected_data.get('property_city'),
+            expected_data.get('property_zip')
+        ]
+        if all(expected_address_parts):
+            expected_full_address = f"{expected_address_parts[0]}, {expected_address_parts[1]}, TX {expected_address_parts[2]}"
+            actual_property_address = target_inspection.get('property_address')
+            if actual_property_address == expected_full_address:
+                print(f"✅ property_address synced: {actual_property_address}")
+                sync_checks.append(True)
+            else:
+                print(f"❌ property_address NOT synced. Expected: {expected_full_address}, Got: {actual_property_address}")
+                sync_checks.append(False)
+        
+        # scheduled_date should match inspection_date
+        expected_scheduled_date = expected_data.get('inspection_date')
+        actual_scheduled_date = target_inspection.get('scheduled_date')
+        if expected_scheduled_date and actual_scheduled_date == expected_scheduled_date:
+            print(f"✅ scheduled_date synced: {actual_scheduled_date}")
+            sync_checks.append(True)
+        elif expected_scheduled_date:
+            print(f"❌ scheduled_date NOT synced. Expected: {expected_scheduled_date}, Got: {actual_scheduled_date}")
+            sync_checks.append(False)
+        
+        # scheduled_time should match inspection_time
+        expected_scheduled_time = expected_data.get('inspection_time')
+        actual_scheduled_time = target_inspection.get('scheduled_time')
+        if expected_scheduled_time and actual_scheduled_time == expected_scheduled_time:
+            print(f"✅ scheduled_time synced: {actual_scheduled_time}")
+            sync_checks.append(True)
+        elif expected_scheduled_time:
+            print(f"❌ scheduled_time NOT synced. Expected: {expected_scheduled_time}, Got: {actual_scheduled_time}")
+            sync_checks.append(False)
+        
+        all_synced = all(sync_checks) if sync_checks else False
+        
+        if all_synced:
+            print("✅ ALL FIELDS SYNCED CORRECTLY")
+        else:
+            print("❌ SYNC ISSUES DETECTED")
+        
+        return all_synced
+    
+    def test_manual_inspection_sync(self):
+        """Main test for manual inspection edit data sync"""
+        print("=" * 60)
+        print("🧪 TESTING MANUAL INSPECTION EDIT DATA SYNC")
+        print("=" * 60)
+        
+        # Step 1: Login
+        if not self.login():
+            return False
+        
+        # Step 2: Check existing inspections or create one
+        inspections = self.get_confirmed_inspections()
+        
+        inspection_id = None
+        if inspections:
+            # Use existing inspection
+            inspection_id = inspections[0].get('id')
+            print(f"\n📌 Using existing inspection: {inspection_id}")
+        else:
+            # Create new inspection
+            inspection_id = self.create_manual_inspection()
+            if not inspection_id:
+                print("❌ Failed to create test inspection")
                 return False
-        elif response and response.status_code == 403:
-            self.log_result("Admin Quotes (Access Control)", True, "Correctly blocked non-owner from admin quotes")
+        
+        # Step 3: Get current inspection data
+        original_inspection = self.get_manual_inspection(inspection_id)
+        if not original_inspection:
+            return False
+        
+        # Step 4: Update with comprehensive data
+        print("\n" + "=" * 40)
+        print("🔄 TESTING COMPREHENSIVE UPDATE")
+        print("=" * 40)
+        
+        comprehensive_update = {
+            "client_name": "Updated Test Client",
+            "client_email": "updated@test.com",
+            "client_phone": "9999999999",
+            "property_address": "456 Updated St",
+            "property_city": "Austin",
+            "property_zip": "78701",
+            "inspection_date": "2025-10-20",
+            "inspection_time": "14:00"
+        }
+        
+        updated_inspection = self.update_manual_inspection(inspection_id, comprehensive_update)
+        if not updated_inspection:
+            return False
+        
+        # Step 5: Verify sync to inspections collection
+        sync_success = self.verify_sync_to_inspections(inspection_id, comprehensive_update)
+        
+        # Step 6: Test partial update
+        print("\n" + "=" * 40)
+        print("🔄 TESTING PARTIAL UPDATE")
+        print("=" * 40)
+        
+        partial_update = {
+            "client_name": "Partial Update Test"
+        }
+        
+        partial_updated = self.update_manual_inspection(inspection_id, partial_update)
+        if not partial_updated:
+            return False
+        
+        # Verify partial sync
+        expected_partial = comprehensive_update.copy()
+        expected_partial.update(partial_update)
+        
+        partial_sync_success = self.verify_sync_to_inspections(inspection_id, expected_partial)
+        
+        # Final result
+        print("\n" + "=" * 60)
+        print("📊 TEST RESULTS SUMMARY")
+        print("=" * 60)
+        
+        if sync_success and partial_sync_success:
+            print("✅ ALL TESTS PASSED - Manual Inspection Edit Data Sync is working correctly")
             return True
         else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("Admin Quotes", False, f"Admin quotes failed (Status: {status_code})")
+            print("❌ TESTS FAILED - Manual Inspection Edit Data Sync has issues")
+            if not sync_success:
+                print("  - Comprehensive update sync failed")
+            if not partial_sync_success:
+                print("  - Partial update sync failed")
             return False
-    
-    def test_quote_pricing(self):
-        """Test setting quote price (owner only)"""
-        print("\n=== Testing Quote Pricing ===")
-        
-        if not self.auth_token:
-            self.log_result("Quote Pricing", False, "No auth token available")
-            return False
-            
-        # First get all quotes to find one to price
-        response = self.make_request("GET", "/admin/quotes")
-        
-        if not response or response.status_code != 200:
-            self.log_result("Quote Pricing", False, "Cannot access admin quotes to test pricing")
-            return False
-            
-        quotes = response.json()
-        if not quotes:
-            self.log_result("Quote Pricing", False, "No quotes available to test pricing")
-            return False
-            
-        # Try to set price on first quote
-        quote_id = quotes[0]["id"]
-        params = {"quote_amount": 750.00}
-        
-        response = self.make_request("PATCH", f"/admin/quotes/{quote_id}/price", params=params)
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if data.get("quote_amount") == 750.00:
-                self.log_result("Quote Pricing", True, f"Successfully set quote price to $750.00")
-                return True
-            else:
-                self.log_result("Quote Pricing", False, "Price not updated correctly")
-                return False
-        elif response and response.status_code == 403:
-            self.log_result("Quote Pricing (Access Control)", True, "Correctly blocked non-owner from setting prices")
-            return True
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("Quote Pricing", False, f"Quote pricing failed (Status: {status_code})")
-            return False
-    
-    def test_inspections_list(self):
-        """Test listing inspections"""
-        print("\n=== Testing Inspections - List ===")
-        
-        if not self.auth_token:
-            self.log_result("List Inspections", False, "No auth token available")
-            return False
-            
-        response = self.make_request("GET", "/inspections")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                self.log_result("List Inspections", True, f"Retrieved {len(data)} inspections")
-                return True
-            else:
-                self.log_result("List Inspections", False, "Invalid response format")
-                return False
-        elif response and response.status_code == 403:
-            self.log_result("List Inspections (Role Check)", True, "Correctly blocked non-customer from customer inspections")
-            return True
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("List Inspections", False, f"List inspections failed (Status: {status_code})")
-            return False
-    
-    def test_admin_inspections(self):
-        """Test admin inspection endpoints"""
-        print("\n=== Testing Admin Inspections ===")
-        
-        if not self.auth_token:
-            self.log_result("Admin Inspections", False, "No auth token available")
-            return False
-            
-        # Test pending scheduling endpoint
-        response = self.make_request("GET", "/admin/inspections/pending-scheduling")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                self.log_result("Admin Inspections (Pending)", True, f"Retrieved {len(data)} pending inspections")
-            else:
-                self.log_result("Admin Inspections (Pending)", False, "Invalid response format")
-                return False
-        elif response and response.status_code == 403:
-            self.log_result("Admin Inspections (Access Control)", True, "Correctly blocked non-owner from admin inspections")
-            return True
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("Admin Inspections (Pending)", False, f"Admin inspections failed (Status: {status_code})")
-            return False
-            
-        # Test confirmed inspections endpoint
-        response = self.make_request("GET", "/admin/inspections/confirmed")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            if isinstance(data, list):
-                self.log_result("Admin Inspections (Confirmed)", True, f"Retrieved {len(data)} confirmed inspections")
-                return True
-            else:
-                self.log_result("Admin Inspections (Confirmed)", False, "Invalid response format")
-                return False
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("Admin Inspections (Confirmed)", False, f"Admin confirmed inspections failed (Status: {status_code})")
-            return False
-    
-    def test_dashboard_stats(self):
-        """Test dashboard statistics endpoint"""
-        print("\n=== Testing Dashboard Stats ===")
-        
-        if not self.auth_token:
-            self.log_result("Dashboard Stats", False, "No auth token available")
-            return False
-            
-        response = self.make_request("GET", "/admin/dashboard/stats")
-        
-        if response and response.status_code == 200:
-            data = response.json()
-            expected_keys = ["pending_quotes", "pending_scheduling", "active_inspections"]
-            if all(key in data for key in expected_keys):
-                self.log_result("Dashboard Stats", True, f"Stats retrieved: {data}")
-                return True
-            else:
-                self.log_result("Dashboard Stats", False, "Stats response missing required fields")
-                return False
-        elif response and response.status_code == 403:
-            self.log_result("Dashboard Stats (Access Control)", True, "Correctly blocked non-owner from dashboard stats")
-            return True
-        else:
-            status_code = response.status_code if response else "No Response"
-            self.log_result("Dashboard Stats", False, f"Dashboard stats failed (Status: {status_code})")
-            return False
-    
-    def run_all_tests(self):
-        """Run comprehensive backend API tests"""
-        print(f"🚀 Starting Comprehensive Backend API Testing")
-        print(f"📍 External URL: {self.external_url}")
-        print(f"📍 Local URL: {self.local_url}")
-        print(f"👤 Test User: {TEST_CREDENTIALS['email']}")
-        
-        # Test connectivity first
-        if not self.test_connectivity():
-            print("\n❌ CRITICAL: No API connectivity. Cannot proceed with testing.")
-            return False
-            
-        print(f"\n✅ Using API at: {self.base_url}")
-            
-        # Test authentication
-        if not self.test_authentication_login():
-            print("\n❌ CRITICAL: Login failed. Cannot proceed with authenticated tests.")
-            return False
-            
-        # Test /auth/me
-        self.test_authentication_me()
-        
-        # Test registration
-        self.test_authentication_register()
-        
-        # Test quote endpoints
-        quote_created, quote_id = self.test_quotes_create()
-        self.test_quotes_list()
-        self.test_admin_quotes()
-        self.test_quote_pricing()
-        
-        # Test inspection endpoints
-        self.test_inspections_list()
-        self.test_admin_inspections()
-        
-        # Test dashboard
-        self.test_dashboard_stats()
-        
-        # Summary
-        print("\n" + "="*60)
-        print("📊 TEST SUMMARY")
-        print("="*60)
-        
-        passed = sum(1 for result in self.test_results if result["success"])
-        total = len(self.test_results)
-        
-        print(f"✅ Passed: {passed}/{total}")
-        print(f"❌ Failed: {total - passed}/{total}")
-        
-        if total - passed > 0:
-            print("\n🔍 FAILED TESTS:")
-            for result in self.test_results:
-                if not result["success"]:
-                    print(f"   ❌ {result['test']}: {result['message']}")
-        
-        return passed == total
 
-if __name__ == "__main__":
+def main():
+    """Run the backend tests"""
     tester = BackendTester()
-    success = tester.run_all_tests()
+    
+    print("🚀 Starting Backend API Tests for Manual Inspection Edit Data Sync")
+    print(f"Backend URL: {BASE_URL}")
+    print(f"Test Account: {TEST_EMAIL}")
+    
+    success = tester.test_manual_inspection_sync()
     
     if success:
-        print("\n🎉 All tests passed! Backend API is working correctly.")
+        print("\n🎉 All tests completed successfully!")
         sys.exit(0)
     else:
-        print("\n⚠️  Some tests failed. Check the results above.")
+        print("\n💥 Tests failed!")
         sys.exit(1)
+
+if __name__ == "__main__":
+    main()
