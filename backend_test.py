@@ -1,22 +1,20 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend API Testing for Beneficial Inspections Mobile App
-Tests all authentication, quote, inspection, and admin endpoints
+Backend API Testing for Manual Inspection Edit Data Sync
+Tests the fix for manual inspection edits not reflecting on Active Inspections cards
 """
 
 import requests
 import json
-import uuid
-from datetime import datetime
 import sys
+from datetime import datetime
 
-# Configuration - Test both local and external URLs
-EXTERNAL_URL = "https://inspecto-mobile.preview.emergentagent.com/api"
-LOCAL_URL = "http://localhost:8001/api"
-TEST_CREDENTIALS = {
-    "email": "bradbakertx@gmail.com",
-    "password": "Beneficial1!"
-}
+# Backend URL from frontend/.env
+BASE_URL = "https://inspecto-mobile.preview.emergentagent.com/api"
+
+# Test credentials
+TEST_EMAIL = "bradbakertx@gmail.com"
+TEST_PASSWORD = "Beneficial1!"
 
 class BackendTester:
     def __init__(self):
