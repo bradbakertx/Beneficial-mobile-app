@@ -72,6 +72,9 @@ export default function ManualInspectionEntry() {
     setPropertyType(PROPERTY_TYPES[0]);
     setNumBuildings('');
     setNumUnits('');
+    setFeeAmount('');
+    setInspectionDate('');
+    setInspectionTime('');
   };
 
   const validateForm = () => {
