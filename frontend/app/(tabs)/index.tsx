@@ -144,11 +144,14 @@ export default function DashboardScreen() {
             <Text style={styles.statNumber}>{stats?.pending_quotes || 0}</Text>
             <Text style={styles.statLabel}>Pending Quotes</Text>
           </TouchableOpacity>
-          <View style={styles.statCard}>
+          <TouchableOpacity 
+            style={styles.statCard}
+            onPress={() => router.push('/inspections/active')}
+          >
             <Ionicons name="clipboard-outline" size={32} color="#34C759" />
             <Text style={styles.statNumber}>{stats?.active_inspections || 0}</Text>
             <Text style={styles.statLabel}>Active Inspections</Text>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.statsGrid}>
