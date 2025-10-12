@@ -43,6 +43,9 @@ export default function DashboardScreen() {
       const quotes = quotesRes.data || [];
       const inspections = inspectionsRes.data || [];
       
+      console.log('Dashboard data:', { quotes: quotes.length, inspections: inspections.length });
+      console.log('Inspections:', inspections.map((i: any) => ({ id: i.id, status: i.status })));
+      
       // Calculate statistics
       const pendingQuotes = quotes.filter((q: any) => 
         q.status === 'pending' || q.status === 'pending_review'
@@ -52,9 +55,13 @@ export default function DashboardScreen() {
         i.status === 'scheduled' || i.status === 'confirmed'
       ).length;
       
-      const pendingScheduling = inspections.filter((i: any) => 
-        i.status === 'pending' || i.status === 'awaiting_schedule'
-      ).length;
+      // For owner/admin, pending scheduling shows all from /admin/inspections/pending endpoint
+      // For customers, filter their own inspections
+      const pendingScheduling = (user?.role === 'owner' || user?.role === 'admin') 
+        ? inspections.length  // All inspections from pending endpoint
+        : inspections.filter((i: any) => i.status === 'pending_schedule').length;
+      
+      console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling });
       
       setStats({
         pending_quotes: pendingQuotes,
