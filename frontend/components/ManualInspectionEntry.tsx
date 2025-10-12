@@ -121,6 +121,9 @@ export default function ManualInspectionEntry() {
         property_type: propertyType,
         num_buildings: isMultiFamilyOrCommercial() && numBuildings ? parseInt(numBuildings) : null,
         num_units: isMultiFamilyOrCommercial() && numUnits ? parseInt(numUnits) : null,
+        fee_amount: parseFloat(feeAmount),
+        inspection_date: inspectionDate.trim(),
+        inspection_time: inspectionTime.trim(),
       };
 
       console.log('Submitting manual inspection:', payload);
