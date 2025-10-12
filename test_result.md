@@ -129,6 +129,21 @@ backend:
         agent: "testing"
         comment: "COMPREHENSIVE BACKEND TESTING COMPLETED: All backend API endpoints are working correctly. External API at https://inspecto-mobile.preview.emergentagent.com/api is fully functional. ✅ Authentication: Login, register, /auth/me all working with JWT tokens. ✅ Role-based access control: Owners correctly blocked from customer endpoints (403 Forbidden), customers blocked from admin endpoints. ✅ Quote workflow: Customer can create quotes, owner can view all quotes via /admin/quotes, owner can set quote prices (status changes to 'quoted'). ✅ Inspection workflow: Customer can schedule inspections on quoted quotes, owner can view pending/confirmed inspections, owner can set inspection datetime (status changes to 'scheduled'). ✅ Dashboard stats: Returns correct counts for pending_quotes, pending_scheduling, active_inspections. ✅ Data persistence: All CRUD operations working correctly with MongoDB. ✅ Error handling: Proper HTTP status codes (200, 403, 404) and error messages. Backend implementation is complete and production-ready."
 
+  - task: "Manual Inspection Edit Data Sync"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that changes made through the inspection edit screen are not reflecting on the Active Inspections cards. Console logs show PATCH /api/admin/manual-inspection/{inspection_id} is succeeding, but data displayed on active.tsx is outdated (e.g., client_phone showing old value '2105620674' instead of updated null)."
+      - working: "NA"
+        agent: "main"
+        comment: "FIXED: Updated PATCH /api/admin/manual-inspection/{inspection_id} endpoint to comprehensively sync ALL displayable fields from manual_inspections to inspections collection. Now syncing: property_address (full formatted), customer_name (from client_name), customer_email (from client_email), scheduled_date (from inspection_date), scheduled_time (from inspection_time), preferred_date, preferred_time, and updated_at timestamp. Added debug logging to track sync operations. The issue was that only limited fields were being synced, causing Active Inspections cards to show stale data. Ready for testing."
+
 frontend:
   - task: "Authentication Flow"
     implemented: true
