@@ -31,7 +31,7 @@ export default function RegisterScreen() {
   const router = useRouter();
 
   const handleRegister = async () => {
-    if (!formData.full_name || !formData.email || !formData.phone || !formData.password) {
+    if (!formData.name || !formData.email || !formData.phone || !formData.password) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -49,7 +49,7 @@ export default function RegisterScreen() {
     setLoading(true);
     try {
       await register({
-        full_name: formData.full_name,
+        name: formData.name,
         email: formData.email.toLowerCase().trim(),
         phone: formData.phone,
         password: formData.password,
