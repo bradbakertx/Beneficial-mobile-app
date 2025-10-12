@@ -16,7 +16,7 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
@@ -26,8 +26,17 @@ export default function ProfileScreen() {
           text: 'Logout',
           style: 'destructive',
           onPress: async () => {
-            await logout();
-            router.replace('/(auth)/login');
+            try {
+              console.log('Logging out...');
+              await logout();
+              console.log('Logout complete, redirecting to login');
+              // Force replace to login screen
+              router.replace('/(auth)/login');
+            } catch (error) {
+              console.error('Logout error in profile:', error);
+              // Force logout even if there's an error
+              router.replace('/(auth)/login');
+            }
           },
         },
       ]
