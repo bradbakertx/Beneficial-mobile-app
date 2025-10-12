@@ -16,35 +16,39 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
-    console.log('handleLogout called');
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('User confirmed logout, calling logout function...');
-              await logout();
-              console.log('Logout function completed');
-              
-              // Small delay to ensure state updates
-              setTimeout(() => {
-                console.log('Navigating to root...');
-                router.replace('/');
-              }, 100);
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert('Error', 'Failed to logout. Please try again.');
-            }
-          },
-        },
-      ]
-    );
+  const handleLogout = async () => {
+    console.log('=== LOGOUT BUTTON PRESSED ===');
+    
+    // Show confirmation
+    const confirmed = window.confirm('Are you sure you want to logout?');
+    
+    if (!confirmed) {
+      console.log('Logout cancelled by user');
+      return;
+    }
+    
+    try {
+      console.log('Starting logout process...');
+      
+      // Call logout function
+      await logout();
+      console.log('Logout completed, state cleared');
+      
+      // Force navigation to root
+      console.log('Navigating to root index...');
+      router.replace('/');
+      
+      // Also force a page reload as backup
+      setTimeout(() => {
+        if (typeof window !== 'undefined') {
+          window.location.href = '/';
+        }
+      }, 500);
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      alert('Failed to logout. Please try again.');
+    }
   };
 
   return (
