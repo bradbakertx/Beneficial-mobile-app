@@ -78,6 +78,11 @@ export default function RegisterScreen() {
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
             </TouchableOpacity>
+            <Image 
+              source={require('../../assets/images/beneficial-logo-icon.jpg')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Create Account</Text>
             <Text style={styles.subtitle}>Join Beneficial Inspections</Text>
           </View>
