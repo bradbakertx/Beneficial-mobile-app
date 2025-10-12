@@ -66,7 +66,7 @@ export default function PendingSchedulingScreen() {
   const renderInspectionItem = ({ item }: { item: PendingInspection }) => (
     <TouchableOpacity 
       style={styles.inspectionCard}
-      onPress={() => Alert.alert('Coming Soon', 'Schedule date/time selection screen will be implemented next')}
+      onPress={() => router.push(`/inspections/set-datetime?id=${item.id}`)}
     >
       <View style={styles.inspectionHeader}>
         <View style={styles.inspectionInfo}>
