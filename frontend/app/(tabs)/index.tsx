@@ -36,20 +36,23 @@ export default function DashboardScreen() {
       const pendingInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/pending-scheduling' : '/inspections';
       const confirmedInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/confirmed' : '/inspections';
       
-      const [quotesRes, pendingInspectionsRes, confirmedInspectionsRes] = await Promise.all([
+      const [quotesRes, pendingInspectionsRes, confirmedInspectionsRes, unreadRes] = await Promise.all([
         api.get(quotesEndpoint),
         api.get(pendingInspectionsEndpoint).catch(() => ({ data: [] })),
-        api.get(confirmedInspectionsEndpoint).catch(() => ({ data: [] }))
+        api.get(confirmedInspectionsEndpoint).catch(() => ({ data: [] })),
+        api.get('/conversations/unread-count').catch(() => ({ data: { unread_count: 0 } }))
       ]);
       
       const quotes = quotesRes.data || [];
       const pendingInspections = pendingInspectionsRes.data || [];
       const confirmedInspections = confirmedInspectionsRes.data || [];
+      const unreadCount = unreadRes.data?.unread_count || 0;
       
       console.log('Dashboard data:', { 
         quotes: quotes.length, 
         pendingInspections: pendingInspections.length,
-        confirmedInspections: confirmedInspections.length 
+        confirmedInspections: confirmedInspections.length,
+        unreadMessages: unreadCount
       });
       
       // Calculate statistics
@@ -63,13 +66,13 @@ export default function DashboardScreen() {
       // Pending scheduling are those waiting for owner to set date/time
       const pendingScheduling = pendingInspections.length;
       
-      console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling });
+      console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling, unreadMessages: unreadCount });
       
       setStats({
         pending_quotes: pendingQuotes,
         active_inspections: activeInspections,
         pending_scheduling: pendingScheduling,
-        unread_messages: 0, // TODO: Implement when chat is ready
+        unread_messages: unreadCount,
       });
     } catch (error) {
       console.error('Error fetching dashboard:', error);
