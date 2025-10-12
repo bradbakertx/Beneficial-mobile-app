@@ -231,32 +231,39 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    padding: 16,
+    paddingBottom: 16,
   },
-  logoContainer: {
-    alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 8,
-  },
-  dashboardLogo: {
-    width: 60,
-    height: 60,
-  },
-  header: {
+  topBanner: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 24,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5EA',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  bannerLogo: {
+    width: 48,
+    height: 48,
+    marginRight: 12,
+  },
+  bannerTextContainer: {
+    flex: 1,
   },
   greeting: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1C1C1E',
+    marginBottom: 2,
   },
   roleText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#8E8E93',
-    marginTop: 4,
   },
   roleBadge: {
     backgroundColor: '#007AFF',
@@ -268,6 +275,10 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
+  },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
   },
   statsGrid: {
     flexDirection: 'row',
