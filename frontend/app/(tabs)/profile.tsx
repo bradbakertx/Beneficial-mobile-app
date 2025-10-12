@@ -40,10 +40,10 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <View style={styles.avatar}>
             <Text style={styles.avatarText}>
-              {user?.full_name?.charAt(0).toUpperCase()}
+              {user?.name?.charAt(0).toUpperCase()}
             </Text>
           </View>
-          <Text style={styles.name}>{user?.full_name}</Text>
+          <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
           <View style={styles.roleBadge}>
             <Text style={styles.roleBadgeText}>{user?.role?.toUpperCase()}</Text>
