@@ -52,6 +52,9 @@ export default function ActiveInspectionsScreen() {
   };
 
   const handleCancelInspection = (inspection: ActiveInspection) => {
+    console.log('=== CANCEL BUTTON CLICKED ===');
+    console.log('Inspection to cancel:', inspection);
+    
     Alert.alert(
       'Cancel Inspection',
       `Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar notifications will be sent to you and ${inspection.customer_name}.`,
@@ -59,13 +62,16 @@ export default function ActiveInspectionsScreen() {
         {
           text: 'No, Keep It',
           style: 'cancel',
+          onPress: () => console.log('User cancelled the cancellation'),
         },
         {
           text: 'Yes, Cancel',
           style: 'destructive',
           onPress: async () => {
             try {
-              console.log('Cancelling inspection:', inspection.id);
+              console.log('User confirmed cancellation');
+              console.log('Calling API to cancel inspection:', inspection.id);
+              
               const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
               console.log('Cancel response:', response.data);
               
@@ -76,6 +82,7 @@ export default function ActiveInspectionsScreen() {
                   {
                     text: 'OK',
                     onPress: () => {
+                      console.log('Removing inspection from local state');
                       // Remove from local state
                       setInspections(inspections.filter(i => i.id !== inspection.id));
                       // Navigate back to dashboard
@@ -86,6 +93,7 @@ export default function ActiveInspectionsScreen() {
               );
             } catch (error: any) {
               console.error('Error cancelling inspection:', error);
+              console.error('Error details:', error.response?.data);
               Alert.alert('Error', error.response?.data?.detail || 'Failed to cancel inspection');
             }
           },
