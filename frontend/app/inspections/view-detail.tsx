@@ -231,6 +231,21 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  addressHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    gap: 12,
+  },
+  addressText: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1C1C1E',
+  },
   section: {
     backgroundColor: '#fff',
     borderRadius: 12,
