@@ -78,7 +78,7 @@ export default function RegisterScreen() {
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
             </TouchableOpacity>
             <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join HomePro Inspect</Text>
+            <Text style={styles.subtitle}>Join Beneficial Inspections</Text>
           </View>
 
           <View style={styles.form}>
