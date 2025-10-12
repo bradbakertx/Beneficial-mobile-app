@@ -11,7 +11,7 @@ from datetime import datetime
 import sys
 
 # Configuration - Test both local and external URLs
-EXTERNAL_URL = "https://inspectpro-mobile.preview.emergentagent.com/api"
+EXTERNAL_URL = "https://inspecto-mobile.preview.emergentagent.com/api"
 LOCAL_URL = "http://localhost:8001/api"
 TEST_CREDENTIALS = {
     "email": "bradbakertx@gmail.com",
