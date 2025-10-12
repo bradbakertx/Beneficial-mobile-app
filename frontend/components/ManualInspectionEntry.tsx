@@ -346,6 +346,40 @@ export default function ManualInspectionEntry() {
           </>
         )}
 
+        {/* Inspection Details */}
+        <Text style={styles.sectionTitle}>Inspection Details</Text>
+        
+        <Text style={styles.label}>Fee Amount *</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="450.00"
+          value={feeAmount}
+          onChangeText={setFeeAmount}
+          keyboardType="decimal-pad"
+        />
+
+        <View style={styles.row}>
+          <View style={styles.halfWidth}>
+            <Text style={styles.label}>Inspection Date *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="2025-06-15"
+              value={inspectionDate}
+              onChangeText={setInspectionDate}
+            />
+          </View>
+
+          <View style={styles.halfWidth}>
+            <Text style={styles.label}>Inspection Time *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="10:00 AM"
+              value={inspectionTime}
+              onChangeText={setInspectionTime}
+            />
+          </View>
+        </View>
+
         <TouchableOpacity
           style={[styles.submitButton, loading && styles.submitButtonDisabled]}
           onPress={handleSubmit}
