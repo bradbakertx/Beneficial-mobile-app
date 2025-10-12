@@ -53,7 +53,7 @@ export default function LoginScreen() {
         >
           <View style={styles.header}>
             <Ionicons name="home" size={60} color="#007AFF" />
-            <Text style={styles.title}>HomePro Inspect</Text>
+            <Text style={styles.title}>Beneficial Inspections</Text>
             <Text style={styles.subtitle}>Welcome back</Text>
           </View>
 
