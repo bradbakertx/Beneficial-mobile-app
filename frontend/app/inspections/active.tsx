@@ -62,10 +62,12 @@ export default function ActiveInspectionsScreen() {
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
-      case 'confirmed':
+      case 'scheduled':
         return '#34C759';
-      case 'awaiting_confirmation':
+      case 'pending_scheduling':
         return '#FF9500';
+      case 'completed':
+        return '#007AFF';
       default:
         return '#8E8E93';
     }
