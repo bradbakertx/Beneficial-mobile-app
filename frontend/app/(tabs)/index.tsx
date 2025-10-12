@@ -59,6 +59,7 @@ export default function DashboardScreen() {
   const getRoleTitle = () => {
     switch (user?.role) {
       case 'owner':
+      case 'admin':
         return 'Owner Dashboard';
       case 'agent':
         return 'Agent Dashboard';
