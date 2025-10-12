@@ -18,7 +18,7 @@ import api from '../../services/api';
 interface DashboardStats {
   pending_quotes: number;
   active_inspections: number;
-  completed_inspections: number;
+  pending_scheduling: number;
   unread_messages: number;
 }
 
