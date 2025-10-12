@@ -99,9 +99,15 @@ export default function EditInspectionScreen() {
   };
 
   const handleSave = async () => {
+    console.log('=== SAVE BUTTON PRESSED ===');
+    
     // Basic validation
     if (!clientName.trim()) {
-      Alert.alert('Error', 'Client name is required');
+      if (Platform.OS === 'web') {
+        alert('Client name is required');
+      } else {
+        Alert.alert('Error', 'Client name is required');
+      }
       return;
     }
 
@@ -128,17 +134,30 @@ export default function EditInspectionScreen() {
         inspection_time: inspectionTime.trim() || null,
       };
 
-      console.log('Updating inspection:', payload);
-      await api.patch(`/admin/manual-inspection/${id}`, payload);
+      console.log('Updating inspection with payload:', payload);
+      const response = await api.patch(`/admin/manual-inspection/${id}`, payload);
+      console.log('Update successful:', response.data);
 
-      Alert.alert(
-        'Success',
-        'Inspection updated successfully',
-        [{ text: 'OK', onPress: () => router.push('/inspections/active') }]
-      );
+      // Navigate immediately without alert on web
+      if (Platform.OS === 'web') {
+        alert('Inspection updated successfully!');
+        router.push('/inspections/active');
+      } else {
+        Alert.alert(
+          'Success',
+          'Inspection updated successfully',
+          [{ text: 'OK', onPress: () => router.push('/inspections/active') }]
+        );
+      }
     } catch (error: any) {
       console.error('Error updating inspection:', error);
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to update inspection');
+      console.error('Error details:', error.response?.data);
+      
+      if (Platform.OS === 'web') {
+        alert(`Error: ${error.response?.data?.detail || 'Failed to update inspection'}`);
+      } else {
+        Alert.alert('Error', error.response?.data?.detail || 'Failed to update inspection');
+      }
     } finally {
       setSaving(false);
     }
