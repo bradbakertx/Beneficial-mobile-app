@@ -80,17 +80,30 @@ export default function QuoteDetailScreen() {
 
     setSubmitting(true);
     try {
+      // Submit the quote to the backend
       await api.put(`/admin/quotes/${id}`, {
         quote_amount: parseFloat(quoteAmount),
         status: 'quoted'
       });
-      Alert.alert('Success', 'Quote submitted successfully', [
-        { text: 'OK', onPress: () => router.back() }
-      ]);
+      
+      // Show success message and navigate back to dashboard
+      Alert.alert(
+        'Success', 
+        'Quote submitted successfully! The customer will be notified.',
+        [
+          { 
+            text: 'OK', 
+            onPress: () => {
+              // Navigate back to the main dashboard
+              router.replace('/(tabs)');
+            }
+          }
+        ]
+      );
     } catch (error: any) {
       console.error('Error submitting quote:', error);
-      Alert.alert('Error', error.response?.data?.detail || 'Failed to submit quote');
-    } finally {
+      console.error('Error details:', error.response?.data);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to submit quote. Please try again.');
       setSubmitting(false);
     }
   };
