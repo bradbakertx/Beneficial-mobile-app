@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginBottom: 16,
     gap: 16,
+    paddingHorizontal: 16,
   },
   statCard: {
     flex: 1,
