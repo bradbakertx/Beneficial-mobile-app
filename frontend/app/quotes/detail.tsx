@@ -93,20 +93,16 @@ export default function QuoteDetailScreen() {
       
       console.log('Quote submitted successfully:', response.data);
       
-      // Show success message and navigate back to dashboard
-      Alert.alert(
-        'Success', 
-        'Quote submitted successfully! The customer will be notified.',
-        [
-          { 
-            text: 'OK', 
-            onPress: () => {
-              // Navigate back to the main dashboard
-              router.replace('/(tabs)');
-            }
-          }
-        ]
-      );
+      // Navigate back to dashboard immediately
+      router.replace('/(tabs)');
+      
+      // Show success message after navigation
+      setTimeout(() => {
+        Alert.alert(
+          'Success', 
+          'Quote submitted successfully! The customer will be notified.'
+        );
+      }, 300);
     } catch (error: any) {
       console.error('Error submitting quote:', error);
       console.error('Error response:', error.response?.data);
