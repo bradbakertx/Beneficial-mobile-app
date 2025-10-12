@@ -388,6 +388,43 @@ class APITester:
         
         return False
 
+    def test_available_endpoints(self):
+        """Test what endpoints are actually available"""
+        endpoints_to_test = [
+            "/",
+            "/status", 
+            "/auth/register",
+            "/auth/login", 
+            "/auth/me",
+            "/quotes",
+            "/admin/quotes",
+            "/inspections",
+            "/admin/inspections/confirmed"
+        ]
+        
+        available_endpoints = []
+        unavailable_endpoints = []
+        
+        for endpoint in endpoints_to_test:
+            try:
+                response = self.session.get(f"{self.base_url}{endpoint}")
+                if response.status_code != 404:
+                    available_endpoints.append(f"{endpoint} (Status: {response.status_code})")
+                else:
+                    unavailable_endpoints.append(endpoint)
+            except Exception as e:
+                unavailable_endpoints.append(f"{endpoint} (Error: {str(e)})")
+        
+        self.log_test(
+            "Available Endpoints", 
+            True, 
+            f"Found {len(available_endpoints)} available endpoints",
+            {
+                "available": available_endpoints,
+                "unavailable": unavailable_endpoints
+            }
+        )
+
     def run_all_tests(self):
         """Run all API tests in sequence"""
         print("🚀 Starting HomePro Inspect API Integration Tests")
@@ -398,6 +435,10 @@ class APITester:
         if not self.test_api_connectivity():
             print("❌ API is not reachable. Stopping tests.")
             return
+        
+        # Check what endpoints are available
+        print("🔍 Checking Available Endpoints...")
+        self.test_available_endpoints()
         
         # Test authentication flow
         print("🔐 Testing Authentication Flow...")
