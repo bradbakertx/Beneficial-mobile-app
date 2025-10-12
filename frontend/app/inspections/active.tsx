@@ -17,23 +17,18 @@ import { format } from 'date-fns';
 
 interface ActiveInspection {
   id: string;
-  inspection_date: string;
-  inspection_time: string;
+  quote_id: string;
+  customer_id: string;
+  customer_email: string;
+  customer_name: string;
+  property_address: string;
   status: string;
-  payment_status: string;
-  total_amount: number;
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-  };
-  quote: {
-    street_address: string;
-    city: string;
-    state: string;
-    zip_code: string;
-    inspection_type: string;
-  };
+  scheduled_date: string | null;
+  scheduled_time: string | null;
+  preferred_date: string | null;
+  preferred_time: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export default function ActiveInspectionsScreen() {
