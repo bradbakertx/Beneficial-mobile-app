@@ -141,12 +141,13 @@ export default function EditInspectionScreen() {
       // Navigate immediately without alert on web
       if (Platform.OS === 'web') {
         alert('Inspection updated successfully!');
-        router.push('/inspections/active');
+        // Use replace to force a fresh load
+        router.replace('/inspections/active');
       } else {
         Alert.alert(
           'Success',
           'Inspection updated successfully',
-          [{ text: 'OK', onPress: () => router.push('/inspections/active') }]
+          [{ text: 'OK', onPress: () => router.replace('/inspections/active') }]
         );
       }
     } catch (error: any) {
