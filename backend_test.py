@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Backend API Integration Testing for HomePro Inspect Mobile App
-Testing external API at: https://homepro-inspect.preview.emergentagent.com/api
+Testing external API at: https://inspectpro-mobile.preview.emergentagent.com/api
 """
 
 import requests
