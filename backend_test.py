@@ -18,13 +18,8 @@ TEST_PASSWORD = "Beneficial1!"
 
 class BackendTester:
     def __init__(self):
-        self.external_url = EXTERNAL_URL
-        self.local_url = LOCAL_URL
-        self.base_url = None  # Will be set after connectivity test
-        self.session = requests.Session()
-        self.auth_token = None
-        self.user_data = None
-        self.test_results = []
+        self.session_token = None
+        self.headers = {"Content-Type": "application/json"}
         
     def log_result(self, test_name, success, message, response_data=None):
         """Log test result"""
