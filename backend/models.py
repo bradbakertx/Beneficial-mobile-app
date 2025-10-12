@@ -139,13 +139,16 @@ class ManualInspectionCreate(BaseModel):
     property_type: str
     num_buildings: Optional[int] = None
     num_units: Optional[int] = None
+    fee_amount: float
+    inspection_date: str
+    inspection_time: str
 
 
 class ManualInspectionInDB(ManualInspectionCreate):
     id: str
     owner_id: str
     owner_name: str
-    status: str = "manual_entry"
+    status: str = "scheduled"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
