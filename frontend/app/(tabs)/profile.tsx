@@ -29,13 +29,13 @@ export default function ProfileScreen() {
             try {
               console.log('Logging out...');
               await logout();
-              console.log('Logout complete, redirecting to login');
-              // Force replace to login screen
-              router.replace('/(auth)/login');
+              console.log('Logout complete, redirecting to splash');
+              // Navigate to root index which will redirect to login
+              router.replace('/');
             } catch (error) {
               console.error('Logout error in profile:', error);
               // Force logout even if there's an error
-              router.replace('/(auth)/login');
+              router.replace('/');
             }
           },
         },
