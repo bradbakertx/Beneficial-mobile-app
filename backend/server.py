@@ -531,6 +531,48 @@ async def get_manual_inspection(
     return ManualInspectionResponse(**manual_inspection)
 
 
+@api_router.patch("/admin/manual-inspection/{inspection_id}", response_model=ManualInspectionResponse)
+async def update_manual_inspection(
+    inspection_id: str,
+    update_data: dict,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Update manual inspection (Owner only) - supports partial updates"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can update manual inspections")
+    
+    manual_inspection = await db.manual_inspections.find_one({"id": inspection_id})
+    if not manual_inspection:
+        raise HTTPException(status_code=404, detail="Manual inspection not found")
+    
+    # Filter out None values for partial update
+    update_fields = {k: v for k, v in update_data.items() if v is not None}
+    
+    if update_fields:
+        await db.manual_inspections.update_one(
+            {"id": inspection_id},
+            {"$set": update_fields}
+        )
+        
+        # Also update the active inspection if it exists
+        full_address = f"{update_fields.get('property_address', manual_inspection['property_address'])}, {update_fields.get('property_city', manual_inspection['property_city'])}, TX {update_fields.get('property_zip', manual_inspection['property_zip'])}"
+        
+        active_update = {
+            "property_address": full_address,
+            "scheduled_date": update_fields.get('inspection_date', manual_inspection.get('inspection_date')),
+            "scheduled_time": update_fields.get('inspection_time', manual_inspection.get('inspection_time')),
+            "updated_at": datetime.utcnow()
+        }
+        
+        await db.inspections.update_one(
+            {"id": inspection_id},
+            {"$set": active_update}
+        )
+    
+    updated_inspection = await db.manual_inspections.find_one({"id": inspection_id})
+    return ManualInspectionResponse(**updated_inspection)
+
+
 @api_router.delete("/admin/inspections/{inspection_id}/cancel")
 async def cancel_inspection(
     inspection_id: str,
