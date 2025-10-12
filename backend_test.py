@@ -415,6 +415,9 @@ class APITester:
             except Exception as e:
                 unavailable_endpoints.append(f"{endpoint} (Error: {str(e)})")
         
+        print(f"📍 Available endpoints: {available_endpoints}")
+        print(f"❌ Unavailable endpoints: {unavailable_endpoints}")
+        
         self.log_test(
             "Available Endpoints", 
             True, 
