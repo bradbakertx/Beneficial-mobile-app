@@ -249,63 +249,20 @@ export default function SetDateTimeScreen() {
           </View>
         </View>
 
-        {/* Date Selection */}
+        {/* Date Selection with Calendar */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Date</Text>
           <Text style={styles.sectionHint}>
-            Try to schedule on one of the customer's preferred days
+            Try to schedule on one of the customer's preferred days (highlighted in blue)
           </Text>
-          {Platform.OS === 'web' ? (
-            <View style={styles.webInputContainer}>
-              <input
-                type="date"
-                value={format(selectedDate, 'yyyy-MM-dd')}
-                onChange={(e) => setSelectedDate(new Date(e.target.value))}
-                min={format(new Date(), 'yyyy-MM-dd')}
-                max={format(new Date(inspection.option_period_end), 'yyyy-MM-dd')}
-                style={{
-                  width: '100%',
-                  padding: 16,
-                  fontSize: 16,
-                  borderRadius: 12,
-                  border: '1px solid #E5E5EA',
-                  backgroundColor: '#fff',
-                }}
-              />
-            </View>
-          ) : (
-            <>
-              <TouchableOpacity
-                style={styles.pickerButton}
-                onPress={() => setShowDatePicker(!showDatePicker)}
-              >
-                <Ionicons name="calendar" size={24} color="#007AFF" />
-                <Text style={styles.pickerText}>
-                  {format(selectedDate, 'EEEE, MMMM dd, yyyy')}
-                </Text>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-              
-              {showDatePicker && (
-                <View style={styles.pickerContainer}>
-                  <DateTimePicker
-                    value={selectedDate}
-                    mode="date"
-                    display="inline"
-                    onChange={onDateChange}
-                    minimumDate={new Date()}
-                    maximumDate={new Date(inspection.option_period_end)}
-                  />
-                  <TouchableOpacity 
-                    style={styles.doneButton}
-                    onPress={() => setShowDatePicker(false)}
-                  >
-                    <Text style={styles.doneButtonText}>Done</Text>
-                  </TouchableOpacity>
-                </View>
-              )}
-            </>
-          )}
+          
+          <CalendarPicker
+            selectedDate={selectedDate}
+            onDateSelect={(date) => setSelectedDate(date)}
+            minDate={new Date()}
+            maxDate={new Date(inspection.option_period_end)}
+            preferredDays={preferredDays}
+          />
         </View>
 
         {/* Time Selection */}
