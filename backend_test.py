@@ -11,7 +11,8 @@ from typing import Dict, Any, Optional
 
 class APITester:
     def __init__(self):
-        self.base_url = "https://homepro-inspect.preview.emergentagent.com/api"
+        # Try the URL from frontend .env first, then fallback to review request URL
+        self.base_url = "https://homeinspectpro-1.preview.emergentagent.com/api"
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
