@@ -79,16 +79,26 @@ export default function SetDateTimeScreen() {
   };
 
   const onDateChange = (event: any, selected?: Date) => {
-    setShowDatePicker(Platform.OS === 'ios');
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+    }
     if (selected) {
       setSelectedDate(selected);
+      if (Platform.OS === 'android') {
+        setShowDatePicker(false);
+      }
     }
   };
 
   const onTimeChange = (event: any, selected?: Date) => {
-    setShowTimePicker(Platform.OS === 'ios');
+    if (Platform.OS === 'android') {
+      setShowTimePicker(false);
+    }
     if (selected) {
       setSelectedTime(selected);
+      if (Platform.OS === 'android') {
+        setShowTimePicker(false);
+      }
     }
   };
 
