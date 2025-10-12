@@ -14,6 +14,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import api from '../../services/api';
+import CalendarWeekView from '../../components/CalendarWeekView';
 
 interface DashboardStats {
   pending_quotes: number;
