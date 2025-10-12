@@ -36,7 +36,7 @@ export default function InspectionsScreen() {
   const fetchInspections = async () => {
     try {
       let endpoint = '/inspections';
-      if (user?.role === 'owner') {
+      if (user?.role === 'owner' || user?.role === 'admin') {
         endpoint = '/admin/inspections/confirmed';
       }
       const response = await api.get(endpoint);
