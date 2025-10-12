@@ -122,6 +122,37 @@ class InspectionDateTimeUpdate(BaseModel):
     scheduled_time: str
 
 
+# Manual Inspection Entry Model
+class ManualInspectionCreate(BaseModel):
+    client_name: str
+    client_phone: str
+    client_email: EmailStr
+    agent_name: Optional[str] = None
+    agent_phone: Optional[str] = None
+    agent_email: Optional[EmailStr] = None
+    property_address: str
+    property_city: str
+    property_zip: str
+    square_feet: Optional[int] = None
+    year_built: Optional[int] = None
+    foundation_type: str
+    property_type: str
+    num_buildings: Optional[int] = None
+    num_units: Optional[int] = None
+
+
+class ManualInspectionInDB(ManualInspectionCreate):
+    id: str
+    owner_id: str
+    owner_name: str
+    status: str = "manual_entry"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class ManualInspectionResponse(ManualInspectionInDB):
+    pass
+
+
 # Chat/Message Models
 class MessageCreate(BaseModel):
     inspection_id: str
