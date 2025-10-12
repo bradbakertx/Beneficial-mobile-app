@@ -31,16 +31,46 @@ export default function DashboardScreen() {
 
   const fetchDashboardData = async () => {
     try {
-      // This would fetch role-specific dashboard data
-      // For now, setting mock data structure
+      // Fetch real statistics based on user role
+      const quotesEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/quotes' : '/quotes';
+      const inspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/confirmed' : '/inspections';
+      
+      const [quotesRes, inspectionsRes] = await Promise.all([
+        api.get(quotesEndpoint),
+        api.get(inspectionsEndpoint)
+      ]);
+      
+      const quotes = quotesRes.data || [];
+      const inspections = inspectionsRes.data || [];
+      
+      // Calculate statistics
+      const pendingQuotes = quotes.filter((q: any) => 
+        q.status === 'pending' || q.status === 'pending_review'
+      ).length;
+      
+      const activeInspections = inspections.filter((i: any) => 
+        i.status === 'scheduled' || i.status === 'confirmed' || i.status === 'pending'
+      ).length;
+      
+      const completedInspections = inspections.filter((i: any) => 
+        i.status === 'completed'
+      ).length;
+      
+      setStats({
+        pending_quotes: pendingQuotes,
+        active_inspections: activeInspections,
+        completed_inspections: completedInspections,
+        unread_messages: 0, // TODO: Implement when chat is ready
+      });
+    } catch (error) {
+      console.error('Error fetching dashboard:', error);
+      // Set to 0 on error
       setStats({
         pending_quotes: 0,
         active_inspections: 0,
         completed_inspections: 0,
         unread_messages: 0,
       });
-    } catch (error) {
-      console.error('Error fetching dashboard:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
