@@ -124,10 +124,10 @@ class APITester:
         return False
 
     def test_auth_login_customer(self):
-        """Test customer login"""
+        """Test customer login with review request credentials"""
         test_data = {
-            "email": "customer@homepro.test",
-            "password": "test123456"
+            "email": "bradbakertx@gmail.com",
+            "password": "Beneficial1!"
         }
         
         try:
