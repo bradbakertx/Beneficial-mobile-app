@@ -82,25 +82,16 @@ export default function QuoteDetailScreen() {
     console.log('Submitting quote:', { id, quote_amount: parseFloat(quoteAmount) });
     
     try {
-      // Try multiple possible endpoints
-      let response;
-      try {
-        // Try PUT first
-        console.log('Trying PUT /admin/quotes/' + id);
-        response = await api.put(`/admin/quotes/${id}`, {
-          quote_amount: parseFloat(quoteAmount),
-          status: 'quoted'
-        });
-        console.log('PUT succeeded:', response.data);
-      } catch (putError: any) {
-        console.log('PUT failed, trying PATCH');
-        // Try PATCH if PUT fails
-        response = await api.patch(`/admin/quotes/${id}`, {
-          quote_amount: parseFloat(quoteAmount),
-          status: 'quoted'
-        });
-        console.log('PATCH succeeded:', response.data);
-      }
+      // Use the correct endpoint: PATCH /admin/quotes/{id}/price?quote_amount=X
+      console.log(`PATCH /admin/quotes/${id}/price?quote_amount=${parseFloat(quoteAmount)}`);
+      
+      const response = await api.patch(`/admin/quotes/${id}/price`, null, {
+        params: {
+          quote_amount: parseFloat(quoteAmount)
+        }
+      });
+      
+      console.log('Quote submitted successfully:', response.data);
       
       // Show success message and navigate back to dashboard
       Alert.alert(
@@ -120,11 +111,10 @@ export default function QuoteDetailScreen() {
       console.error('Error submitting quote:', error);
       console.error('Error response:', error.response?.data);
       console.error('Error status:', error.response?.status);
-      console.error('Full error:', JSON.stringify(error.response, null, 2));
       
       Alert.alert(
         'Error', 
-        `Failed to submit quote. ${error.response?.data?.detail || error.message}\n\nPlease contact support or try again later.`
+        `Failed to submit quote. ${error.response?.data?.detail || error.message}\n\nPlease try again.`
       );
       setSubmitting(false);
     }
