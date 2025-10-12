@@ -39,6 +39,23 @@ app = FastAPI(title="Inspection App API")
 api_router = APIRouter(prefix="/api")
 
 
+# Dependency to get current user
+async def get_current_user_from_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> UserInDB:
+    """Get current user from JWT token"""
+    token = credentials.credentials
+    payload = decode_token(token)
+    user_id = payload.get("sub")
+    
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
+    
+    user_dict = await db.users.find_one({"id": user_id})
+    if user_dict is None:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    return UserInDB(**user_dict)
+
+
 # ============= AUTHENTICATION ENDPOINTS =============
 
 @api_router.post("/auth/register", response_model=TokenResponse)
