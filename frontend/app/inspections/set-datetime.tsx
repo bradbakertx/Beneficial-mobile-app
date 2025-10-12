@@ -490,6 +490,24 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
     fontWeight: '500',
   },
+  pickerContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    marginTop: 12,
+    padding: 16,
+  },
+  doneButton: {
+    backgroundColor: '#007AFF',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  doneButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
   footer: {
     position: 'absolute',
     bottom: 0,
