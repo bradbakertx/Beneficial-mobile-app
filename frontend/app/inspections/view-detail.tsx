@@ -64,20 +64,25 @@ export default function InspectionDetailScreen() {
 
   const fetchInspectionDetail = async () => {
     try {
-      // First try to get from regular inspections
-      const response = await api.get(`/inspections/${id}`);
-      setInspection(response.data);
-      setIsManual(false);
-    } catch (error: any) {
-      // If not found, try manual inspections
+      // For manual inspections (ID matches in both collections), fetch manual_inspection data
+      // This gives us more details including agent info, property details, etc.
       try {
         const manualResponse = await api.get(`/admin/manual-inspection/${id}`);
         setManualInspection(manualResponse.data);
         setIsManual(true);
+        setLoading(false);
+        return; // Found manual inspection, done
       } catch (manualError) {
-        console.error('Error fetching inspection:', error);
-        Alert.alert('Error', 'Failed to load inspection details');
+        // Not a manual inspection, try regular inspection
       }
+      
+      // Try to get from regular inspections
+      const response = await api.get(`/inspections/${id}`);
+      setInspection(response.data);
+      setIsManual(false);
+    } catch (error: any) {
+      console.error('Error fetching inspection:', error);
+      Alert.alert('Error', 'Failed to load inspection details');
     } finally {
       setLoading(false);
     }
