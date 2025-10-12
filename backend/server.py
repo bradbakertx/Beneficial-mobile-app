@@ -545,10 +545,11 @@ async def update_manual_inspection(
     if not manual_inspection:
         raise HTTPException(status_code=404, detail="Manual inspection not found")
     
-    # Filter out None values for partial update
+    # Filter out None values for partial update (but allow empty strings)
     update_fields = {k: v for k, v in update_data.items() if v is not None}
     
     if update_fields:
+        # Update manual inspection first
         await db.manual_inspections.update_one(
             {"id": inspection_id},
             {"$set": update_fields}
@@ -557,22 +558,29 @@ async def update_manual_inspection(
         # Get the updated manual inspection to sync to active inspections
         updated_manual = await db.manual_inspections.find_one({"id": inspection_id})
         
-        # Also update the active inspection if it exists - sync ALL fields
+        # Build comprehensive sync to active inspection
+        # Reconstruct full address from updated fields
         full_address = f"{updated_manual['property_address']}, {updated_manual['property_city']}, TX {updated_manual['property_zip']}"
         
+        # Prepare update for inspections collection - sync ALL displayable fields
         active_update = {
             "property_address": full_address,
             "customer_name": updated_manual['client_name'],
             "customer_email": updated_manual['client_email'],
             "scheduled_date": updated_manual['inspection_date'],
             "scheduled_time": updated_manual['inspection_time'],
+            "preferred_date": updated_manual['inspection_date'],  # Sync to preferred as well
+            "preferred_time": updated_manual['inspection_time'],  # Sync to preferred as well
             "updated_at": datetime.utcnow()
         }
         
-        await db.inspections.update_one(
+        # Update the corresponding inspection record
+        result = await db.inspections.update_one(
             {"id": inspection_id},
             {"$set": active_update}
         )
+        
+        print(f"Synced manual inspection {inspection_id} to inspections collection. Matched: {result.matched_count}, Modified: {result.modified_count}")
     
     updated_inspection = await db.manual_inspections.find_one({"id": inspection_id})
     return ManualInspectionResponse(**updated_inspection)
