@@ -119,3 +119,36 @@ class QuotePriceUpdate(BaseModel):
 class InspectionDateTimeUpdate(BaseModel):
     scheduled_date: str
     scheduled_time: str
+
+
+# Chat/Message Models
+class MessageCreate(BaseModel):
+    inspection_id: str
+    message_text: str
+
+
+class MessageInDB(BaseModel):
+    id: str
+    inspection_id: str
+    sender_id: str
+    sender_name: str
+    sender_role: UserRole
+    message_text: str
+    is_read: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class MessageResponse(MessageInDB):
+    pass
+
+
+class ConversationSummary(BaseModel):
+    inspection_id: str
+    property_address: str
+    customer_name: str
+    customer_id: str
+    agent_name: Optional[str] = None
+    agent_id: Optional[str] = None
+    last_message: Optional[str] = None
+    last_message_time: Optional[datetime] = None
+    unread_count: int = 0
