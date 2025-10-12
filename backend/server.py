@@ -497,6 +497,84 @@ async def get_unread_count(
     return {"unread_count": unread_count}
 
 
+# ============= GOOGLE CALENDAR ENDPOINTS =============
+
+from google_calendar_service import get_google_auth_url, exchange_code_for_token, get_calendar_events
+from fastapi.responses import RedirectResponse
+
+@api_router.get("/auth/google/login")
+async def google_login(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Initiate Google OAuth flow"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can connect Google Calendar")
+    
+    auth_url, state = get_google_auth_url(state=current_user.id)
+    return {"auth_url": auth_url, "state": state}
+
+
+@api_router.get("/auth/google/callback")
+async def google_callback(code: str, state: str):
+    """Handle Google OAuth callback"""
+    try:
+        # Exchange code for tokens
+        credentials = exchange_code_for_token(code)
+        
+        # Store credentials in database for this user
+        await db.users.update_one(
+            {"id": state},
+            {"$set": {"google_calendar_credentials": credentials}}
+        )
+        
+        # Redirect to frontend
+        return RedirectResponse(url="https://inspectpro-mobile.preview.emergentagent.com/(tabs)")
+    except Exception as e:
+        print(f"Google callback error: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to authenticate with Google: {str(e)}")
+
+
+@api_router.get("/calendar/events")
+async def get_calendar(
+    start_date: str = None,
+    end_date: str = None,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get Google Calendar events for owner"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can view calendar")
+    
+    # Check if user has connected Google Calendar
+    user_dict = await db.users.find_one({"id": current_user.id})
+    credentials = user_dict.get("google_calendar_credentials")
+    
+    if not credentials:
+        raise HTTPException(status_code=401, detail="Google Calendar not connected. Please connect your calendar first.")
+    
+    # Parse dates
+    start = datetime.fromisoformat(start_date.replace('Z', '')) if start_date else None
+    end = datetime.fromisoformat(end_date.replace('Z', '')) if end_date else None
+    
+    # Fetch events
+    events = get_calendar_events(credentials, start, end)
+    
+    return {"events": events}
+
+
+@api_router.get("/calendar/status")
+async def calendar_status(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Check if user has connected Google Calendar"""
+    user_dict = await db.users.find_one({"id": current_user.id})
+    credentials = user_dict.get("google_calendar_credentials")
+    
+    return {
+        "connected": bool(credentials),
+        "user_id": current_user.id
+    }
+
+
 # ============= DASHBOARD STATS ENDPOINTS =============
 
 @api_router.get("/admin/dashboard/stats")
