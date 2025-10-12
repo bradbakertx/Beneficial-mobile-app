@@ -48,6 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { user } = await authService.login({ email, password });
       setUser(user);
+      
+      // Register for push notifications after successful login
+      registerForPushNotificationsAsync().catch((error) => {
+        console.error('Failed to register for push notifications:', error);
+      });
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
