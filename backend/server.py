@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Query
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -17,8 +18,10 @@ from models import (
 )
 from auth import (
     get_password_hash, verify_password, create_access_token,
-    get_current_user, require_role
+    decode_token, require_role
 )
+
+security = HTTPBearer()
 
 
 ROOT_DIR = Path(__file__).parent
