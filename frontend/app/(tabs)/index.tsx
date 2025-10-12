@@ -33,7 +33,7 @@ export default function DashboardScreen() {
     try {
       // Fetch real statistics based on user role
       const quotesEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/quotes' : '/quotes';
-      const pendingInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/pending' : '/inspections';
+      const pendingInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/pending-scheduling' : '/inspections';
       const confirmedInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/confirmed' : '/inspections';
       
       const [quotesRes, pendingInspectionsRes, confirmedInspectionsRes] = await Promise.all([
