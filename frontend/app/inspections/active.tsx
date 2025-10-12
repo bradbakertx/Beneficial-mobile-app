@@ -78,16 +78,13 @@ export default function ActiveInspectionsScreen() {
     >
       <View style={styles.inspectionHeader}>
         <View style={styles.inspectionInfo}>
-          <Text style={styles.inspectionAddress} numberOfLines={1}>
-            {item.quote.street_address}
-          </Text>
-          <Text style={styles.inspectionCity}>
-            {item.quote.city}, {item.quote.state} {item.quote.zip_code}
+          <Text style={styles.inspectionAddress} numberOfLines={2}>
+            {item.property_address}
           </Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
           <Text style={styles.statusText}>
-            {item.status === 'awaiting_confirmation' ? 'Awaiting' : 'Confirmed'}
+            {item.status === 'scheduled' ? 'Confirmed' : 'Pending'}
           </Text>
         </View>
       </View>
@@ -95,35 +92,24 @@ export default function ActiveInspectionsScreen() {
       <View style={styles.inspectionDetails}>
         <View style={styles.detailRow}>
           <Ionicons name="person-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.customer.name}</Text>
+          <Text style={styles.detailText}>{item.customer_name}</Text>
         </View>
         <View style={styles.detailRow}>
-          <Ionicons name="home-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.quote.inspection_type}</Text>
+          <Ionicons name="mail-outline" size={16} color="#8E8E93" />
+          <Text style={styles.detailText}>{item.customer_email}</Text>
         </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>
-            {format(new Date(item.inspection_date), 'MMM dd, yyyy')} at {item.inspection_time}
-          </Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="cash-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>${item.total_amount.toFixed(2)}</Text>
-        </View>
+        {item.scheduled_date && item.scheduled_time && (
+          <View style={styles.detailRow}>
+            <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
+            <Text style={styles.detailText}>
+              {item.scheduled_date} at {item.scheduled_time}
+            </Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.footer}>
-        <View style={styles.paymentBadge}>
-          <Ionicons 
-            name={item.payment_status === 'paid' ? 'checkmark-circle' : 'time-outline'} 
-            size={16} 
-            color={item.payment_status === 'paid' ? '#34C759' : '#FF9500'} 
-          />
-          <Text style={styles.paymentText}>
-            {item.payment_status === 'paid' ? 'Paid' : 'Payment Pending'}
-          </Text>
-        </View>
+        <Text style={styles.footerText}>ID: {item.id.substring(0, 8)}...</Text>
         <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
       </View>
     </TouchableOpacity>
