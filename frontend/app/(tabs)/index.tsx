@@ -81,6 +81,14 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        <View style={styles.logoContainer}>
+          <Image 
+            source={require('../../assets/images/beneficial-logo-icon.jpg')}
+            style={styles.dashboardLogo}
+            resizeMode="contain"
+          />
+        </View>
+
         <View style={styles.header}>
           <View>
             <Text style={styles.greeting}>Hello, {user?.name}!</Text>
