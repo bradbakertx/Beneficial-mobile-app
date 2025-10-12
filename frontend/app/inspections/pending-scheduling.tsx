@@ -139,7 +139,8 @@ export default function PendingSchedulingScreen() {
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={\n          <View style={styles.emptyContainer}>
+        ListEmptyComponent={
+          <View style={styles.emptyContainer}>
             <Ionicons name="checkmark-circle-outline" size={64} color="#C7C7CC" />
             <Text style={styles.emptyText}>No pending scheduling requests</Text>
             <Text style={styles.emptySubtext}>All inspections have been scheduled</Text>
