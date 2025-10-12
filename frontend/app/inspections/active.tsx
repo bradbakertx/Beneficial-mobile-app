@@ -134,7 +134,7 @@ export default function ActiveInspectionsScreen() {
   const renderInspectionItem = ({ item }: { item: ActiveInspection }) => (
     <TouchableOpacity 
       style={styles.inspectionCard}
-      onPress={() => router.push(`/inspections/detail?id=${item.id}`)}
+      onPress={() => router.push(`/inspections/view-detail?id=${item.id}`)}
     >
       <View style={styles.inspectionHeader}>
         <View style={styles.inspectionInfo}>
