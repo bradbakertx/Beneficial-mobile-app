@@ -256,7 +256,7 @@ export default function SetDateTimeScreen() {
           </Text>
           <TouchableOpacity
             style={styles.pickerButton}
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => setShowDatePicker(!showDatePicker)}
           >
             <Ionicons name="calendar" size={24} color="#007AFF" />
             <Text style={styles.pickerText}>
@@ -266,14 +266,24 @@ export default function SetDateTimeScreen() {
           </TouchableOpacity>
           
           {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onDateChange}
-              minimumDate={new Date()}
-              maximumDate={new Date(inspection.option_period_end)}
-            />
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                onChange={onDateChange}
+                minimumDate={new Date()}
+                maximumDate={new Date(inspection.option_period_end)}
+              />
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity 
+                  style={styles.doneButton}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
 
@@ -282,7 +292,7 @@ export default function SetDateTimeScreen() {
           <Text style={styles.sectionTitle}>Select Time</Text>
           <TouchableOpacity
             style={styles.pickerButton}
-            onPress={() => setShowTimePicker(true)}
+            onPress={() => setShowTimePicker(!showTimePicker)}
           >
             <Ionicons name="time" size={24} color="#007AFF" />
             <Text style={styles.pickerText}>
@@ -292,12 +302,22 @@ export default function SetDateTimeScreen() {
           </TouchableOpacity>
           
           {showTimePicker && (
-            <DateTimePicker
-              value={selectedTime}
-              mode="time"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              onChange={onTimeChange}
-            />
+            <View style={styles.pickerContainer}>
+              <DateTimePicker
+                value={selectedTime}
+                mode="time"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={onTimeChange}
+              />
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity 
+                  style={styles.doneButton}
+                  onPress={() => setShowTimePicker(false)}
+                >
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
       </ScrollView>
