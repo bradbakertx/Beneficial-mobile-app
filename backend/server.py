@@ -853,16 +853,22 @@ async def get_calendar(
     credentials = user_dict.get("google_calendar_credentials")
     
     if not credentials:
-        raise HTTPException(status_code=401, detail="Google Calendar not connected. Please connect your calendar first.")
+        # Return empty events instead of error - graceful degradation
+        return {"events": [], "message": "Google Calendar not connected"}
     
-    # Parse dates
-    start = datetime.fromisoformat(start_date.replace('Z', '')) if start_date else None
-    end = datetime.fromisoformat(end_date.replace('Z', '')) if end_date else None
-    
-    # Fetch events
-    events = get_calendar_events(credentials, start, end)
-    
-    return {"events": events}
+    try:
+        # Parse dates
+        start = datetime.fromisoformat(start_date.replace('Z', '')) if start_date else None
+        end = datetime.fromisoformat(end_date.replace('Z', '')) if end_date else None
+        
+        # Fetch events
+        events = get_calendar_events(credentials, start, end)
+        
+        return {"events": events}
+    except Exception as e:
+        # Log error but return empty events for graceful degradation
+        print(f"Error fetching calendar events: {e}")
+        return {"events": [], "message": "Calendar sync temporarily unavailable"}
 
 
 @api_router.get("/calendar/status")
