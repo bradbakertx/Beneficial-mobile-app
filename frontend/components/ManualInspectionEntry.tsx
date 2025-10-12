@@ -46,6 +46,11 @@ export default function ManualInspectionEntry() {
   const [propertyType, setPropertyType] = useState(PROPERTY_TYPES[0]);
   const [numBuildings, setNumBuildings] = useState('');
   const [numUnits, setNumUnits] = useState('');
+  
+  // Inspection Details
+  const [feeAmount, setFeeAmount] = useState('');
+  const [inspectionDate, setInspectionDate] = useState('');
+  const [inspectionTime, setInspectionTime] = useState('');
 
   const isMultiFamilyOrCommercial = () => {
     return propertyType.includes('Multi-family') || propertyType.includes('Commercial');
