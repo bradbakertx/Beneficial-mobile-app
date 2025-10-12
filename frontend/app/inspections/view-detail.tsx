@@ -108,46 +108,54 @@ export default function InspectionDetailScreen() {
     );
   }
 
-  const renderManualInspection = () => (
-    <ScrollView style={styles.content}>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Client Information</Text>
-        <InfoRow label="Name" value={manualInspection!.client_name} />
-        <InfoRow label="Phone" value={manualInspection!.client_phone} />
-        <InfoRow label="Email" value={manualInspection!.client_email} />
-      </View>
-
-      {manualInspection!.agent_name && (
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Agent Information</Text>
-          <InfoRow label="Name" value={manualInspection!.agent_name} />
-          {manualInspection!.agent_phone && <InfoRow label="Phone" value={manualInspection!.agent_phone} />}
-          {manualInspection!.agent_email && <InfoRow label="Email" value={manualInspection!.agent_email} />}
+  const renderManualInspection = () => {
+    // Build full address display for header
+    const fullAddress = `${manualInspection!.property_address}, ${manualInspection!.property_city}, TX ${manualInspection!.property_zip}`;
+    
+    return (
+      <ScrollView style={styles.content}>
+        {/* Property Address as main heading */}
+        <View style={styles.addressHeader}>
+          <Ionicons name="location" size={20} color="#007AFF" />
+          <Text style={styles.addressText}>{fullAddress}</Text>
         </View>
-      )}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Property Information</Text>
-        <InfoRow label="Address" value={manualInspection!.property_address} />
-        <InfoRow label="City" value={manualInspection!.property_city} />
-        <InfoRow label="Zip Code" value={manualInspection!.property_zip} />
-        {manualInspection!.square_feet && <InfoRow label="Square Feet" value={manualInspection!.square_feet.toString()} />}
-        {manualInspection!.year_built && <InfoRow label="Year Built" value={manualInspection!.year_built.toString()} />}
-        <InfoRow label="Foundation Type" value={manualInspection!.foundation_type} />
-        <InfoRow label="Property Type" value={manualInspection!.property_type} />
-        {manualInspection!.num_buildings && <InfoRow label="Number of Buildings" value={manualInspection!.num_buildings.toString()} />}
-        {manualInspection!.num_units && <InfoRow label="Number of Units" value={manualInspection!.num_units.toString()} />}
-      </View>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Client Information</Text>
+          <InfoRow label="Name" value={manualInspection!.client_name} />
+          <InfoRow label="Phone" value={manualInspection!.client_phone} />
+          <InfoRow label="Email" value={manualInspection!.client_email} />
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Inspection Details</Text>
-        <InfoRow label="Fee Amount" value={`$${manualInspection!.fee_amount.toFixed(2)}`} />
-        <InfoRow label="Date" value={manualInspection!.inspection_date} />
-        <InfoRow label="Time" value={manualInspection!.inspection_time} />
-        <InfoRow label="Status" value={manualInspection!.status} />
-      </View>
-    </ScrollView>
-  );
+        {manualInspection!.agent_name && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Agent Information</Text>
+            <InfoRow label="Name" value={manualInspection!.agent_name} />
+            {manualInspection!.agent_phone && <InfoRow label="Phone" value={manualInspection!.agent_phone} />}
+            {manualInspection!.agent_email && <InfoRow label="Email" value={manualInspection!.agent_email} />}
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Property Details</Text>
+          {manualInspection!.square_feet && <InfoRow label="Square Feet" value={manualInspection!.square_feet.toString()} />}
+          {manualInspection!.year_built && <InfoRow label="Year Built" value={manualInspection!.year_built.toString()} />}
+          <InfoRow label="Foundation Type" value={manualInspection!.foundation_type} />
+          <InfoRow label="Property Type" value={manualInspection!.property_type} />
+          {manualInspection!.num_buildings && <InfoRow label="Number of Buildings" value={manualInspection!.num_buildings.toString()} />}
+          {manualInspection!.num_units && <InfoRow label="Number of Units" value={manualInspection!.num_units.toString()} />}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Inspection Details</Text>
+          <InfoRow label="Fee Amount" value={`$${manualInspection!.fee_amount.toFixed(2)}`} />
+          <InfoRow label="Date" value={manualInspection!.inspection_date} />
+          <InfoRow label="Time" value={manualInspection!.inspection_time} />
+          <InfoRow label="Status" value={manualInspection!.status.charAt(0).toUpperCase() + manualInspection!.status.slice(1)} />
+        </View>
+      </ScrollView>
+    );
+  };
 
   const renderRegularInspection = () => (
     <ScrollView style={styles.content}>
