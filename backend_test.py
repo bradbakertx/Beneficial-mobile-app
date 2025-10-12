@@ -21,12 +21,8 @@ class BackendTester:
     def __init__(self):
         self.base_url = BASE_URL
         self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'User-Agent': 'HomePro-Mobile-App-Test/1.0'
-        })
-        self.customer_token = None
-        self.owner_token = None
+        self.auth_token = None
+        self.user_data = None
         self.test_results = []
         
     def log_test(self, test_name: str, success: bool, details: str, response_data: Any = None):
