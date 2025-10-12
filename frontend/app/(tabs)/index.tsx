@@ -82,7 +82,7 @@ export default function DashboardScreen() {
       >
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Hello, {user?.full_name}!</Text>
+            <Text style={styles.greeting}>Hello, {user?.name}!</Text>
             <Text style={styles.roleText}>{getRoleTitle()}</Text>
           </View>
           <View style={styles.roleBadge}>
