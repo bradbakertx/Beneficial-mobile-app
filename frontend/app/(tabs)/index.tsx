@@ -33,33 +33,35 @@ export default function DashboardScreen() {
     try {
       // Fetch real statistics based on user role
       const quotesEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/quotes' : '/quotes';
-      const inspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/pending' : '/inspections';
+      const pendingInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/pending' : '/inspections';
+      const confirmedInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/confirmed' : '/inspections';
       
-      const [quotesRes, inspectionsRes] = await Promise.all([
+      const [quotesRes, pendingInspectionsRes, confirmedInspectionsRes] = await Promise.all([
         api.get(quotesEndpoint),
-        api.get(inspectionsEndpoint).catch(() => ({ data: [] })) // Fallback if endpoint doesn't exist
+        api.get(pendingInspectionsEndpoint).catch(() => ({ data: [] })),
+        api.get(confirmedInspectionsEndpoint).catch(() => ({ data: [] }))
       ]);
       
       const quotes = quotesRes.data || [];
-      const inspections = inspectionsRes.data || [];
+      const pendingInspections = pendingInspectionsRes.data || [];
+      const confirmedInspections = confirmedInspectionsRes.data || [];
       
-      console.log('Dashboard data:', { quotes: quotes.length, inspections: inspections.length });
-      console.log('Inspections:', inspections.map((i: any) => ({ id: i.id, status: i.status })));
+      console.log('Dashboard data:', { 
+        quotes: quotes.length, 
+        pendingInspections: pendingInspections.length,
+        confirmedInspections: confirmedInspections.length 
+      });
       
       // Calculate statistics
       const pendingQuotes = quotes.filter((q: any) => 
         q.status === 'pending' || q.status === 'pending_review'
       ).length;
       
-      const activeInspections = inspections.filter((i: any) => 
-        i.status === 'scheduled' || i.status === 'confirmed'
-      ).length;
+      // Active inspections are confirmed or awaiting confirmation
+      const activeInspections = confirmedInspections.length;
       
-      // For owner/admin, pending scheduling shows all from /admin/inspections/pending endpoint
-      // For customers, filter their own inspections
-      const pendingScheduling = (user?.role === 'owner' || user?.role === 'admin') 
-        ? inspections.length  // All inspections from pending endpoint
-        : inspections.filter((i: any) => i.status === 'pending_schedule').length;
+      // Pending scheduling are those waiting for owner to set date/time
+      const pendingScheduling = pendingInspections.length;
       
       console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling });
       
