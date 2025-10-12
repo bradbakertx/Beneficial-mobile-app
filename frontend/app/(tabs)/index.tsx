@@ -185,6 +185,7 @@ export default function DashboardScreen() {
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>My Schedule</Text>
             <CalendarWeekView />
+            <ManualInspectionEntry />
           </View>
         )}
 
