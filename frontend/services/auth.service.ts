@@ -46,14 +46,9 @@ class AuthService {
   }
 
   async logout(): Promise<void> {
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      await AsyncStorage.removeItem('session_token');
-      await AsyncStorage.removeItem('user_data');
-    }
+    // Clear local storage (backend doesn't need logout endpoint for JWT)
+    await AsyncStorage.removeItem('session_token');
+    await AsyncStorage.removeItem('user_data');
   }
 
   async getCurrentUser(): Promise<User | null> {
