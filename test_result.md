@@ -221,6 +221,7 @@ test_plan:
     - "Backend API Integration"
   test_all: false
   test_priority: "high_first"
+  critical_blocker: "Backend missing ALL authentication endpoints - complete implementation needed"
 
 agent_communication:
   - agent: "main"
