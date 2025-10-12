@@ -15,6 +15,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import CalendarWeekView from '../../components/CalendarWeekView';
+import ManualInspectionEntry from '../../components/ManualInspectionEntry';
 
 interface DashboardStats {
   pending_quotes: number;
