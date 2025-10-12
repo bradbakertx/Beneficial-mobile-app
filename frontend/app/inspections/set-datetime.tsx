@@ -254,70 +254,113 @@ export default function SetDateTimeScreen() {
           <Text style={styles.sectionHint}>
             Try to schedule on one of the customer's preferred days
           </Text>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowDatePicker(!showDatePicker)}
-          >
-            <Ionicons name="calendar" size={24} color="#007AFF" />
-            <Text style={styles.pickerText}>
-              {format(selectedDate, 'EEEE, MMMM dd, yyyy')}
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-          </TouchableOpacity>
-          
-          {showDatePicker && (
-            <View style={styles.pickerContainer}>
-              <DateTimePicker
-                value={selectedDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                onChange={onDateChange}
-                minimumDate={new Date()}
-                maximumDate={new Date(inspection.option_period_end)}
+          {Platform.OS === 'web' ? (
+            <View style={styles.webInputContainer}>
+              <input
+                type="date"
+                value={format(selectedDate, 'yyyy-MM-dd')}
+                onChange={(e) => setSelectedDate(new Date(e.target.value))}
+                min={format(new Date(), 'yyyy-MM-dd')}
+                max={format(new Date(inspection.option_period_end), 'yyyy-MM-dd')}
+                style={{
+                  width: '100%',
+                  padding: 16,
+                  fontSize: 16,
+                  borderRadius: 12,
+                  border: '1px solid #E5E5EA',
+                  backgroundColor: '#fff',
+                }}
               />
-              {Platform.OS === 'ios' && (
-                <TouchableOpacity 
-                  style={styles.doneButton}
-                  onPress={() => setShowDatePicker(false)}
-                >
-                  <Text style={styles.doneButtonText}>Done</Text>
-                </TouchableOpacity>
-              )}
             </View>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.pickerButton}
+                onPress={() => setShowDatePicker(!showDatePicker)}
+              >
+                <Ionicons name="calendar" size={24} color="#007AFF" />
+                <Text style={styles.pickerText}>
+                  {format(selectedDate, 'EEEE, MMMM dd, yyyy')}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              </TouchableOpacity>
+              
+              {showDatePicker && (
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={selectedDate}
+                    mode="date"
+                    display="inline"
+                    onChange={onDateChange}
+                    minimumDate={new Date()}
+                    maximumDate={new Date(inspection.option_period_end)}
+                  />
+                  <TouchableOpacity 
+                    style={styles.doneButton}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text style={styles.doneButtonText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           )}
         </View>
 
         {/* Time Selection */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Select Time</Text>
-          <TouchableOpacity
-            style={styles.pickerButton}
-            onPress={() => setShowTimePicker(!showTimePicker)}
-          >
-            <Ionicons name="time" size={24} color="#007AFF" />
-            <Text style={styles.pickerText}>
-              {format(selectedTime, 'h:mm a')}
-            </Text>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-          </TouchableOpacity>
-          
-          {showTimePicker && (
-            <View style={styles.pickerContainer}>
-              <DateTimePicker
-                value={selectedTime}
-                mode="time"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={onTimeChange}
+          {Platform.OS === 'web' ? (
+            <View style={styles.webInputContainer}>
+              <input
+                type="time"
+                value={format(selectedTime, 'HH:mm')}
+                onChange={(e) => {
+                  const [hours, minutes] = e.target.value.split(':');
+                  const newTime = new Date();
+                  newTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                  setSelectedTime(newTime);
+                }}
+                style={{
+                  width: '100%',
+                  padding: 16,
+                  fontSize: 16,
+                  borderRadius: 12,
+                  border: '1px solid #E5E5EA',
+                  backgroundColor: '#fff',
+                }}
               />
-              {Platform.OS === 'ios' && (
-                <TouchableOpacity 
-                  style={styles.doneButton}
-                  onPress={() => setShowTimePicker(false)}
-                >
-                  <Text style={styles.doneButtonText}>Done</Text>
-                </TouchableOpacity>
-              )}
             </View>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.pickerButton}
+                onPress={() => setShowTimePicker(!showTimePicker)}
+              >
+                <Ionicons name="time" size={24} color="#007AFF" />
+                <Text style={styles.pickerText}>
+                  {format(selectedTime, 'h:mm a')}
+                </Text>
+                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              </TouchableOpacity>
+              
+              {showTimePicker && (
+                <View style={styles.pickerContainer}>
+                  <DateTimePicker
+                    value={selectedTime}
+                    mode="time"
+                    display="spinner"
+                    onChange={onTimeChange}
+                  />
+                  <TouchableOpacity 
+                    style={styles.doneButton}
+                    onPress={() => setShowTimePicker(false)}
+                  >
+                    <Text style={styles.doneButtonText}>Done</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
+            </>
           )}
         </View>
       </ScrollView>
