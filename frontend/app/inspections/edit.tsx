@@ -134,7 +134,7 @@ export default function EditInspectionScreen() {
       Alert.alert(
         'Success',
         'Inspection updated successfully',
-        [{ text: 'OK', onPress: () => router.back() }]
+        [{ text: 'OK', onPress: () => router.push('/inspections/active') }]
       );
     } catch (error: any) {
       console.error('Error updating inspection:', error);
