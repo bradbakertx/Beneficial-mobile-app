@@ -533,6 +533,11 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
     fontWeight: '500',
   },
+  webInputContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
   pickerContainer: {
     backgroundColor: '#fff',
     borderRadius: 12,
