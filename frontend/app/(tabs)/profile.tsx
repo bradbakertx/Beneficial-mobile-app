@@ -16,39 +16,44 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     console.log('=== LOGOUT BUTTON PRESSED ===');
     
-    // Show confirmation
-    const confirmed = window.confirm('Are you sure you want to logout?');
-    
-    if (!confirmed) {
-      console.log('Logout cancelled by user');
-      return;
-    }
-    
-    try {
-      console.log('Starting logout process...');
-      
-      // Call logout function
-      await logout();
-      console.log('Logout completed, state cleared');
-      
-      // Force navigation to root
-      console.log('Navigating to root index...');
-      router.replace('/');
-      
-      // Also force a page reload as backup
-      setTimeout(() => {
-        if (typeof window !== 'undefined') {
-          window.location.href = '/';
-        }
-      }, 500);
-      
-    } catch (error) {
-      console.error('Logout error:', error);
-      alert('Failed to logout. Please try again.');
-    }
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { 
+          text: 'Cancel', 
+          style: 'cancel',
+          onPress: () => console.log('Logout cancelled')
+        },
+        {
+          text: 'Logout',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('Starting logout process...');
+              
+              // Call logout function from context
+              await logout();
+              console.log('Logout completed, state cleared');
+              
+              // Give a small delay for state to update
+              await new Promise(resolve => setTimeout(resolve, 100));
+              
+              // Navigate to root which will redirect to login
+              console.log('Navigating to root...');
+              router.replace('/');
+              
+            } catch (error) {
+              console.error('Logout error:', error);
+              Alert.alert('Error', 'Failed to logout. Please try again.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   return (
