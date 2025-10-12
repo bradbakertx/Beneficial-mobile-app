@@ -258,6 +258,10 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#1C1C1E',
   },
+  footerText: {
+    fontSize: 12,
+    color: '#8E8E93',
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
