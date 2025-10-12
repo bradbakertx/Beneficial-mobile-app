@@ -33,12 +33,25 @@ export default function ChatScreen() {
 
   const fetchChatRooms = async () => {
     try {
-      // This would fetch chat rooms from backend
-      // For now, showing empty state
-      setChatRooms([]);
+      console.log('Fetching conversations...');
+      const response = await api.get('/conversations');
+      console.log('Conversations response:', response.data);
+      
+      // Transform backend data to match UI expectations
+      const conversations = response.data.map((conv: any) => ({
+        id: conv.inspection_id,
+        inspection_id: conv.inspection_id,
+        property_address: conv.property_address,
+        other_user_name: conv.customer_name,
+        last_message: conv.last_message || 'No messages yet',
+        last_message_time: conv.last_message_time || new Date().toISOString(),
+        unread_count: conv.unread_count || 0,
+      }));
+      
+      setChatRooms(conversations);
     } catch (error) {
       console.error('Error fetching chat rooms:', error);
-      Alert.alert('Error', 'Failed to fetch chat rooms');
+      Alert.alert('Error', 'Failed to fetch conversations');
     } finally {
       setLoading(false);
     }
