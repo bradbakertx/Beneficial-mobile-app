@@ -87,8 +87,8 @@ export default function RegisterScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Full Name"
-                value={formData.full_name}
-                onChangeText={(text) => setFormData({ ...formData, full_name: text })}
+                value={formData.name}
+                onChangeText={(text) => setFormData({ ...formData, name: text })}
                 placeholderTextColor="#999"
               />
             </View>
