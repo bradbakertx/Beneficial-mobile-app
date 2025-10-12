@@ -415,6 +415,43 @@ async def set_inspection_datetime(
     return InspectionResponse(**updated_inspection)
 
 
+@api_router.post("/admin/manual-inspection", response_model=ManualInspectionResponse)
+async def create_manual_inspection(
+    inspection_data: ManualInspectionCreate,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Create manual inspection entry (Owner only)"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can create manual inspections")
+    
+    inspection_id = str(uuid.uuid4())
+    manual_inspection = ManualInspectionInDB(
+        id=inspection_id,
+        owner_id=current_user.id,
+        owner_name=current_user.name,
+        client_name=inspection_data.client_name,
+        client_phone=inspection_data.client_phone,
+        client_email=inspection_data.client_email,
+        agent_name=inspection_data.agent_name,
+        agent_phone=inspection_data.agent_phone,
+        agent_email=inspection_data.agent_email,
+        property_address=inspection_data.property_address,
+        property_city=inspection_data.property_city,
+        property_zip=inspection_data.property_zip,
+        square_feet=inspection_data.square_feet,
+        year_built=inspection_data.year_built,
+        foundation_type=inspection_data.foundation_type,
+        property_type=inspection_data.property_type,
+        num_buildings=inspection_data.num_buildings,
+        num_units=inspection_data.num_units,
+        status="manual_entry",
+        created_at=datetime.utcnow()
+    )
+    
+    await db.manual_inspections.insert_one(manual_inspection.dict())
+    return ManualInspectionResponse(**manual_inspection.dict())
+
+
 @api_router.delete("/admin/inspections/{inspection_id}/cancel")
 async def cancel_inspection(
     inspection_id: str,
