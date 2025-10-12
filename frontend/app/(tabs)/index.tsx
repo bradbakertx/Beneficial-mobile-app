@@ -147,8 +147,8 @@ export default function DashboardScreen() {
         <View style={styles.statsGrid}>
           <View style={styles.statCard}>
             <Ionicons name="checkmark-circle-outline" size={32} color="#5856D6" />
-            <Text style={styles.statNumber}>{stats?.completed_inspections || 0}</Text>
-            <Text style={styles.statLabel}>Completed</Text>
+            <Text style={styles.statNumber}>{stats?.pending_scheduling || 0}</Text>
+            <Text style={styles.statLabel}>Pending Scheduling</Text>
           </View>
           <View style={styles.statCard}>
             <Ionicons name="chatbubble-ellipses-outline" size={32} color="#FF9500" />
