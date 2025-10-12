@@ -81,12 +81,19 @@ export default function DashboardScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        <View style={styles.logoContainer}>
+        <View style={styles.topBanner}>
           <Image 
             source={require('../../assets/images/beneficial-logo-icon.jpg')}
-            style={styles.dashboardLogo}
+            style={styles.bannerLogo}
             resizeMode="contain"
           />
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.greeting}>Hello, {user?.name}!</Text>
+            <Text style={styles.roleText}>{getRoleTitle()}</Text>
+          </View>
+          <View style={styles.roleBadge}>
+            <Text style={styles.roleBadgeText}>{user?.role?.toUpperCase()}</Text>
+          </View>
         </View>
 
         <View style={styles.header}>
