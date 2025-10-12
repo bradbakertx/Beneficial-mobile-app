@@ -226,6 +226,15 @@ const styles = StyleSheet.create({
   scrollContent: {
     padding: 16,
   },
+  logoContainer: {
+    alignItems: 'center',
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  dashboardLogo: {
+    width: 60,
+    height: 60,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
