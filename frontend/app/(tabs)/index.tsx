@@ -180,7 +180,7 @@ export default function DashboardScreen() {
             </>
           )}
 
-          {user?.role === 'owner' && (
+          {(user?.role === 'owner' || user?.role === 'admin') && (
             <>
               <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes')}>
                 <View style={styles.actionIcon}>
