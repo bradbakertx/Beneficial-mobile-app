@@ -123,16 +123,16 @@ export default function SetDateTimeScreen() {
 
       console.log('DateTime set successfully:', response.data);
 
-      Alert.alert(
-        'Success',
-        'Inspection date and time has been set! The customer will be notified to confirm.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(tabs)')
-          }
-        ]
-      );
+      // Navigate back to dashboard immediately
+      router.replace('/(tabs)');
+      
+      // Show success message after navigation
+      setTimeout(() => {
+        Alert.alert(
+          'Success',
+          'Inspection date and time has been set! The customer will be notified to confirm.'
+        );
+      }, 300);
     } catch (error: any) {
       console.error('Error setting datetime:', error);
       console.error('Error response:', error.response?.data);
