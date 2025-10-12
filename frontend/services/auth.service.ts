@@ -9,39 +9,42 @@ export interface LoginData {
 export interface RegisterData {
   email: string;
   password: string;
-  full_name: string;
-  phone: string;
+  name: string;
+  phone?: string;
   role: 'customer' | 'agent' | 'owner';
 }
 
 export interface User {
   id: string;
   email: string;
-  full_name: string;
-  phone: string;
+  name: string;
+  phone?: string;
   role: 'customer' | 'agent' | 'owner';
-  created_at: string;
 }
 
 class AuthService {
   async login(data: LoginData): Promise<{ token: string; user: User }> {
-    const response = await api.post('/auth/login', data);
-    const { token, user } = response.data;
+    const response = await api.post('/auth/login', null, {
+      params: data
+    });
+    const { session_token, user } = response.data;
     
-    await AsyncStorage.setItem('session_token', token);
+    await AsyncStorage.setItem('session_token', session_token);
     await AsyncStorage.setItem('user_data', JSON.stringify(user));
     
-    return { token, user };
+    return { token: session_token, user };
   }
 
   async register(data: RegisterData): Promise<{ token: string; user: User }> {
-    const response = await api.post('/auth/register', data);
-    const { token, user } = response.data;
+    const response = await api.post('/auth/register', null, {
+      params: data
+    });
+    const { session_token, user } = response.data;
     
-    await AsyncStorage.setItem('session_token', token);
+    await AsyncStorage.setItem('session_token', session_token);
     await AsyncStorage.setItem('user_data', JSON.stringify(user));
     
-    return { token, user };
+    return { token: session_token, user };
   }
 
   async logout(): Promise<void> {
