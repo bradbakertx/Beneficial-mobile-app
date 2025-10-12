@@ -155,6 +155,8 @@ async def create_quote(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Create a new quote request (Customer only)"""
+    from push_notification_service import send_push_notification
+    
     if current_user.role != UserRole.customer:
         raise HTTPException(status_code=403, detail="Only customers can request quotes")
     
@@ -174,6 +176,18 @@ async def create_quote(
     )
     
     await db.quotes.insert_one(quote.dict())
+    
+    # Send push notification to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            send_push_notification(
+                push_token=owner["push_token"],
+                title="New Quote Request",
+                body=f"New quote request from {current_user.name} for {quote_data.property_address}",
+                data={"type": "new_quote", "quote_id": quote_id}
+            )
+    
     return QuoteResponse(**quote.dict())
 
 
