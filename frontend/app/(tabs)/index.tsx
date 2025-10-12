@@ -178,88 +178,72 @@ export default function DashboardScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          
-          {user?.role === 'customer' && (
-            <>
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes/new')}>
-                <View style={styles.actionIcon}>
-                  <Ionicons name="add-circle" size={24} color="#007AFF" />
-                </View>
-                <View style={styles.actionContent}>
-                  <Text style={styles.actionTitle}>Request Quote</Text>
-                  <Text style={styles.actionDescription}>Get an inspection quote</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
+        {/* Google Calendar Week View - Owner Only */}
+        {(user?.role === 'owner' || user?.role === 'admin') && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>My Schedule</Text>
+            <CalendarWeekView />
+          </View>
+        )}
 
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
-                <View style={styles.actionIcon}>
-                  <Ionicons name="calendar" size={24} color="#34C759" />
-                </View>
-                <View style={styles.actionContent}>
-                  <Text style={styles.actionTitle}>Schedule Inspection</Text>
-                  <Text style={styles.actionDescription}>Book your inspection</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-            </>
-          )}
+        {/* Quick Actions for Customer & Agent */}
+        {(user?.role === 'customer' || user?.role === 'agent') && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Quick Actions</Text>
+            
+            {user?.role === 'customer' && (
+              <>
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes/new')}>
+                  <View style={styles.actionIcon}>
+                    <Ionicons name="add-circle" size={24} color="#007AFF" />
+                  </View>
+                  <View style={styles.actionContent}>
+                    <Text style={styles.actionTitle}>Request Quote</Text>
+                    <Text style={styles.actionDescription}>Get an inspection quote</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
 
-          {user?.role === 'agent' && (
-            <>
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes')}>
-                <View style={styles.actionIcon}>
-                  <Ionicons name="document-text" size={24} color="#007AFF" />
-                </View>
-                <View style={styles.actionContent}>
-                  <Text style={styles.actionTitle}>Manage Quotes</Text>
-                  <Text style={styles.actionDescription}>View client quotes</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
+                  <View style={styles.actionIcon}>
+                    <Ionicons name="calendar" size={24} color="#34C759" />
+                  </View>
+                  <View style={styles.actionContent}>
+                    <Text style={styles.actionTitle}>Schedule Inspection</Text>
+                    <Text style={styles.actionDescription}>Book your inspection</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
+              </>
+            )}
 
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
-                <View style={styles.actionIcon}>
-                  <Ionicons name="calendar" size={24} color="#34C759" />
-                </View>
-                <View style={styles.actionContent}>
-                  <Text style={styles.actionTitle}>View Schedule</Text>
-                  <Text style={styles.actionDescription}>Check availability</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-            </>
-          )}
+            {user?.role === 'agent' && (
+              <>
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes')}>
+                  <View style={styles.actionIcon}>
+                    <Ionicons name="document-text" size={24} color="#007AFF" />
+                  </View>
+                  <View style={styles.actionContent}>
+                    <Text style={styles.actionTitle}>Manage Quotes</Text>
+                    <Text style={styles.actionDescription}>View client quotes</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
 
-          {(user?.role === 'owner' || user?.role === 'admin') && (
-            <>
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes')}>
-                <View style={styles.actionIcon}>
-                  <Ionicons name="document-text" size={24} color="#007AFF" />
-                </View>
-                <View style={styles.actionContent}>
-                  <Text style={styles.actionTitle}>All Quotes</Text>
-                  <Text style={styles.actionDescription}>Manage all quotes</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
-                <View style={styles.actionIcon}>
-                  <Ionicons name="calendar" size={24} color="#34C759" />
-                </View>
-                <View style={styles.actionContent}>
-                  <Text style={styles.actionTitle}>All Inspections</Text>
-                  <Text style={styles.actionDescription}>View and manage schedule</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
+                  <View style={styles.actionIcon}>
+                    <Ionicons name="calendar" size={24} color="#34C759" />
+                  </View>
+                  <View style={styles.actionContent}>
+                    <Text style={styles.actionTitle}>View Schedule</Text>
+                    <Text style={styles.actionDescription}>Check availability</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
