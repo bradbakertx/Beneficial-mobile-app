@@ -35,7 +35,7 @@ export default function QuotesScreen() {
 
   const fetchQuotes = async () => {
     try {
-      const endpoint = user?.role === 'owner' ? '/admin/quotes' : '/quotes';
+      const endpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/quotes' : '/quotes';
       console.log('Fetching quotes from:', endpoint, 'User role:', user?.role);
       const response = await api.get(endpoint);
       console.log('Quotes response:', response.data);
