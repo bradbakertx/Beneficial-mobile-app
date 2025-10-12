@@ -51,6 +51,49 @@ export default function ActiveInspectionsScreen() {
     }
   };
 
+  const handleCancelInspection = (inspection: ActiveInspection) => {
+    Alert.alert(
+      'Cancel Inspection',
+      `Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar notifications will be sent to you and ${inspection.customer_name}.`,
+      [
+        {
+          text: 'No, Keep It',
+          style: 'cancel',
+        },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              console.log('Cancelling inspection:', inspection.id);
+              const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
+              console.log('Cancel response:', response.data);
+              
+              Alert.alert(
+                'Inspection Cancelled',
+                `Calendar notifications sent to:\n• ${response.data.notifications_sent.customer}\n• ${response.data.notifications_sent.owner}`,
+                [
+                  {
+                    text: 'OK',
+                    onPress: () => {
+                      // Remove from local state
+                      setInspections(inspections.filter(i => i.id !== inspection.id));
+                      // Navigate back to dashboard
+                      router.push('/(tabs)');
+                    }
+                  }
+                ]
+              );
+            } catch (error: any) {
+              console.error('Error cancelling inspection:', error);
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to cancel inspection');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   useEffect(() => {
     fetchActiveInspections();
   }, []);
