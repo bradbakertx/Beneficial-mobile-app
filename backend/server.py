@@ -487,6 +487,8 @@ async def send_message(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Send a message in an inspection conversation"""
+    from push_notification_service import send_push_notification
+    
     # Verify user has access to this inspection
     inspection = await db.inspections.find_one({"id": message_data.inspection_id})
     if not inspection:
@@ -509,6 +511,30 @@ async def send_message(
     )
     
     await db.messages.insert_one(message.dict())
+    
+    # Send push notifications to other participants
+    # If customer sends message, notify owner
+    if current_user.role == UserRole.customer:
+        owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+        for owner in owners:
+            if owner.get("push_token"):
+                send_push_notification(
+                    push_token=owner["push_token"],
+                    title=f"New message from {current_user.name}",
+                    body=message_data.message_text[:100],
+                    data={"type": "new_message", "inspection_id": message_data.inspection_id}
+                )
+    # If owner sends message, notify customer
+    elif current_user.role == UserRole.owner:
+        customer = await db.users.find_one({"id": inspection["customer_id"]})
+        if customer and customer.get("push_token"):
+            send_push_notification(
+                push_token=customer["push_token"],
+                title=f"New message from {current_user.name}",
+                body=message_data.message_text[:100],
+                data={"type": "new_message", "inspection_id": message_data.inspection_id}
+            )
+    
     return MessageResponse(**message.dict())
 
 
