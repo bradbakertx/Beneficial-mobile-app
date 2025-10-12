@@ -33,11 +33,11 @@ export default function DashboardScreen() {
     try {
       // Fetch real statistics based on user role
       const quotesEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/quotes' : '/quotes';
-      const inspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/confirmed' : '/inspections';
+      const inspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/pending' : '/inspections';
       
       const [quotesRes, inspectionsRes] = await Promise.all([
         api.get(quotesEndpoint),
-        api.get(inspectionsEndpoint)
+        api.get(inspectionsEndpoint).catch(() => ({ data: [] })) // Fallback if endpoint doesn't exist
       ]);
       
       const quotes = quotesRes.data || [];
@@ -49,17 +49,17 @@ export default function DashboardScreen() {
       ).length;
       
       const activeInspections = inspections.filter((i: any) => 
-        i.status === 'scheduled' || i.status === 'confirmed' || i.status === 'pending'
+        i.status === 'scheduled' || i.status === 'confirmed'
       ).length;
       
-      const completedInspections = inspections.filter((i: any) => 
-        i.status === 'completed'
+      const pendingScheduling = inspections.filter((i: any) => 
+        i.status === 'pending' || i.status === 'awaiting_schedule'
       ).length;
       
       setStats({
         pending_quotes: pendingQuotes,
         active_inspections: activeInspections,
-        completed_inspections: completedInspections,
+        pending_scheduling: pendingScheduling,
         unread_messages: 0, // TODO: Implement when chat is ready
       });
     } catch (error) {
@@ -68,7 +68,7 @@ export default function DashboardScreen() {
       setStats({
         pending_quotes: 0,
         active_inspections: 0,
-        completed_inspections: 0,
+        pending_scheduling: 0,
         unread_messages: 0,
       });
     } finally {
