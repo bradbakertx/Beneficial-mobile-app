@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
 """
-Backend API Integration Testing for HomePro Inspect Mobile App
-Testing external API at: https://inspectpro-mobile.preview.emergentagent.com/api
+Comprehensive Backend API Testing for Beneficial Inspections Mobile App
+Tests all authentication, quote, inspection, and admin endpoints
 """
 
 import requests
 import json
+import uuid
+from datetime import datetime
 import sys
-from typing import Dict, Any, Optional
 
-class APITester:
+# Configuration
+BASE_URL = "https://inspectpro-mobile.preview.emergentagent.com/api"
+TEST_CREDENTIALS = {
+    "email": "bradbakertx@gmail.com",
+    "password": "Beneficial1!"
+}
+
+class BackendTester:
     def __init__(self):
-        # Test local backend first, then external
-        self.base_url = "http://localhost:8001/api"
+        self.base_url = BASE_URL
         self.session = requests.Session()
         self.session.headers.update({
             'Content-Type': 'application/json',
