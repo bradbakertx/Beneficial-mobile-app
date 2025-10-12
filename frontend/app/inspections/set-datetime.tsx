@@ -15,6 +15,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from '../../services/api';
 import { format } from 'date-fns';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import CalendarPicker from '../../components/CalendarPicker';
 
 interface InspectionDetail {
   id: string;
