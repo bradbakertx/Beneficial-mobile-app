@@ -24,9 +24,7 @@ export interface User {
 
 class AuthService {
   async login(data: LoginData): Promise<{ token: string; user: User }> {
-    const response = await api.post('/auth/login', null, {
-      params: data
-    });
+    const response = await api.post('/auth/login', data);
     const { session_token, user } = response.data;
     
     await AsyncStorage.setItem('session_token', session_token);
