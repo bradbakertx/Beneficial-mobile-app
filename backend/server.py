@@ -515,6 +515,22 @@ async def create_manual_inspection(
     return ManualInspectionResponse(**manual_inspection.dict())
 
 
+@api_router.get("/admin/manual-inspection/{inspection_id}", response_model=ManualInspectionResponse)
+async def get_manual_inspection(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get manual inspection by ID (Owner only)"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can view manual inspections")
+    
+    manual_inspection = await db.manual_inspections.find_one({"id": inspection_id})
+    if not manual_inspection:
+        raise HTTPException(status_code=404, detail="Manual inspection not found")
+    
+    return ManualInspectionResponse(**manual_inspection)
+
+
 @api_router.delete("/admin/inspections/{inspection_id}/cancel")
 async def cancel_inspection(
     inspection_id: str,
