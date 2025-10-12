@@ -373,6 +373,130 @@ async def set_inspection_datetime(
     return InspectionResponse(**updated_inspection)
 
 
+# ============= CHAT/MESSAGE ENDPOINTS =============
+
+@api_router.post("/messages", response_model=MessageResponse)
+async def send_message(
+    message_data: MessageCreate,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Send a message in an inspection conversation"""
+    # Verify user has access to this inspection
+    inspection = await db.inspections.find_one({"id": message_data.inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check permissions
+    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    message_id = str(uuid.uuid4())
+    message = MessageInDB(
+        id=message_id,
+        inspection_id=message_data.inspection_id,
+        sender_id=current_user.id,
+        sender_name=current_user.name,
+        sender_role=current_user.role,
+        message_text=message_data.message_text,
+        is_read=False,
+        created_at=datetime.utcnow()
+    )
+    
+    await db.messages.insert_one(message.dict())
+    return MessageResponse(**message.dict())
+
+
+@api_router.get("/messages/{inspection_id}", response_model=List[MessageResponse])
+async def get_messages(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get all messages for an inspection"""
+    # Verify user has access to this inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check permissions
+    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Mark messages as read for current user
+    await db.messages.update_many(
+        {
+            "inspection_id": inspection_id,
+            "sender_id": {"$ne": current_user.id},
+            "is_read": False
+        },
+        {"$set": {"is_read": True}}
+    )
+    
+    messages = await db.messages.find({"inspection_id": inspection_id}).sort("created_at", 1).to_list(1000)
+    return [MessageResponse(**msg) for msg in messages]
+
+
+@api_router.get("/conversations", response_model=List[ConversationSummary])
+async def get_conversations(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get all conversations for current user"""
+    # Get inspections based on role
+    if current_user.role == UserRole.owner:
+        # Owner sees all inspections
+        inspections = await db.inspections.find().to_list(1000)
+    elif current_user.role == UserRole.customer:
+        # Customer sees their inspections
+        inspections = await db.inspections.find({"customer_id": current_user.id}).to_list(1000)
+    else:
+        # Agent sees inspections they're involved in (TODO: add agent_id to inspections)
+        inspections = []
+    
+    conversations = []
+    for inspection in inspections:
+        # Get last message
+        last_message_doc = await db.messages.find_one(
+            {"inspection_id": inspection["id"]},
+            sort=[("created_at", -1)]
+        )
+        
+        # Count unread messages (not sent by current user)
+        unread_count = await db.messages.count_documents({
+            "inspection_id": inspection["id"],
+            "sender_id": {"$ne": current_user.id},
+            "is_read": False
+        })
+        
+        conversation = ConversationSummary(
+            inspection_id=inspection["id"],
+            property_address=inspection["property_address"],
+            customer_name=inspection["customer_name"],
+            customer_id=inspection["customer_id"],
+            last_message=last_message_doc["message_text"] if last_message_doc else None,
+            last_message_time=last_message_doc["created_at"] if last_message_doc else None,
+            unread_count=unread_count
+        )
+        conversations.append(conversation)
+    
+    # Sort by last message time
+    conversations.sort(key=lambda x: x.last_message_time or datetime.min, reverse=True)
+    
+    return conversations
+
+
+@api_router.get("/conversations/unread-count")
+async def get_unread_count(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get total unread message count"""
+    # Count all unread messages not sent by current user
+    unread_count = await db.messages.count_documents({
+        "sender_id": {"$ne": current_user.id},
+        "is_read": False
+    })
+    
+    return {"unread_count": unread_count}
+
+
 # ============= DASHBOARD STATS ENDPOINTS =============
 
 @api_router.get("/admin/dashboard/stats")
