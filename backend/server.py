@@ -554,13 +554,18 @@ async def update_manual_inspection(
             {"$set": update_fields}
         )
         
-        # Also update the active inspection if it exists
-        full_address = f"{update_fields.get('property_address', manual_inspection['property_address'])}, {update_fields.get('property_city', manual_inspection['property_city'])}, TX {update_fields.get('property_zip', manual_inspection['property_zip'])}"
+        # Get the updated manual inspection to sync to active inspections
+        updated_manual = await db.manual_inspections.find_one({"id": inspection_id})
+        
+        # Also update the active inspection if it exists - sync ALL fields
+        full_address = f"{updated_manual['property_address']}, {updated_manual['property_city']}, TX {updated_manual['property_zip']}"
         
         active_update = {
             "property_address": full_address,
-            "scheduled_date": update_fields.get('inspection_date', manual_inspection.get('inspection_date')),
-            "scheduled_time": update_fields.get('inspection_time', manual_inspection.get('inspection_time')),
+            "customer_name": updated_manual['client_name'],
+            "customer_email": updated_manual['client_email'],
+            "scheduled_date": updated_manual['inspection_date'],
+            "scheduled_time": updated_manual['inspection_time'],
             "updated_at": datetime.utcnow()
         }
         
