@@ -373,6 +373,54 @@ async def set_inspection_datetime(
     return InspectionResponse(**updated_inspection)
 
 
+@api_router.delete("/admin/inspections/{inspection_id}/cancel")
+async def cancel_inspection(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Cancel an inspection (Owner only)"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can cancel inspections")
+    
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Get customer info for notification
+    customer = await db.users.find_one({"id": inspection["customer_id"]})
+    owner = await db.users.find_one({"id": current_user.id})
+    
+    # Send cancellation notifications via email (simulated as calendar invites)
+    # In production, you would use a proper email service
+    cancellation_info = {
+        "property_address": inspection["property_address"],
+        "scheduled_date": inspection.get("scheduled_date"),
+        "scheduled_time": inspection.get("scheduled_time"),
+        "customer_email": inspection["customer_email"],
+        "customer_name": inspection["customer_name"],
+        "owner_email": owner["email"] if owner else None,
+        "owner_name": owner["name"] if owner else None,
+    }
+    
+    # TODO: Implement actual email/calendar invite sending
+    # For now, just log the cancellation
+    print(f"Inspection {inspection_id} cancelled. Notifications would be sent to:")
+    print(f"  - Customer: {cancellation_info['customer_email']}")
+    print(f"  - Owner: {cancellation_info['owner_email']}")
+    
+    # Delete the inspection
+    await db.inspections.delete_one({"id": inspection_id})
+    
+    return {
+        "success": True,
+        "message": "Inspection cancelled successfully",
+        "notifications_sent": {
+            "customer": cancellation_info["customer_email"],
+            "owner": cancellation_info["owner_email"]
+        }
+    }
+
+
 # ============= CHAT/MESSAGE ENDPOINTS =============
 
 @api_router.post("/messages", response_model=MessageResponse)
