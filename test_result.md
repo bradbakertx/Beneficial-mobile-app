@@ -108,8 +108,8 @@ backend:
   - task: "Backend API Integration"
     implemented: true
     working: false
-    file: "services/api.ts, services/auth.service.ts"
-    stuck_count: 1
+    file: "backend/server.py"
+    stuck_count: 2
     priority: "high"
     needs_retesting: false
     status_history:
@@ -119,6 +119,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "CRITICAL: Backend API testing completed. API is reachable at https://homeinspectpro-1.preview.emergentagent.com/api but only has 2 basic endpoints: / (Hello World) and /status (empty array). All authentication endpoints (register, login, /auth/me) and business logic endpoints (quotes, inspections, admin routes) return 404 Not Found. The frontend API service layer is correctly implemented but the backend lacks the required authentication and business logic endpoints mentioned in the review request."
+      - working: false
+        agent: "testing"
+        comment: "URGENT LOGIN ISSUE CONFIRMED: Comprehensive testing with user credentials (bradbakertx@gmail.com/Beneficial1!) confirms the reported login problem. Local backend at localhost:8001/api is running but ONLY has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. ALL authentication endpoints return 404 Not Found: POST /api/auth/login, POST /api/auth/register, GET /api/auth/me. External backend URL https://homepro-inspect.preview.emergentagent.com/api is completely inaccessible (404 page not found). The backend needs complete implementation of authentication system including user registration, login, JWT token handling, and all business logic endpoints (quotes, inspections, admin routes). This is a BLOCKING issue preventing any user authentication in the mobile app."
 
 frontend:
   - task: "Authentication Flow"
