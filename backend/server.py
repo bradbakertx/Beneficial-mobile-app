@@ -134,6 +134,19 @@ async def get_me(current_user: UserInDB = Depends(get_current_user_from_token)):
     )
 
 
+@api_router.post("/auth/register-push-token")
+async def register_push_token(
+    push_token: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Register push notification token for user"""
+    await db.users.update_one(
+        {"id": current_user.id},
+        {"$set": {"push_token": push_token}}
+    )
+    return {"success": True, "message": "Push token registered"}
+
+
 # ============= QUOTE ENDPOINTS =============
 
 @api_router.post("/quotes", response_model=QuoteResponse)
