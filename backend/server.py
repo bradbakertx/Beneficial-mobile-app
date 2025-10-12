@@ -421,10 +421,14 @@ async def create_manual_inspection(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Create manual inspection entry (Owner only)"""
+    from email_service import send_inspection_calendar_invite
+    
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can create manual inspections")
     
     inspection_id = str(uuid.uuid4())
+    
+    # Create manual inspection record
     manual_inspection = ManualInspectionInDB(
         id=inspection_id,
         owner_id=current_user.id,
@@ -444,11 +448,70 @@ async def create_manual_inspection(
         property_type=inspection_data.property_type,
         num_buildings=inspection_data.num_buildings,
         num_units=inspection_data.num_units,
-        status="manual_entry",
+        fee_amount=inspection_data.fee_amount,
+        inspection_date=inspection_data.inspection_date,
+        inspection_time=inspection_data.inspection_time,
+        status="scheduled",
         created_at=datetime.utcnow()
     )
     
+    # Save to manual inspections collection
     await db.manual_inspections.insert_one(manual_inspection.dict())
+    
+    # Also create an active inspection for the Active Inspections view
+    full_address = f"{inspection_data.property_address}, {inspection_data.property_city}, TX {inspection_data.property_zip}"
+    active_inspection = InspectionInDB(
+        id=inspection_id,
+        quote_id="manual-entry",
+        customer_id="manual-entry",
+        customer_email=inspection_data.client_email,
+        customer_name=inspection_data.client_name,
+        property_address=full_address,
+        preferred_date=inspection_data.inspection_date,
+        preferred_time=inspection_data.inspection_time,
+        status=InspectionStatus.scheduled,
+        scheduled_date=inspection_data.inspection_date,
+        scheduled_time=inspection_data.inspection_time,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow()
+    )
+    await db.inspections.insert_one(active_inspection.dict())
+    
+    # Send calendar invites to all parties
+    owner = await db.users.find_one({"id": current_user.id})
+    
+    # Send to client
+    send_inspection_calendar_invite(
+        to_email=inspection_data.client_email,
+        recipient_name=inspection_data.client_name,
+        property_address=full_address,
+        inspection_date=inspection_data.inspection_date,
+        inspection_time=inspection_data.inspection_time,
+        is_owner=False
+    )
+    
+    # Send to owner
+    if owner and owner.get("email"):
+        send_inspection_calendar_invite(
+            to_email=owner["email"],
+            recipient_name=owner["name"],
+            property_address=full_address,
+            inspection_date=inspection_data.inspection_date,
+            inspection_time=inspection_data.inspection_time,
+            is_owner=True
+        )
+    
+    # Send to agent if provided
+    if inspection_data.agent_email:
+        send_inspection_calendar_invite(
+            to_email=inspection_data.agent_email,
+            recipient_name=inspection_data.agent_name or "Agent",
+            property_address=full_address,
+            inspection_date=inspection_data.inspection_date,
+            inspection_time=inspection_data.inspection_time,
+            is_owner=False
+        )
+    
     return ManualInspectionResponse(**manual_inspection.dict())
 
 
