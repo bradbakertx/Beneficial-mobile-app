@@ -10,6 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
@@ -52,7 +53,11 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.header}>
-            <Ionicons name="home" size={60} color="#007AFF" />
+            <Image 
+              source={require('../../assets/images/beneficial-logo-icon.jpg')}
+              style={styles.logo}
+              resizeMode="contain"
+            />
             <Text style={styles.title}>Beneficial Inspections</Text>
             <Text style={styles.subtitle}>Welcome back</Text>
           </View>
