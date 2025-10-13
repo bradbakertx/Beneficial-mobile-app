@@ -14,6 +14,7 @@ from models import (
     UserCreate, UserLogin, UserResponse, TokenResponse, UserInDB, UserRole,
     QuoteCreate, QuoteResponse, QuoteInDB, QuoteStatus,
     InspectionCreate, InspectionResponse, InspectionInDB, InspectionStatus,
+    SchedulingRequestCreate,
     QuotePriceUpdate, InspectionDateTimeUpdate,
     MessageCreate, MessageResponse, MessageInDB, ConversationSummary,
     ManualInspectionCreate, ManualInspectionResponse, ManualInspectionInDB
