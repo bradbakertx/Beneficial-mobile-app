@@ -372,4 +372,39 @@ const styles = StyleSheet.create({
     color: '#fff',
     opacity: 0.8,
   },
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3CD',
+    padding: 12,
+    gap: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#FF9500',
+  },
+  errorText: {
+    flex: 1,
+    fontSize: 13,
+    color: '#856404',
+  },
+  reconnectButton: {
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+  },
+  reconnectText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  emptyState: {
+    padding: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyStateText: {
+    fontSize: 16,
+    color: '#8E8E93',
+    marginTop: 12,
+  },
 });
