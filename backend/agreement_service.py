@@ -236,7 +236,7 @@ def generate_agreement_pdf(
     story.append(Paragraph(f"{inspector_name} - {inspector_license}", body_style))
     story.append(Spacer(1, 0.3*inch))
     
-    # Add customer signature (left-aligned)
+    # Add customer signature (left-aligned using Table)
     story.append(Paragraph("<b>Customer Signature:</b>", body_style))
     story.append(Spacer(1, 0.1*inch))
     
@@ -254,9 +254,16 @@ def generate_agreement_pdf(
         signature_img.save(img_buffer, format='PNG')
         img_buffer.seek(0)
         
-        # Add to PDF (left-aligned by default, no hAlign needed)
+        # Create image with fixed size
         img = RLImage(img_buffer, width=2*inch, height=0.67*inch)
-        story.append(img)
+        
+        # Wrap in a table to force left alignment
+        signature_table = Table([[img]], colWidths=[2*inch])
+        signature_table.setStyle([
+            ('ALIGN', (0, 0), (0, 0), 'LEFT'),
+            ('VALIGN', (0, 0), (0, 0), 'TOP'),
+        ])
+        story.append(signature_table)
     except Exception as e:
         logger.error(f"Error adding signature to PDF: {e}")
         story.append(Paragraph("[Signature]", body_style))
