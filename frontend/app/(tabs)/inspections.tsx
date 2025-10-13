@@ -8,6 +8,8 @@ import {
   ActivityIndicator,
   RefreshControl,
   Alert,
+  Modal,
+  Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
@@ -25,6 +27,8 @@ interface Inspection {
   inspector_name?: string;
   report_url?: string;
   agreement_signed?: boolean;
+  scheduled_date?: string;
+  scheduled_time?: string;
 }
 
 export default function InspectionsScreen() {
@@ -33,6 +37,7 @@ export default function InspectionsScreen() {
   const [inspections, setInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
 
   const fetchInspections = async () => {
     try {
