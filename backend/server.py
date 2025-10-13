@@ -440,6 +440,128 @@ async def get_inspection(
     return InspectionResponse(**inspection)
 
 
+@api_router.patch("/inspections/{inspection_id}/confirm-time", response_model=InspectionResponse)
+async def confirm_time_slot(
+    inspection_id: str,
+    request_body: dict = Body(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Customer confirms a selected time slot"""
+    from push_notification_service import send_push_notification
+    from email_service import send_inspection_confirmation_email
+    
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can confirm time slots")
+    
+    # Get the inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify the inspection belongs to the customer
+    if inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    
+    # Verify inspection is in the correct status
+    if inspection["status"] != InspectionStatus.awaiting_customer_selection.value:
+        raise HTTPException(status_code=400, detail="Inspection is not awaiting customer selection")
+    
+    scheduled_date = request_body.get("scheduled_date")
+    scheduled_time = request_body.get("scheduled_time")
+    
+    if not scheduled_date or not scheduled_time:
+        raise HTTPException(status_code=400, detail="scheduled_date and scheduled_time are required")
+    
+    # Update inspection to scheduled status
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {
+            "$set": {
+                "scheduled_date": scheduled_date,
+                "scheduled_time": scheduled_time,
+                "status": InspectionStatus.scheduled.value,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Send push notification to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            send_push_notification(
+                push_token=owner["push_token"],
+                title="Inspection Confirmed",
+                body=f"{current_user.name} confirmed inspection for {inspection['property_address']} on {scheduled_date} at {scheduled_time}",
+                data={"type": "inspection_confirmed", "inspection_id": inspection_id}
+            )
+    
+    # Send confirmation email to customer
+    send_inspection_confirmation_email(
+        to_email=current_user.email,
+        recipient_name=current_user.name,
+        property_address=inspection["property_address"],
+        scheduled_date=scheduled_date,
+        scheduled_time=scheduled_time
+    )
+    
+    # Return updated inspection
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    return InspectionResponse(**updated_inspection)
+
+
+@api_router.delete("/inspections/{inspection_id}")
+async def decline_inspection(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Customer declines an inspection offer"""
+    from push_notification_service import send_push_notification
+    
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can decline inspections")
+    
+    # Get the inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify the inspection belongs to the customer
+    if inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    
+    # Send push notification to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            send_push_notification(
+                push_token=owner["push_token"],
+                title="Inspection Declined",
+                body=f"{current_user.name} declined the inspection for {inspection['property_address']}",
+                data={"type": "inspection_declined", "inspection_id": inspection_id}
+            )
+    
+    # Delete the inspection
+    await db.inspections.delete_one({"id": inspection_id})
+    
+    # Also update the quote status back to "quoted" so customer can re-schedule if they change their mind
+    if inspection.get("quote_id"):
+        await db.quotes.update_one(
+            {"id": inspection["quote_id"]},
+            {
+                "$set": {
+                    "status": QuoteStatus.quoted.value,
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+    
+    return {
+        "success": True,
+        "message": "Inspection declined successfully"
+    }
+
+
 # ============= ADMIN INSPECTION ENDPOINTS =============
 
 @api_router.get("/admin/inspections/pending-scheduling", response_model=List[InspectionResponse])
