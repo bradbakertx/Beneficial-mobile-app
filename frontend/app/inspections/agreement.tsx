@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import SignatureScreen from 'react-native-signature-canvas';
+import SignaturePad from '../../components/SignaturePad';
 import api from '../../services/api';
 
 const { height } = Dimensions.get('window');
