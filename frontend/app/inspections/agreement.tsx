@@ -202,10 +202,13 @@ export default function PreInspectionAgreementScreen() {
               <TouchableOpacity
                 style={[styles.padButton, styles.donePadButton]}
                 onPress={() => {
+                  console.log('Done button pressed');
                   if (signatureRef.current) {
+                    console.log('Calling getSignature on ref');
                     signatureRef.current.getSignature();
+                  } else {
+                    console.log('signatureRef.current is null');
                   }
-                  setShowSignaturePad(false);
                 }}
               >
                 <Text style={styles.donePadButtonText}>Done</Text>
