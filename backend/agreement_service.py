@@ -83,7 +83,8 @@ ACCEPTED AND AGREED TO BY:
 
 
 def get_agreement_text(client_name: str, inspection_address: str, fee_amount: str, 
-                      inspection_date: str, inspection_time: str) -> str:
+                      inspection_date: str, inspection_time: str, inspector_name: str = "Brad Baker",
+                      inspector_license: str = "TREC LIC. # 7522") -> str:
     """
     Generate agreement text with customer-specific data
     """
@@ -92,7 +93,9 @@ def get_agreement_text(client_name: str, inspection_address: str, fee_amount: st
         inspection_address=inspection_address,
         fee_amount=fee_amount,
         inspection_date=inspection_date,
-        inspection_time=inspection_time
+        inspection_time=inspection_time,
+        inspector_name=inspector_name,
+        inspector_license=inspector_license
     )
 
 
