@@ -185,6 +185,46 @@ export default function InspectionsScreen() {
           </View>
         }
       />
+
+      {/* Customer Reschedule Request Modal */}
+      <Modal
+        visible={showRescheduleModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowRescheduleModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Ionicons name="calendar-outline" size={32} color="#007AFF" />
+              <Text style={styles.modalTitle}>Request Reschedule</Text>
+            </View>
+            
+            <Text style={styles.modalMessage}>
+              To request a different day or time for your inspection, please call us directly:
+            </Text>
+            
+            <TouchableOpacity
+              style={styles.phoneButton}
+              onPress={() => Linking.openURL('tel:2105620673')}
+            >
+              <Ionicons name="call" size={24} color="#fff" />
+              <Text style={styles.phoneButtonText}>(210) 562-0673</Text>
+            </TouchableOpacity>
+            
+            <Text style={styles.modalSubtext}>
+              Our team will work with you to find a convenient time that fits your schedule.
+            </Text>
+            
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setShowRescheduleModal(false)}
+            >
+              <Text style={styles.modalCloseButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
