@@ -515,6 +515,9 @@ async def confirm_time_slot(
     customer_name = inspection.get("customer_name") or current_user.name
     customer_email = inspection.get("customer_email") or current_user.email
     customer_phone = inspection.get("customer_phone")
+    inspector_name = inspection.get("inspector_name", "Brad Baker")
+    inspector_phone = inspection.get("inspector_phone")
+    inspector_license = inspection.get("inspector_license")
     
     # Send push notifications and calendar invites to all owners
     for owner in owners:
