@@ -84,43 +84,53 @@ export default function InspectionsScreen() {
     }
   };
 
-  const renderInspectionItem = ({ item }: { item: Inspection }) => (
-    <TouchableOpacity style={styles.inspectionCard}>
-      <View style={styles.inspectionHeader}>
-        <View style={styles.inspectionInfo}>
-          <Text style={styles.inspectionAddress} numberOfLines={1}>
-            {item.property_address}
-          </Text>
-          {item.inspector_name && (
-            <Text style={styles.inspectorName}>Inspector: {item.inspector_name}</Text>
+  const renderInspectionItem = ({ item }: { item: Inspection }) => {
+    // Map scheduled_date/scheduled_time to inspection_date/inspection_time for display
+    const displayDate = item.inspection_date || (item as any).scheduled_date;
+    const displayTime = item.inspection_time || (item as any).scheduled_time;
+    
+    return (
+      <TouchableOpacity style={styles.inspectionCard}>
+        <View style={styles.inspectionHeader}>
+          <View style={styles.inspectionInfo}>
+            <Text style={styles.inspectionAddress} numberOfLines={1}>
+              {item.property_address}
+            </Text>
+            {item.inspector_name && (
+              <Text style={styles.inspectorName}>Inspector: {item.inspector_name}</Text>
+            )}
+          </View>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.statusText}>{item.status}</Text>
+          </View>
+        </View>
+        
+        <View style={styles.inspectionDetails}>
+          {displayDate && (
+            <View style={styles.detailRow}>
+              <Ionicons name="calendar" size={18} color="#007AFF" />
+              <Text style={styles.detailText}>
+                {format(new Date(displayDate), 'MMMM dd, yyyy')}
+              </Text>
+            </View>
+          )}
+          {displayTime && (
+            <View style={styles.detailRow}>
+              <Ionicons name="time" size={18} color="#007AFF" />
+              <Text style={styles.detailText}>{displayTime}</Text>
+            </View>
           )}
         </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-          <Text style={styles.statusText}>{item.status}</Text>
-        </View>
-      </View>
-      
-      <View style={styles.inspectionDetails}>
-        <View style={styles.detailRow}>
-          <Ionicons name="calendar" size={18} color="#007AFF" />
-          <Text style={styles.detailText}>
-            {format(new Date(item.inspection_date), 'MMMM dd, yyyy')}
-          </Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="time" size={18} color="#007AFF" />
-          <Text style={styles.detailText}>{item.inspection_time}</Text>
-        </View>
-      </View>
 
-      {item.report_url && (
-        <TouchableOpacity style={styles.reportButton}>
-          <Ionicons name="document-text" size={18} color="#007AFF" />
-          <Text style={styles.reportButtonText}>View Report</Text>
-        </TouchableOpacity>
-      )}
-    </TouchableOpacity>
-  );
+        {item.report_url && (
+          <TouchableOpacity style={styles.reportButton}>
+            <Ionicons name="document-text" size={18} color="#007AFF" />
+            <Text style={styles.reportButtonText}>View Report</Text>
+          </TouchableOpacity>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
