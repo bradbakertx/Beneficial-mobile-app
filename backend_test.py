@@ -48,13 +48,13 @@ class BackendTester:
         
         try:
             if method == "GET":
-                response = requests.get(url, headers=headers, params=params)
+                response = requests.get(url, headers=headers, params=params, timeout=30)
             elif method == "POST":
-                response = requests.post(url, headers=headers, json=data)
+                response = requests.post(url, headers=headers, json=data, timeout=30)
             elif method == "PATCH":
-                response = requests.patch(url, headers=headers, json=data, params=params)
+                response = requests.patch(url, headers=headers, json=data, params=params, timeout=30)
             elif method == "DELETE":
-                response = requests.delete(url, headers=headers)
+                response = requests.delete(url, headers=headers, timeout=30)
             else:
                 raise ValueError(f"Unsupported method: {method}")
             
