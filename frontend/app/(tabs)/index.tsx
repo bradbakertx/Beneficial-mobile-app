@@ -74,7 +74,7 @@ export default function DashboardScreen() {
       
       // Active inspections - only those with confirmed date/time (status: "scheduled")
       const activeInspections = user?.role === 'customer'
-        ? [...pendingInspections, ...confirmedInspections].filter((i: any) => i.status === 'scheduled').length
+        ? pendingInspections.filter((i: any) => i.status === 'scheduled').length  // For customers, use one array to avoid duplicates
         : confirmedInspections.filter((i: any) => i.status === 'scheduled').length;
       
       // Pending scheduling:
