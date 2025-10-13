@@ -126,6 +126,24 @@ export default function ProfileScreen() {
 
         <Text style={styles.version}>Version 1.0.0</Text>
       </ScrollView>
+
+      {/* Custom Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Logout</Text>
+            <Text style={styles.modalMessage}>Are you sure you want to logout?</Text>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalButtonCancel} onPress={cancelLogout}>
+                <Text style={styles.modalButtonCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalButtonConfirm} onPress={confirmLogout}>
+                <Text style={styles.modalButtonConfirmText}>Logout</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
