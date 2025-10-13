@@ -122,6 +122,18 @@ export default function InspectionsScreen() {
           )}
         </View>
 
+        {/* Agreement Button for Customers */}
+        {user?.role === 'customer' && !item.agreement_signed && (
+          <TouchableOpacity
+            style={styles.agreementButton}
+            onPress={() => router.push(`/inspections/agreement?id=${item.id}`)}
+          >
+            <Ionicons name="document-text-outline" size={20} color="#FF9500" />
+            <Text style={styles.agreementButtonText}>Sign Pre-Inspection Agreement</Text>
+            <Ionicons name="chevron-forward" size={18} color="#FF9500" />
+          </TouchableOpacity>
+        )}
+
         {item.report_url && (
           <TouchableOpacity style={styles.reportButton}>
             <Ionicons name="document-text" size={18} color="#007AFF" />
