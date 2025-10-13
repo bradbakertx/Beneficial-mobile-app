@@ -652,8 +652,6 @@ async def decline_inspection(
         "success": True,
         "message": "Inspection canceled successfully"
     }
-        "message": "Inspection declined successfully"
-    }
 
 
 # ============= ADMIN INSPECTION ENDPOINTS =============
