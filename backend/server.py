@@ -550,16 +550,66 @@ async def confirm_time_slot(
     return InspectionResponse(**updated_inspection)
 
 
+@api_router.patch("/inspections/{inspection_id}/decline-offered-times")
+async def decline_offered_times(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Customer declines offered time slots - keeps inspection, allows owner to resubmit"""
+    from push_notification_service import send_push_notification
+    
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can decline offered times")
+    
+    # Get the inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify the inspection belongs to the customer
+    if inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    
+    # Update inspection status back to pending_scheduling to allow owner to resubmit
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {
+            "$set": {
+                "status": InspectionStatus.pending_scheduling.value,
+                "offered_time_slots": None,  # Clear the offered slots
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Send push notification to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            send_push_notification(
+                push_token=owner["push_token"],
+                title="Offered Times Rejected",
+                body=f"{current_user.name} rejected the offered time slots for {inspection['property_address']}. Please offer new dates.",
+                data={"type": "times_rejected", "inspection_id": inspection_id}
+            )
+    
+    logging.info(f"Customer {current_user.name} declined offered times for inspection {inspection_id}. Push notifications sent to owners.")
+    
+    # Return updated inspection
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    return InspectionResponse(**updated_inspection)
+
+
 @api_router.delete("/inspections/{inspection_id}")
 async def decline_inspection(
     inspection_id: str,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Customer declines an inspection offer"""
+    """Customer cancels/declines an inspection completely - deletes it"""
     from push_notification_service import send_push_notification
     
     if current_user.role != UserRole.customer:
-        raise HTTPException(status_code=403, detail="Only customers can decline inspections")
+        raise HTTPException(status_code=403, detail="Only customers can cancel inspections")
     
     # Get the inspection
     inspection = await db.inspections.find_one({"id": inspection_id})
