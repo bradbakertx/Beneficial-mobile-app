@@ -27,11 +27,18 @@ interface CalendarEvent {
 }
 
 export default function CalendarWeekView() {
+  const { width: windowWidth } = useWindowDimensions();
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 })); // Sunday
+  
+  // Calculate responsive column width
+  const TIME_COLUMN_WIDTH = 60;
+  const PADDING = 32; // Account for container padding
+  const availableWidth = windowWidth - TIME_COLUMN_WIDTH - PADDING;
+  const dayColumnWidth = Math.floor(availableWidth / 7);
 
   useEffect(() => {
     checkConnection();
