@@ -1047,6 +1047,135 @@ async def cancel_inspection(
         }
     }
 
+# ============= PRE-INSPECTION AGREEMENT ENDPOINTS =============
+
+@api_router.get("/inspections/{inspection_id}/agreement")
+async def get_agreement(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get pre-inspection agreement for customer"""
+    from agreement_service import get_agreement_text
+    
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can view agreement")
+    
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify customer owns this inspection
+    if inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get quote for fee amount
+    fee_amount = "425.00"  # Default
+    if inspection.get("quote_id"):
+        quote = await db.quotes.find_one({"id": inspection["quote_id"]})
+        if quote and quote.get("quote_amount"):
+            fee_amount = str(quote["quote_amount"])
+    
+    # Generate agreement text
+    agreement_text = get_agreement_text(
+        client_name=inspection["customer_name"],
+        inspection_address=inspection["property_address"],
+        fee_amount=fee_amount,
+        inspection_date=inspection.get("scheduled_date", "TBD"),
+        inspection_time=inspection.get("scheduled_time", "TBD")
+    )
+    
+    return {
+        "agreement_text": agreement_text,
+        "already_signed": inspection.get("agreement_signed", False),
+        "signed_date": inspection.get("agreement_signed_date")
+    }
+
+
+@api_router.post("/inspections/{inspection_id}/sign-agreement")
+async def sign_agreement(
+    inspection_id: str,
+    request_body: dict = Body(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Sign pre-inspection agreement and generate PDF"""
+    from agreement_service import generate_agreement_pdf, send_agreement_email
+    
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can sign agreement")
+    
+    signature_data = request_body.get("signature")
+    if not signature_data:
+        raise HTTPException(status_code=400, detail="Signature is required")
+    
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify customer owns this inspection
+    if inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Get quote for fee amount
+    fee_amount = "425.00"  # Default
+    if inspection.get("quote_id"):
+        quote = await db.quotes.find_one({"id": inspection["quote_id"]})
+        if quote and quote.get("quote_amount"):
+            fee_amount = str(quote["quote_amount"])
+    
+    # Generate PDF
+    try:
+        pdf_bytes = generate_agreement_pdf(
+            client_name=inspection["customer_name"],
+            inspection_address=inspection["property_address"],
+            fee_amount=fee_amount,
+            inspection_date=inspection.get("scheduled_date", "TBD"),
+            inspection_time=inspection.get("scheduled_time", "TBD"),
+            signature_base64=signature_data
+        )
+    except Exception as e:
+        logging.error(f"Error generating PDF: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate PDF")
+    
+    # Update inspection with signature
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {
+            "$set": {
+                "agreement_signed": True,
+                "agreement_signed_date": datetime.utcnow(),
+                "agreement_signature_data": signature_data,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Send PDF to customer
+    send_agreement_email(
+        to_email=current_user.email,
+        recipient_name=current_user.name,
+        property_address=inspection["property_address"],
+        pdf_bytes=pdf_bytes
+    )
+    
+    # Send PDF to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        send_agreement_email(
+            to_email=owner["email"],
+            recipient_name=owner["name"],
+            property_address=inspection["property_address"],
+            pdf_bytes=pdf_bytes
+        )
+    
+    logging.info(f"Agreement signed for inspection {inspection_id} by customer {current_user.name}")
+    
+    return {
+        "success": True,
+        "message": "Agreement signed successfully. PDFs have been emailed to you and the inspector."
+    }
+
+
+
 
 # ============= CHAT/MESSAGE ENDPOINTS =============
 
