@@ -245,6 +245,7 @@ export default function CalendarWeekView() {
           </ScrollView>
         </View>
       </ScrollView>
+      )}
     </View>
   );
 }
