@@ -188,8 +188,28 @@ def generate_agreement_pdf(
         
         story.append(Spacer(1, 0.1*inch))
     
-    # Add signature
     story.append(Spacer(1, 0.3*inch))
+    story.append(Paragraph("<b>ACCEPTED AND AGREED TO BY:</b>", body_style))
+    story.append(Spacer(1, 0.2*inch))
+    
+    # Add Brad Baker's signature
+    try:
+        import requests
+        brad_sig_url = "https://customer-assets.emergentagent.com/job_scheduleplus-12/artifacts/fqhox4zb_BradSig.jpg"
+        brad_sig_response = requests.get(brad_sig_url)
+        brad_sig_bytes = io.BytesIO(brad_sig_response.content)
+        
+        # Add Brad's signature
+        brad_sig_img = RLImage(brad_sig_bytes, width=2*inch, height=0.8*inch)
+        story.append(brad_sig_img)
+    except Exception as e:
+        logger.error(f"Error adding Brad's signature to PDF: {e}")
+        story.append(Paragraph("[Brad Baker Signature]", body_style))
+    
+    story.append(Paragraph("Bradley Baker - TREC LIC. # 7522", body_style))
+    story.append(Spacer(1, 0.3*inch))
+    
+    # Add customer signature
     story.append(Paragraph("<b>Customer Signature:</b>", body_style))
     story.append(Spacer(1, 0.1*inch))
     
@@ -215,6 +235,7 @@ def generate_agreement_pdf(
         story.append(Paragraph("[Signature]", body_style))
     
     story.append(Spacer(1, 0.1*inch))
+    story.append(Paragraph(f"<b>{client_name}</b>", body_style))
     story.append(Paragraph(f"Signed on: {datetime.utcnow().strftime('%B %d, %Y at %I:%M %p')}", body_style))
     
     # Build PDF
