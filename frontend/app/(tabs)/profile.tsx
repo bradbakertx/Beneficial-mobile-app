@@ -18,52 +18,27 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     console.log('=== LOGOUT BUTTON PRESSED ===');
-    
-    // For web, use window.confirm; for native, use Alert.alert
-    if (Platform.OS === 'web') {
-      const confirmed = window.confirm('Are you sure you want to logout?');
-      if (confirmed) {
-        try {
-          console.log('Starting logout process...');
-          await logout();
-          console.log('Logout completed, state cleared');
-          router.replace('/');
-        } catch (error) {
-          console.error('Logout error:', error);
-          window.alert('Failed to logout. Please try again.');
-        }
-      }
-    } else {
-      Alert.alert(
-        'Logout',
-        'Are you sure you want to logout?',
-        [
-          { 
-            text: 'Cancel', 
-            style: 'cancel',
-            onPress: () => console.log('Logout cancelled')
-          },
-          {
-            text: 'Logout',
-            style: 'destructive',
-            onPress: async () => {
-              try {
-                console.log('Starting logout process...');
-                await logout();
-                console.log('Logout completed, state cleared');
-                await new Promise(resolve => setTimeout(resolve, 100));
-                router.replace('/');
-              } catch (error) {
-                console.error('Logout error:', error);
-                Alert.alert('Error', 'Failed to logout. Please try again.');
-              }
-            },
-          },
-        ]
-      );
+    setShowLogoutConfirm(true);
+  };
+
+  const confirmLogout = async () => {
+    try {
+      console.log('Starting logout process...');
+      setShowLogoutConfirm(false);
+      await logout();
+      console.log('Logout completed, state cleared');
+      router.replace('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+      Alert.alert('Error', 'Failed to logout. Please try again.');
     }
+  };
+
+  const cancelLogout = () => {
+    console.log('Logout cancelled');
+    setShowLogoutConfirm(false);
   };
 
   return (
