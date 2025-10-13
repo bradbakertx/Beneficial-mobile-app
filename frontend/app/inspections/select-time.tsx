@@ -383,6 +383,37 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8E8E93',
   },
+  inspectorCard: {
+    backgroundColor: '#E3F2FD',
+    padding: 16,
+    marginBottom: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007AFF',
+  },
+  inspectorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  inspectorTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#007AFF',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  inspectorName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    marginBottom: 4,
+  },
+  inspectorDetail: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginBottom: 2,
+  },
   section: {
     padding: 16,
   },
