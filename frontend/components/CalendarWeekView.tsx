@@ -321,6 +321,9 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1C1C1E',
   },
+  calendarContainer: {
+    flex: 1,
+  },
   calendarScroll: {
     maxHeight: 400,
   },
@@ -330,12 +333,10 @@ const styles = StyleSheet.create({
     borderBottomColor: '#E5E5EA',
   },
   timeColumn: {
-    width: 60,
     alignItems: 'center',
     justifyContent: 'center',
   },
   dayHeader: {
-    width: 80,
     padding: 12,
     alignItems: 'center',
   },
