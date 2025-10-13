@@ -10,7 +10,7 @@ import sys
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BASE_URL = "https://inspecto-mobile.preview.emergentagent.com/api"
+BASE_URL = "https://scheduleplus-12.preview.emergentagent.com/api"
 
 # Test credentials
 TEST_EMAIL = "bradbakertx@gmail.com"
