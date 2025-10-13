@@ -364,7 +364,6 @@ const styles = StyleSheet.create({
     color: '#8E8E93',
   },
   dayColumn: {
-    width: 80,
     height: 60,
     borderRightWidth: 1,
     borderRightColor: '#F2F2F7',
