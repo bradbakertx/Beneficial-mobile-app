@@ -244,6 +244,29 @@ export default function OfferTimeSlotsScreen() {
           </View>
         </View>
 
+        {/* Inspector Selection */}
+        <View style={styles.inspectorCard}>
+          <Text style={styles.inspectorTitle}>Select Inspector:</Text>
+          <View style={styles.pickerContainer}>
+            <Picker
+              selectedValue={selectedInspector}
+              onValueChange={(value) => setSelectedInspector(value)}
+              style={styles.picker}
+            >
+              {INSPECTORS.map((inspector, index) => (
+                <Picker.Item 
+                  key={index}
+                  label={`${inspector.name} - ${inspector.license}`}
+                  value={index}
+                />
+              ))}
+            </Picker>
+          </View>
+          <Text style={styles.inspectorInfo}>
+            Phone: {INSPECTORS[selectedInspector].phone}
+          </Text>
+        </View>
+
         {/* Instructions */}
         <View style={styles.instructionsCard}>
           <Text style={styles.instructionsTitle}>Select Dates & Times to Offer:</Text>
