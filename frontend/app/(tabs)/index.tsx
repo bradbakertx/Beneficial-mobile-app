@@ -134,7 +134,7 @@ export default function DashboardScreen() {
         {/* White Banner with Logo, Greeting, and Badge */}
         <View style={styles.topBanner}>
           <Image 
-            source={require('../../assets/beneficial-logo-icon.jpg')}
+            source={require('../../assets/images/beneficial-logo-icon.jpg')}
             style={styles.bannerLogo}
             resizeMode="contain"
           />
