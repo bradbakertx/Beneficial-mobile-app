@@ -72,8 +72,10 @@ export default function DashboardScreen() {
         ? quotes.filter((q: any) => q.status === 'quoted').length
         : quotes.filter((q: any) => q.status === 'pending' || q.status === 'pending_review').length;
       
-      // Active inspections are confirmed or awaiting confirmation
-      const activeInspections = confirmedInspections.length;
+      // Active inspections - only those with confirmed date/time (status: "scheduled")
+      const activeInspections = user?.role === 'customer'
+        ? [...pendingInspections, ...confirmedInspections].filter((i: any) => i.status === 'scheduled').length
+        : confirmedInspections.filter((i: any) => i.status === 'scheduled').length;
       
       // Pending scheduling:
       // - For owners: inspections waiting for owner to offer times (status: pending_scheduling)
