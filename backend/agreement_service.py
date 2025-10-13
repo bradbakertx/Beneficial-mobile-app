@@ -254,8 +254,8 @@ def generate_agreement_pdf(
         signature_img.save(img_buffer, format='PNG')
         img_buffer.seek(0)
         
-        # Add to PDF with left alignment
-        img = RLImage(img_buffer, width=3*inch, height=1*inch, hAlign='LEFT')
+        # Add to PDF (left-aligned by default, no hAlign needed)
+        img = RLImage(img_buffer, width=2*inch, height=0.67*inch)
         story.append(img)
     except Exception as e:
         logger.error(f"Error adding signature to PDF: {e}")
