@@ -33,7 +33,7 @@ An inspection fee of ${fee_amount} will be paid by Client at the time of inspect
 
 Client has employed this Inspection Company to complete a Structural and Mechanical Inspection Report on the above described property. This report is solely between the Inspection Company and the Client. Disclosure of the findings in this report are at the discretion of the Client.
 
-Client or authorized agent authorizes distribution of this report to Buyer, ☑ Agent(s), ☐ Title Company, ☐ Other.
+Client or authorized agent authorizes distribution of this report to Buyer, [X] Agent(s), [ ] Title Company, [ ] Other.
 
 It is the intention of this report to indicate which items were inspected and to help locate and indicate major structural and/or mechanical deficiencies discernible to the Inspector at the time of this inspection. All items indicated were inspected to determine if they were performing the function for which intended at the time of this inspection. This report outlines a non-destructive inspection of this building and major components of such that were discernible and readily accessible to the Inspector. The Inspector did not dig, probe, dismantle equipment, or remove permanent materials on items which could be damaged by such.
 
