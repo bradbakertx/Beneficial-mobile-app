@@ -10,7 +10,7 @@ import sys
 from datetime import datetime, timedelta
 
 # Backend URL from environment
-BACKEND_URL = "https://scheduleplus-12.preview.emergentagent.com/api"
+BACKEND_URL = "https://inspect-scheduler.preview.emergentagent.com/api"
 
 # Test credentials
 OWNER_EMAIL = "bradbakertx@gmail.com"

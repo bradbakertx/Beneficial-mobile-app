@@ -1389,7 +1389,7 @@ async def google_callback(code: str, state: str):
         )
         
         # Redirect to frontend
-        return RedirectResponse(url="https://scheduleplus-12.preview.emergentagent.com/(tabs)")
+        return RedirectResponse(url="https://inspect-scheduler.preview.emergentagent.com/(tabs)")
     except Exception as e:
         print(f"Google callback error: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to authenticate with Google: {str(e)}")
