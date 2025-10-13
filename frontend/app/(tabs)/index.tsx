@@ -58,9 +58,11 @@ export default function DashboardScreen() {
       });
       
       // Calculate statistics
-      const pendingQuotes = quotes.filter((q: any) => 
-        q.status === 'pending' || q.status === 'pending_review'
-      ).length;
+      // For customers: show "quoted" quotes (waiting for customer response)
+      // For owners: show "pending" quotes (waiting for owner to set price)
+      const pendingQuotes = user?.role === 'customer' 
+        ? quotes.filter((q: any) => q.status === 'quoted').length
+        : quotes.filter((q: any) => q.status === 'pending' || q.status === 'pending_review').length;
       
       // Active inspections are confirmed or awaiting confirmation
       const activeInspections = confirmedInspections.length;
