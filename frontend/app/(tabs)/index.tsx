@@ -78,9 +78,19 @@ export default function DashboardScreen() {
       // Pending scheduling:
       // - For owners: inspections waiting for owner to offer times (status: pending_scheduling)
       // - For customers: inspections waiting for customer to select a time (status: awaiting_customer_selection)
-      const pendingScheduling = user?.role === 'customer'
-        ? [...pendingInspections, ...confirmedInspections].filter((i: any) => i.status === 'awaiting_customer_selection').length
-        : pendingInspections.length;
+      let pendingScheduling = 0;
+      if (user?.role === 'customer') {
+        const allInspections = [...pendingInspections, ...confirmedInspections];
+        const awaitingSelection = allInspections.filter((i: any) => i.status === 'awaiting_customer_selection');
+        pendingScheduling = awaitingSelection.length;
+        console.log('Customer pending scheduling calculation:', {
+          totalInspections: allInspections.length,
+          awaitingSelection: awaitingSelection.map((i: any) => ({ id: i.id, status: i.status })),
+          count: pendingScheduling
+        });
+      } else {
+        pendingScheduling = pendingInspections.length;
+      }
       
       console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling, unreadMessages: unreadCount });
       
