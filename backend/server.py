@@ -518,6 +518,18 @@ async def confirm_time_slot(
         is_owner=False
     )
     
+    # Send calendar invite to agent if agent email exists
+    if inspection.get("agent_email"):
+        send_inspection_calendar_invite(
+            to_email=inspection["agent_email"],
+            recipient_name=inspection.get("agent_name", "Agent"),
+            property_address=inspection["property_address"],
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=False
+        )
+        logging.info(f"Calendar invite sent to agent: {inspection['agent_email']}")
+    
     # Return updated inspection
     updated_inspection = await db.inspections.find_one({"id": inspection_id})
     return InspectionResponse(**updated_inspection)
