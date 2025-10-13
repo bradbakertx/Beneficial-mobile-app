@@ -15,7 +15,7 @@ BACKEND_URL = "https://scheduleplus-12.preview.emergentagent.com/api"
 # Test credentials
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
-CUSTOMER_EMAIL = "testcustomer@example.com"
+CUSTOMER_EMAIL = "phase4customer@example.com"
 CUSTOMER_PASSWORD = "TestPass123!"
 
 class BackendTester:
