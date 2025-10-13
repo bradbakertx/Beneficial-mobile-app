@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import SignaturePad from '../../components/SignaturePad';
+import SignaturePad, { SignaturePadRef } from '../../components/SignaturePad';
 import api from '../../services/api';
 
 const { height } = Dimensions.get('window');
@@ -25,7 +25,7 @@ export default function PreInspectionAgreementScreen() {
   const [agreementData, setAgreementData] = useState<any>(null);
   const [signature, setSignature] = useState<string | null>(null);
   const [showSignaturePad, setShowSignaturePad] = useState(false);
-  const signatureRef = useRef<any>(null);
+  const signatureRef = useRef<SignaturePadRef>(null);
 
   useEffect(() => {
     fetchAgreement();
