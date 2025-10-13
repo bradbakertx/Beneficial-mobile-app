@@ -76,7 +76,7 @@ CAUTION: This legal document consists of 2 pages. You are advised to read them a
 
 ACCEPTED AND AGREED TO BY:
 
-Bradley Baker - TREC LIC. # 7522
+{inspector_name} - {inspector_license}
 
 {client_name}
 """
