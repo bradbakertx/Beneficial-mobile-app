@@ -123,27 +123,28 @@ def generate_agreement_pdf(
         textColor='black',
         spaceAfter=6,
         alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
+        fontName='Times-Bold'
     )
     
     body_style = ParagraphStyle(
         'CustomBody',
         parent=styles['BodyText'],
-        fontSize=9,
+        fontSize=10,
         textColor='black',
         spaceAfter=8,
-        leading=12,
-        alignment=TA_LEFT
+        leading=14,
+        alignment=TA_LEFT,
+        fontName='Times-Roman'
     )
     
     bold_style = ParagraphStyle(
         'CustomBold',
         parent=styles['BodyText'],
-        fontSize=9,
+        fontSize=10,
         textColor='black',
         spaceAfter=8,
-        leading=12,
-        fontName='Helvetica-Bold'
+        leading=14,
+        fontName='Times-Bold'
     )
     
     # Build content
