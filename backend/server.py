@@ -497,12 +497,13 @@ async def confirm_time_slot(
             )
     
     # Send confirmation email to customer
-    send_inspection_confirmation_email(
+    send_inspection_scheduled_email(
         to_email=current_user.email,
         recipient_name=current_user.name,
         property_address=inspection["property_address"],
         scheduled_date=scheduled_date,
-        scheduled_time=scheduled_time
+        scheduled_time=scheduled_time,
+        is_owner=False
     )
     
     # Return updated inspection
