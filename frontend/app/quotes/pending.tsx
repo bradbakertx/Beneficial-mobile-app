@@ -3,138 +3,137 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
-  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import api from '../../services/api';
-import { format } from 'date-fns';
 
 interface Quote {
   id: string;
-  street_address: string;
-  city: string;
-  state: string;
-  zip_code: string;
-  inspection_type: string;
-  square_footage: number;
-  year_built: number;
-  foundation_type: string;
   customer_name: string;
   customer_email: string;
-  customer_phone: string;
-  status: string;
-  quote_amount?: number;
+  property_address: string;
+  property_city: string;
+  property_type: string;
   created_at: string;
+  status: string;
 }
 
 export default function PendingQuotesScreen() {
   const router = useRouter();
-  const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [quotes, setQuotes] = useState<Quote[]>([]);
 
-  const fetchPendingQuotes = async () => {
+  useEffect(() => {
+    fetchQuotes();
+  }, []);
+
+  const fetchQuotes = async () => {
     try {
       const response = await api.get('/admin/quotes');
-      const allQuotes = response.data;
-      const pending = allQuotes.filter((q: Quote) => 
-        q.status === 'pending' || q.status === 'pending_review'
-      );
-      setQuotes(pending);
-    } catch (error: any) {
-      console.error('Error fetching pending quotes:', error);
-      Alert.alert('Error', 'Failed to fetch pending quotes');
+      // Filter only pending quotes
+      const pendingQuotes = response.data.filter((q: Quote) => q.status === 'pending');
+      setQuotes(pendingQuotes);
+    } catch (error) {
+      console.error('Error fetching quotes:', error);
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  useEffect(() => {
-    fetchPendingQuotes();
-  }, []);
-
   const onRefresh = () => {
     setRefreshing(true);
-    fetchPendingQuotes();
+    fetchQuotes();
   };
-
-  const renderQuoteItem = ({ item }: { item: Quote }) => (
-    <TouchableOpacity 
-      style={styles.quoteCard}
-      onPress={() => router.push(`/quotes/detail?id=${item.id}`)}
-    >
-      <View style={styles.quoteHeader}>
-        <View style={styles.quoteInfo}>
-          <Text style={styles.quoteAddress} numberOfLines={1}>
-            {item.street_address}
-          </Text>
-          <Text style={styles.quoteCity}>{item.city}, {item.state} {item.zip_code}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={24} color="#C7C7CC" />
-      </View>
-      
-      <View style={styles.quoteDetails}>
-        <View style={styles.detailRow}>
-          <Ionicons name="person-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.customer_name}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="home-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.inspection_type}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="resize-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.square_footage} sq ft • Built {item.year_built}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>
-            {format(new Date(item.created_at), 'MMM dd, yyyy h:mm a')}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
+      <SafeAreaView style={styles.container}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.push('/(tabs)')} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
           <Ionicons name="arrow-back" size={24} color="#007AFF" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Pending Quotes</Text>
         <View style={styles.placeholder} />
       </View>
 
-      <FlatList
-        data={quotes}
-        renderItem={renderQuoteItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+      <ScrollView
+        style={styles.content}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
+      >
+        {quotes.length === 0 ? (
+          <View style={styles.emptyState}>
             <Ionicons name="document-text-outline" size={64} color="#C7C7CC" />
             <Text style={styles.emptyText}>No pending quotes</Text>
-            <Text style={styles.emptySubtext}>All quotes have been reviewed</Text>
+            <Text style={styles.emptySubtext}>New quote requests will appear here</Text>
           </View>
-        }
-      />
+        ) : (
+          quotes.map((quote) => (
+            <TouchableOpacity
+              key={quote.id}
+              style={styles.quoteCard}
+              onPress={() => router.push(`/quotes/detail?id=${quote.id}`)}
+            >
+              <View style={styles.cardHeader}>
+                <View style={styles.customerInfo}>
+                  <Ionicons name="person" size={20} color="#007AFF" />
+                  <Text style={styles.customerName}>{quote.customer_name}</Text>
+                </View>
+                <View style={styles.statusBadge}>
+                  <Text style={styles.statusText}>PENDING</Text>
+                </View>
+              </View>
+
+              <View style={styles.cardBody}>
+                <View style={styles.infoRow}>
+                  <Ionicons name="location" size={16} color="#8E8E93" />
+                  <Text style={styles.infoText}>
+                    {quote.property_address}, {quote.property_city}
+                  </Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <Ionicons name="home" size={16} color="#8E8E93" />
+                  <Text style={styles.infoText}>{quote.property_type}</Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <Ionicons name="mail" size={16} color="#8E8E93" />
+                  <Text style={styles.infoText}>{quote.customer_email}</Text>
+                </View>
+
+                <View style={styles.infoRow}>
+                  <Ionicons name="time" size={16} color="#8E8E93" />
+                  <Text style={styles.infoText}>
+                    {new Date(quote.created_at).toLocaleDateString()}
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.cardFooter}>
+                <Text style={styles.viewDetails}>Tap to set quote amount</Text>
+                <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -170,61 +169,17 @@ const styles = StyleSheet.create({
   placeholder: {
     width: 32,
   },
-  listContent: {
-    padding: 16,
-    flexGrow: 1,
-  },
-  quoteCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  quoteHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  quoteInfo: {
+  content: {
     flex: 1,
-    marginRight: 12,
+    padding: 16,
   },
-  quoteAddress: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#1C1C1E',
-    marginBottom: 4,
-  },
-  quoteCity: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  quoteDetails: {
-    gap: 8,
-  },
-  detailRow: {
-    flexDirection: 'row',
+  emptyState: {
     alignItems: 'center',
-    gap: 8,
-  },
-  detailText: {
-    fontSize: 14,
-    color: '#8E8E93',
-  },
-  emptyContainer: {
-    flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
     paddingVertical: 80,
   },
   emptyText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: '600',
     color: '#8E8E93',
     marginTop: 16,
@@ -233,5 +188,73 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#C7C7CC',
     marginTop: 8,
+  },
+  quoteCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
+  customerInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  customerName: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1C1C1E',
+  },
+  statusBadge: {
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  statusText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  cardBody: {
+    gap: 8,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#1C1C1E',
+    flex: 1,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F2F2F7',
+  },
+  viewDetails: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '600',
   },
 });
