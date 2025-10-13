@@ -7,6 +7,7 @@ import os
 import io
 import base64
 import logging
+import requests
 from datetime import datetime
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
