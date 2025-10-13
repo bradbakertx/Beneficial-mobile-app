@@ -126,7 +126,7 @@ export default function PendingSchedulingListScreen() {
                       {inspection.option_period_unsure
                         ? 'Unsure'
                         : inspection.option_period_end_date
-                        ? format(new Date(inspection.option_period_end_date), 'MMM dd, yyyy')
+                        ? format(parseDateLocal(inspection.option_period_end_date), 'MMM dd, yyyy')
                         : 'Not specified'}
                     </Text>
                   </View>
