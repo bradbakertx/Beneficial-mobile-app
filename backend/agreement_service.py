@@ -176,7 +176,7 @@ def generate_agreement_pdf(
     
     # Split agreement text into paragraphs
     agreement_text = get_agreement_text(client_name, inspection_address, fee_amount, 
-                                       inspection_date, inspection_time)
+                                       inspection_date, inspection_time, inspector_name, inspector_license)
     
     # Process each paragraph
     for para in agreement_text.split('\n\n'):
