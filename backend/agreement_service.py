@@ -206,19 +206,22 @@ def generate_agreement_pdf(
     
     # Add Brad Baker's signature
     try:
-        import requests
-        brad_sig_url = "https://customer-assets.emergentagent.com/job_scheduleplus-12/artifacts/fqhox4zb_BradSig.jpg"
-        brad_sig_response = requests.get(brad_sig_url)
-        brad_sig_bytes = io.BytesIO(brad_sig_response.content)
-        
-        # Add Brad's signature
-        brad_sig_img = RLImage(brad_sig_bytes, width=2*inch, height=0.8*inch)
-        story.append(brad_sig_img)
+        inspector_sig_url = INSPECTOR_SIGNATURES.get(inspector_name)
+        if inspector_sig_url:
+            inspector_sig_response = requests.get(inspector_sig_url)
+            inspector_sig_bytes = io.BytesIO(inspector_sig_response.content)
+            
+            # Add inspector's signature
+            inspector_sig_img = RLImage(inspector_sig_bytes, width=2*inch, height=0.8*inch)
+            story.append(inspector_sig_img)
+        else:
+            logger.warning(f"No signature URL found for inspector: {inspector_name}")
+            story.append(Paragraph(f"[{inspector_name} Signature]", body_style))
     except Exception as e:
-        logger.error(f"Error adding Brad's signature to PDF: {e}")
-        story.append(Paragraph("[Brad Baker Signature]", body_style))
+        logger.error(f"Error adding inspector signature to PDF: {e}")
+        story.append(Paragraph(f"[{inspector_name} Signature]", body_style))
     
-    story.append(Paragraph("Bradley Baker - TREC LIC. # 7522", body_style))
+    story.append(Paragraph(f"{inspector_name} - {inspector_license}", body_style))
     story.append(Spacer(1, 0.3*inch))
     
     # Add customer signature
