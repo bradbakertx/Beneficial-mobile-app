@@ -998,53 +998,87 @@ async def cancel_inspection(
     scheduled_date = inspection.get("scheduled_date")
     scheduled_time = inspection.get("scheduled_time")
     
+    # Track emails sent for calendar cancellations
+    cancellations_sent = {}
+    emails_sent = set()  # To avoid sending duplicate emails
+    
     # Send calendar cancellation to customer
     if scheduled_date and scheduled_time:
+        customer_email = inspection["customer_email"]
         send_inspection_calendar_cancellation(
-            to_email=inspection["customer_email"],
+            to_email=customer_email,
             recipient_name=inspection["customer_name"],
             property_address=inspection["property_address"],
             inspection_date=scheduled_date,
             inspection_time=scheduled_time,
             is_owner=False
         )
-        logging.info(f"Calendar cancellation sent to customer: {inspection['customer_email']}")
+        emails_sent.add(customer_email.lower())
+        cancellations_sent["customer"] = customer_email
+        logging.info(f"Calendar cancellation sent to customer: {customer_email}")
     
     # Send calendar cancellation to owner
     if owner and scheduled_date and scheduled_time:
+        owner_email = owner["email"]
         send_inspection_calendar_cancellation(
-            to_email=owner["email"],
+            to_email=owner_email,
             recipient_name=owner["name"],
             property_address=inspection["property_address"],
             inspection_date=scheduled_date,
             inspection_time=scheduled_time,
             is_owner=True
         )
-        logging.info(f"Calendar cancellation sent to owner: {owner['email']}")
+        emails_sent.add(owner_email.lower())
+        cancellations_sent["owner"] = owner_email
+        logging.info(f"Calendar cancellation sent to owner: {owner_email}")
     
-    # Send calendar cancellation to agent if agent email exists
+    # Send calendar cancellation to inspector (if different from owner)
+    inspector_email = None
+    if inspection.get("inspector_name") and scheduled_date and scheduled_time:
+        # Map inspector name to email
+        inspector_emails = {
+            "Brad Baker": "bradbakertx@gmail.com",
+            "Blake Gray": None  # TODO: Add Blake's email when available
+        }
+        inspector_email = inspector_emails.get(inspection.get("inspector_name"))
+        
+        # Only send if inspector email exists and is different from emails already sent
+        if inspector_email and inspector_email.lower() not in emails_sent:
+            send_inspection_calendar_cancellation(
+                to_email=inspector_email,
+                recipient_name=inspection.get("inspector_name"),
+                property_address=inspection["property_address"],
+                inspection_date=scheduled_date,
+                inspection_time=scheduled_time,
+                is_owner=False
+            )
+            emails_sent.add(inspector_email.lower())
+            cancellations_sent["inspector"] = inspector_email
+            logging.info(f"Calendar cancellation sent to inspector: {inspector_email}")
+    
+    # Send calendar cancellation to agent if agent email exists and different from already sent
     if inspection.get("agent_email") and scheduled_date and scheduled_time:
-        send_inspection_calendar_cancellation(
-            to_email=inspection["agent_email"],
-            recipient_name=inspection.get("agent_name", "Agent"),
-            property_address=inspection["property_address"],
-            inspection_date=scheduled_date,
-            inspection_time=scheduled_time,
-            is_owner=False
-        )
-        logging.info(f"Calendar cancellation sent to agent: {inspection['agent_email']}")
+        agent_email = inspection["agent_email"]
+        if agent_email.lower() not in emails_sent:
+            send_inspection_calendar_cancellation(
+                to_email=agent_email,
+                recipient_name=inspection.get("agent_name", "Agent"),
+                property_address=inspection["property_address"],
+                inspection_date=scheduled_date,
+                inspection_time=scheduled_time,
+                is_owner=False
+            )
+            emails_sent.add(agent_email.lower())
+            cancellations_sent["agent"] = agent_email
+            logging.info(f"Calendar cancellation sent to agent: {agent_email}")
     
     # Delete the inspection
     await db.inspections.delete_one({"id": inspection_id})
     
     return {
         "success": True,
-        "message": "Inspection cancelled successfully",
-        "calendar_cancellations_sent": {
-            "customer": inspection["customer_email"],
-            "owner": owner["email"] if owner else None,
-            "agent": inspection.get("agent_email")
-        }
+        "message": "Inspection cancelled successfully. Calendar cancellations have been sent.",
+        "calendar_cancellations_sent": cancellations_sent
     }
 
 # ============= PRE-INSPECTION AGREEMENT ENDPOINTS =============
