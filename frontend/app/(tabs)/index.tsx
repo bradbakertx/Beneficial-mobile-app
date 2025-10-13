@@ -180,7 +180,13 @@ export default function DashboardScreen() {
         <View style={styles.statsGrid}>
           <TouchableOpacity 
             style={styles.statCard}
-            onPress={() => router.push('/inspections/pending-scheduling')}
+            onPress={() => {
+              // Route customers and owners to different screens
+              const route = user?.role === 'customer' 
+                ? '/inspections/pending-scheduling' 
+                : '/inspections/pending-scheduling-list';
+              router.push(route);
+            }}
           >
             <Ionicons name="checkmark-circle-outline" size={32} color="#5856D6" />
             <Text style={styles.statNumber}>{stats?.pending_scheduling || 0}</Text>
