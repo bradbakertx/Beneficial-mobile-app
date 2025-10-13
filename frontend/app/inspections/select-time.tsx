@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { format } from 'date-fns';
 import api from '../../services/api';
+import { parseDateLocal } from '../../utils/dateUtils';
 
 interface TimeSlot {
   date: string;
