@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     color: '#1C1C1E',
-    fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
+    fontFamily: Platform.OS === 'ios' ? 'Times New Roman' : 'serif',
   },
   signatureSection: {
     backgroundColor: '#FFF',
