@@ -548,6 +548,37 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#007AFF',
   },
+  modalAddress: {
+    fontWeight: '600',
+    color: '#1C1C1E',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modalButton: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonCancel: {
+    backgroundColor: '#F2F2F7',
+  },
+  modalButtonConfirm: {
+    backgroundColor: '#FF3B30',
+  },
+  modalButtonTextCancel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1C1C1E',
+  },
+  modalButtonTextConfirm: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
