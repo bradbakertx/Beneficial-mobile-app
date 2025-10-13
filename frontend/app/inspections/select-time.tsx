@@ -103,21 +103,21 @@ export default function SelectTimeSlotScreen() {
   const handleDecline = async () => {
     setSubmitting(true);
     try {
-      // Delete the inspection
-      await api.delete(`/inspections/${id}`);
+      // Decline the offered time slots (backend changes status back to pending_scheduling)
+      await api.patch(`/inspections/${id}/decline-offered-times`);
       
       // Close modal
       setShowDeclineModal(false);
       
-      // Show thank you message
+      // Show message
       if (Platform.OS === 'web') {
-        window.alert('Thank You for Your Time.');
+        window.alert('You have declined the offered time slots. The inspector will offer new dates.');
       }
       
-      // Navigate back to dashboard
-      router.replace('/(tabs)');
+      // Navigate back to pending scheduling list
+      router.replace('/inspections/customer-pending-scheduling');
     } catch (error: any) {
-      console.error('Error declining inspection:', error);
+      console.error('Error declining times:', error);
       setSubmitting(false);
       setShowDeclineModal(false);
       
