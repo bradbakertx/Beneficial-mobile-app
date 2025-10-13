@@ -105,12 +105,20 @@ def generate_agreement_pdf(
     fee_amount: str,
     inspection_date: str,
     inspection_time: str,
-    signature_base64: str
+    signature_base64: str,
+    inspector_name: str = "Brad Baker",
+    inspector_license: str = "TREC LIC. # 7522"
 ) -> bytes:
     """
     Generate PDF with agreement text and customer signature
     Returns PDF as bytes
     """
+    # Map inspector names to signature URLs
+    INSPECTOR_SIGNATURES = {
+        "Brad Baker": "https://customer-assets.emergentagent.com/job_scheduleplus-12/artifacts/fqhox4zb_BradSig.jpg",
+        "Blake Gray": None  # TODO: Add Blake's signature URL when available
+    }
+    
     buffer = io.BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter,
                            rightMargin=0.75*inch, leftMargin=0.75*inch,
