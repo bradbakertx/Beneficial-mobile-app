@@ -24,6 +24,7 @@ interface Inspection {
   status: string;
   inspector_name?: string;
   report_url?: string;
+  agreement_signed?: boolean;
 }
 
 export default function InspectionsScreen() {
