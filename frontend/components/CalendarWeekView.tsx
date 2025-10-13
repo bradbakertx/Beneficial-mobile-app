@@ -57,12 +57,17 @@ export default function CalendarWeekView() {
       const response = await api.get('/auth/google/login');
       const authUrl = response.data.auth_url;
       
-      // Open Google OAuth in browser
-      const canOpen = await Linking.canOpenURL(authUrl);
-      if (canOpen) {
-        await Linking.openURL(authUrl);
+      // Open Google OAuth in new window/tab (works on web)
+      if (Platform.OS === 'web') {
+        window.open(authUrl, '_blank');
       } else {
-        Alert.alert('Error', 'Unable to open Google Calendar authorization');
+        // For native mobile, use Linking
+        const canOpen = await Linking.canOpenURL(authUrl);
+        if (canOpen) {
+          await Linking.openURL(authUrl);
+        } else {
+          Alert.alert('Error', 'Unable to open Google Calendar authorization');
+        }
       }
     } catch (error) {
       console.error('Error connecting Google Calendar:', error);
