@@ -1075,13 +1075,15 @@ async def get_agreement(
         if quote and quote.get("quote_amount"):
             fee_amount = str(quote["quote_amount"])
     
-    # Generate agreement text
+    # Generate agreement text with inspector info
     agreement_text = get_agreement_text(
         client_name=inspection["customer_name"],
         inspection_address=inspection["property_address"],
         fee_amount=fee_amount,
         inspection_date=inspection.get("scheduled_date", "TBD"),
-        inspection_time=inspection.get("scheduled_time", "TBD")
+        inspection_time=inspection.get("scheduled_time", "TBD"),
+        inspector_name=inspection.get("inspector_name", "Brad Baker"),
+        inspector_license=inspection.get("inspector_license", "TREC LIC. # 7522")
     )
     
     return {
