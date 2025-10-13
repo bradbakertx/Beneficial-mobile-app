@@ -179,6 +179,14 @@ export default function ActiveInspectionsScreen() {
         <Ionicons name="close-circle" size={20} color="#FF3B30" />
         <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
       </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={styles.rescheduleButton}
+        onPress={() => router.push(`/inspections/reschedule?id=${item.id}&currentDate=${item.scheduled_date}&currentTime=${item.scheduled_time}&address=${encodeURIComponent(item.property_address)}`)}
+      >
+        <Ionicons name="calendar-outline" size={20} color="#007AFF" />
+        <Text style={styles.rescheduleButtonText}>Reschedule</Text>
+      </TouchableOpacity>
     </View>
   );
 
