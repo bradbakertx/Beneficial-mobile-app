@@ -68,15 +68,13 @@ export default function RescheduleInspectionScreen() {
 
       console.log('Reschedule response:', response.data);
 
+      // Navigate to dashboard immediately
+      router.replace('/(tabs)');
+      
+      // Show success alert
       Alert.alert(
         'Success',
-        'Inspection rescheduled successfully. Calendar invites and notifications have been sent to all parties.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.push('/(tabs)'),
-          },
-        ]
+        'Inspection rescheduled successfully. Calendar invites and notifications have been sent to all parties.'
       );
     } catch (error: any) {
       console.error('Error rescheduling inspection:', error);
