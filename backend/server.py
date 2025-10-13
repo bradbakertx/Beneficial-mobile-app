@@ -1081,6 +1081,168 @@ async def cancel_inspection(
         "calendar_cancellations_sent": cancellations_sent
     }
 
+@api_router.patch("/admin/inspections/{inspection_id}/reschedule")
+async def reschedule_inspection(
+    inspection_id: str,
+    scheduled_date: str = Body(...),
+    scheduled_time: str = Body(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Reschedule an inspection (Owner only)"""
+    from email_service import send_inspection_calendar_invite
+    
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can reschedule inspections")
+    
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    if inspection["status"] != "scheduled":
+        raise HTTPException(status_code=400, detail="Only scheduled inspections can be rescheduled")
+    
+    # Update the inspection with new date/time
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {"$set": {
+            "scheduled_date": scheduled_date,
+            "scheduled_time": scheduled_time,
+            "updated_at": datetime.utcnow().isoformat()
+        }}
+    )
+    
+    # Also update manual_inspections if this is a manual entry
+    if inspection.get("customer_id") == "manual-entry":
+        await db.manual_inspections.update_one(
+            {"id": inspection_id},
+            {"$set": {
+                "inspection_date": scheduled_date,
+                "inspection_time": scheduled_time,
+                "updated_at": datetime.utcnow().isoformat()
+            }}
+        )
+    
+    # Get updated inspection
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    
+    # Track emails sent for calendar invites
+    invites_sent = {}
+    emails_sent = set()
+    
+    # Prepare email details
+    property_address = updated_inspection["property_address"]
+    customer_email = updated_inspection["customer_email"]
+    customer_name = updated_inspection["customer_name"]
+    agent_email = updated_inspection.get("agent_email")
+    agent_name = updated_inspection.get("agent_name", "Agent")
+    
+    # Send calendar invite to customer
+    send_inspection_calendar_invite(
+        to_email=customer_email,
+        recipient_name=customer_name,
+        property_address=property_address,
+        inspection_date=scheduled_date,
+        inspection_time=scheduled_time,
+        is_owner=False
+    )
+    emails_sent.add(customer_email.lower())
+    invites_sent["customer"] = customer_email
+    logging.info(f"Calendar invite (rescheduled) sent to customer: {customer_email}")
+    
+    # Send push notification to customer
+    customer = await db.users.find_one({"email": customer_email})
+    if customer and customer.get("expo_push_token"):
+        send_push_notification(
+            expo_token=customer["expo_push_token"],
+            title="Inspection Rescheduled",
+            body=f"Your inspection at {property_address} has been rescheduled to {scheduled_date} at {scheduled_time}",
+            data={"type": "inspection_rescheduled", "inspection_id": inspection_id}
+        )
+    
+    # Send calendar invite to owner
+    owner = await db.users.find_one({"id": current_user.id})
+    if owner:
+        owner_email = owner["email"]
+        send_inspection_calendar_invite(
+            to_email=owner_email,
+            recipient_name=owner["name"],
+            property_address=property_address,
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=True
+        )
+        emails_sent.add(owner_email.lower())
+        invites_sent["owner"] = owner_email
+        logging.info(f"Calendar invite (rescheduled) sent to owner: {owner_email}")
+    
+    # Send calendar invite to inspector (if different from owner)
+    inspector_email = None
+    if updated_inspection.get("inspector_name"):
+        inspector_emails = {
+            "Brad Baker": "bradbakertx@gmail.com",
+            "Blake Gray": None
+        }
+        inspector_email = inspector_emails.get(updated_inspection.get("inspector_name"))
+        
+        if inspector_email and inspector_email.lower() not in emails_sent:
+            send_inspection_calendar_invite(
+                to_email=inspector_email,
+                recipient_name=updated_inspection.get("inspector_name"),
+                property_address=property_address,
+                inspection_date=scheduled_date,
+                inspection_time=scheduled_time,
+                is_owner=False
+            )
+            emails_sent.add(inspector_email.lower())
+            invites_sent["inspector"] = inspector_email
+            logging.info(f"Calendar invite (rescheduled) sent to inspector: {inspector_email}")
+            
+            # Send push notification to inspector if they have a user account
+            inspector_user = await db.users.find_one({"email": inspector_email})
+            if inspector_user and inspector_user.get("expo_push_token"):
+                send_push_notification(
+                    expo_token=inspector_user["expo_push_token"],
+                    title="Inspection Rescheduled",
+                    body=f"Inspection at {property_address} has been rescheduled to {scheduled_date} at {scheduled_time}",
+                    data={"type": "inspection_rescheduled", "inspection_id": inspection_id}
+                )
+    
+    # Send calendar invite to agent (if applicable and different from already sent)
+    if agent_email and agent_email.lower() not in emails_sent:
+        send_inspection_calendar_invite(
+            to_email=agent_email,
+            recipient_name=agent_name,
+            property_address=property_address,
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=False
+        )
+        emails_sent.add(agent_email.lower())
+        invites_sent["agent"] = agent_email
+        logging.info(f"Calendar invite (rescheduled) sent to agent: {agent_email}")
+    
+    # Send push notifications to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner_user in owners:
+        if owner_user.get("expo_push_token"):
+            send_push_notification(
+                expo_token=owner_user["expo_push_token"],
+                title="Inspection Rescheduled",
+                body=f"Inspection at {property_address} rescheduled to {scheduled_date} at {scheduled_time}",
+                data={"type": "inspection_rescheduled", "inspection_id": inspection_id}
+            )
+    
+    return {
+        "success": True,
+        "message": "Inspection rescheduled successfully",
+        "inspection": {
+            "id": inspection_id,
+            "scheduled_date": scheduled_date,
+            "scheduled_time": scheduled_time
+        },
+        "calendar_invites_sent": invites_sent
+    }
+
 # ============= PRE-INSPECTION AGREEMENT ENDPOINTS =============
 
 @api_router.get("/inspections/{inspection_id}/agreement")
