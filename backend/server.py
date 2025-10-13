@@ -1123,7 +1123,8 @@ async def sign_agreement(
     if inspection.get("quote_id"):
         quote = await db.quotes.find_one({"id": inspection["quote_id"]})
         if quote and quote.get("quote_amount"):
-            fee_amount = str(quote["quote_amount"])
+            # Format to always have 2 decimal places
+            fee_amount = f"{float(quote['quote_amount']):.2f}"
     
     # Generate PDF with inspector info
     try:
