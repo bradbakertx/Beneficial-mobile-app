@@ -54,11 +54,10 @@ export default function LoginScreen() {
         >
           <View style={styles.header}>
             <Image 
-              source={require('../../assets/images/beneficial-logo-icon.jpg')}
+              source={{ uri: 'https://customer-assets.emergentagent.com/job_inspect-scheduler/artifacts/dzdr8ijd_beneficial_inspections_inc_large.jpg' }}
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.title}>Beneficial Inspections</Text>
             <Text style={styles.subtitle}>Welcome back</Text>
           </View>
 
