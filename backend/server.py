@@ -342,19 +342,17 @@ async def set_quote_price(
 
 @api_router.post("/inspections", response_model=InspectionResponse)
 async def schedule_inspection(
-    quote_id: str = Query(...),
-    preferred_date: str = Query(None),
-    preferred_time: str = Query(None),
+    scheduling_data: SchedulingRequestCreate,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Schedule an inspection (Customer only)"""
+    """Schedule an inspection (Customer only) - with scheduling preferences"""
     from push_notification_service import send_push_notification
     
     if current_user.role != UserRole.customer:
         raise HTTPException(status_code=403, detail="Only customers can schedule inspections")
     
     # Verify quote exists and belongs to customer
-    quote = await db.quotes.find_one({"id": quote_id, "customer_id": current_user.id})
+    quote = await db.quotes.find_one({"id": scheduling_data.quote_id, "customer_id": current_user.id})
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found or not authorized")
     
@@ -362,15 +360,24 @@ async def schedule_inspection(
         raise HTTPException(status_code=400, detail="Quote must be quoted before scheduling inspection")
     
     inspection_id = str(uuid.uuid4())
+    
+    # Build full property address
+    property_address = quote.get("property_address", "")
+    if quote.get("property_city"):
+        property_address = f"{property_address}, {quote['property_city']}, TX {quote.get('property_zip', '')}"
+    
     inspection = InspectionInDB(
         id=inspection_id,
-        quote_id=quote_id,
+        quote_id=scheduling_data.quote_id,
         customer_id=current_user.id,
         customer_email=current_user.email,
         customer_name=current_user.name,
-        property_address=quote["property_address"],
-        preferred_date=preferred_date,
-        preferred_time=preferred_time,
+        property_address=property_address,
+        preferred_date=None,
+        preferred_time=None,
+        option_period_end_date=scheduling_data.option_period_end_date,
+        option_period_unsure=scheduling_data.option_period_unsure,
+        preferred_days_of_week=scheduling_data.preferred_days_of_week,
         status=InspectionStatus.pending_scheduling,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
