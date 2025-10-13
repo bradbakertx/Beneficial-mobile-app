@@ -223,4 +223,25 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  footer: {
+    marginTop: 40,
+    paddingTop: 24,
+    paddingBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  footerLink: {
+    fontSize: 11,
+    color: '#007AFF',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
 });
