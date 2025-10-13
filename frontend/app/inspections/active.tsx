@@ -132,56 +132,57 @@ export default function ActiveInspectionsScreen() {
   };
 
   const renderInspectionItem = ({ item }: { item: ActiveInspection }) => (
-    <TouchableOpacity 
-      style={styles.inspectionCard}
-      onPress={() => router.push(`/inspections/view-detail?id=${item.id}`)}
-    >
-      <View style={styles.inspectionHeader}>
-        <View style={styles.inspectionInfo}>
-          <Text style={styles.inspectionAddress} numberOfLines={2}>
-            {item.property_address}
-          </Text>
-        </View>
-        <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-          <Text style={styles.statusText}>
-            {item.status === 'scheduled' ? 'Confirmed' : 'Pending'}
-          </Text>
-        </View>
-      </View>
-      
-      <View style={styles.inspectionDetails}>
-        <View style={styles.detailRow}>
-          <Ionicons name="person-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.customer_name}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Ionicons name="mail-outline" size={16} color="#8E8E93" />
-          <Text style={styles.detailText}>{item.customer_email}</Text>
-        </View>
-        {item.scheduled_date && item.scheduled_time && (
-          <View style={styles.detailRow}>
-            <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
-            <Text style={styles.detailText}>
-              {item.scheduled_date} at {item.scheduled_time}
+    <View style={styles.inspectionCard}>
+      <TouchableOpacity 
+        style={styles.cardContent}
+        onPress={() => router.push(`/inspections/view-detail?id=${item.id}`)}
+      >
+        <View style={styles.inspectionHeader}>
+          <View style={styles.inspectionInfo}>
+            <Text style={styles.inspectionAddress} numberOfLines={2}>
+              {item.property_address}
             </Text>
           </View>
-        )}
-      </View>
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+            <Text style={styles.statusText}>
+              {item.status === 'scheduled' ? 'Confirmed' : 'Pending'}
+            </Text>
+          </View>
+        </View>
+        
+        <View style={styles.inspectionDetails}>
+          <View style={styles.detailRow}>
+            <Ionicons name="person-outline" size={16} color="#8E8E93" />
+            <Text style={styles.detailText}>{item.customer_name}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Ionicons name="mail-outline" size={16} color="#8E8E93" />
+            <Text style={styles.detailText}>{item.customer_email}</Text>
+          </View>
+          {item.scheduled_date && item.scheduled_time && (
+            <View style={styles.detailRow}>
+              <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
+              <Text style={styles.detailText}>
+                {item.scheduled_date} at {item.scheduled_time}
+              </Text>
+            </View>
+          )}
+        </View>
 
-      <View style={styles.footer}>
-        <TouchableOpacity 
-          style={styles.cancelButton}
-          onPress={(e) => {
-            e.stopPropagation(); // Prevent card click
-            handleCancelInspection(item);
-          }}
-        >
-          <Ionicons name="close-circle" size={20} color="#FF3B30" />
-          <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
-        </TouchableOpacity>
-        <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-      </View>
-    </TouchableOpacity>
+        <View style={styles.footer}>
+          <Text style={styles.viewDetailsText}>Tap to view details</Text>
+          <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+        </View>
+      </TouchableOpacity>
+      
+      <TouchableOpacity 
+        style={styles.cancelButton}
+        onPress={() => handleCancelInspection(item)}
+      >
+        <Ionicons name="close-circle" size={20} color="#FF3B30" />
+        <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
+      </TouchableOpacity>
+    </View>
   );
 
   if (loading) {
