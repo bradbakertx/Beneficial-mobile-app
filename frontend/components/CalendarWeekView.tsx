@@ -169,7 +169,23 @@ export default function CalendarWeekView() {
         </TouchableOpacity>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.calendarScroll}>
+      {errorMessage && (
+        <View style={styles.errorBanner}>
+          <Ionicons name="information-circle" size={20} color="#FF9500" />
+          <Text style={styles.errorText}>{errorMessage}</Text>
+          <TouchableOpacity onPress={connectGoogleCalendar} style={styles.reconnectButton}>
+            <Text style={styles.reconnectText}>Reconnect</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {events.length === 0 && !errorMessage ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="calendar-outline" size={48} color="#C7C7CC" />
+          <Text style={styles.emptyStateText}>No events this week</Text>
+        </View>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.calendarScroll}>
         <View>
           {/* Day headers */}
           <View style={styles.dayHeadersRow}>
