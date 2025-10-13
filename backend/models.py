@@ -19,6 +19,7 @@ class QuoteStatus(str, Enum):
 
 class InspectionStatus(str, Enum):
     pending_scheduling = "pending_scheduling"
+    awaiting_customer_selection = "awaiting_customer_selection"
     scheduled = "scheduled"
     completed = "completed"
     cancelled = "cancelled"
