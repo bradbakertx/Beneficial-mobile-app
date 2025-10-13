@@ -30,6 +30,7 @@ export default function CustomerPendingSchedulingScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInspections();
@@ -54,6 +55,28 @@ export default function CustomerPendingSchedulingScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchInspections();
+  };
+
+  const handleCancelInspection = async (inspectionId: string, propertyAddress: string) => {
+    // Show confirmation
+    const confirmed = window.confirm(`Are you sure you want to cancel the inspection for ${propertyAddress}?`);
+    if (!confirmed) return;
+
+    setCancelingId(inspectionId);
+    try {
+      await api.delete(`/inspections/${inspectionId}`);
+      
+      // Show success message
+      window.alert('Inspection canceled successfully.');
+      
+      // Refresh the list
+      fetchInspections();
+    } catch (error: any) {
+      console.error('Error canceling inspection:', error);
+      window.alert('Failed to cancel inspection. Please try again.');
+    } finally {
+      setCancelingId(null);
+    }
   };
 
   if (loading) {
