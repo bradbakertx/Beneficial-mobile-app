@@ -448,7 +448,7 @@ async def confirm_time_slot(
 ):
     """Customer confirms a selected time slot"""
     from push_notification_service import send_push_notification
-    from email_service import send_inspection_scheduled_email
+    from email_service import send_inspection_calendar_invite
     
     if current_user.role != UserRole.customer:
         raise HTTPException(status_code=403, detail="Only customers can confirm time slots")
@@ -485,8 +485,10 @@ async def confirm_time_slot(
         }
     )
     
-    # Send push notification to all owners
+    # Get all owners
     owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    
+    # Send push notifications and calendar invites to all owners
     for owner in owners:
         if owner.get("push_token"):
             send_push_notification(
@@ -495,14 +497,24 @@ async def confirm_time_slot(
                 body=f"{current_user.name} confirmed inspection for {inspection['property_address']} on {scheduled_date} at {scheduled_time}",
                 data={"type": "inspection_confirmed", "inspection_id": inspection_id}
             )
+        
+        # Send calendar invite to owner
+        send_inspection_calendar_invite(
+            to_email=owner["email"],
+            recipient_name=owner["name"],
+            property_address=inspection["property_address"],
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=True
+        )
     
-    # Send confirmation email to customer
-    send_inspection_scheduled_email(
+    # Send calendar invite to customer
+    send_inspection_calendar_invite(
         to_email=current_user.email,
         recipient_name=current_user.name,
         property_address=inspection["property_address"],
-        scheduled_date=scheduled_date,
-        scheduled_time=scheduled_time,
+        inspection_date=scheduled_date,
+        inspection_time=scheduled_time,
         is_owner=False
     )
     
