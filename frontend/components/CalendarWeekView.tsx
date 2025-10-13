@@ -27,6 +27,7 @@ export default function CalendarWeekView() {
   const [loading, setLoading] = useState(true);
   const [connected, setConnected] = useState(false);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string>('');
   const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 })); // Sunday
 
   useEffect(() => {
