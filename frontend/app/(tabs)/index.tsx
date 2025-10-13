@@ -57,12 +57,23 @@ export default function DashboardScreen() {
         unreadMessages: unreadCount
       });
       
-      // For customers, log the inspection statuses
+      // For customers, log the inspection statuses and check for unsigned agreements
       if (user?.role === 'customer') {
         console.log('Customer inspection statuses:', {
           pending: pendingInspections.map((i: any) => ({ id: i.id, status: i.status })),
           confirmed: confirmedInspections.map((i: any) => ({ id: i.id, status: i.status }))
         });
+        
+        // Check for unsigned agreement and auto-navigate
+        const scheduledInspections = pendingInspections.filter((i: any) => i.status === 'scheduled');
+        const unsignedInspection = scheduledInspections.find((i: any) => !i.agreement_signed);
+        
+        if (unsignedInspection) {
+          console.log('Found unsigned agreement on dashboard, navigating to agreement screen:', unsignedInspection.id);
+          // Navigate to agreement screen automatically
+          router.push(`/inspections/agreement?id=${unsignedInspection.id}`);
+          return; // Exit early, don't set stats
+        }
       }
       
       // Calculate statistics
