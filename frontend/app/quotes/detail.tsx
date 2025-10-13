@@ -19,19 +19,18 @@ import { format } from 'date-fns';
 
 interface Quote {
   id: string;
-  street_address: string;
-  city: string;
-  state: string;
-  zip_code: string;
-  inspection_type: string;
-  square_footage: number;
-  year_built: number;
-  foundation_type: string;
+  property_address: string;
+  property_city?: string;
+  property_zip?: string;
+  property_type: string;
+  square_feet?: number;
+  year_built?: number;
+  foundation_type?: string;
   customer_name: string;
   customer_email: string;
-  customer_phone: string;
-  total_units?: number;
-  total_buildings?: number;
+  num_units?: number;
+  num_buildings?: number;
+  additional_notes?: string;
   status: string;
   quote_amount?: number;
   created_at: string;
@@ -79,12 +78,8 @@ export default function QuoteDetailScreen() {
     }
 
     setSubmitting(true);
-    console.log('Submitting quote:', { id, quote_amount: parseFloat(quoteAmount) });
     
     try {
-      // Use the correct endpoint: PATCH /admin/quotes/{id}/price?quote_amount=X
-      console.log(`PATCH /admin/quotes/${id}/price?quote_amount=${parseFloat(quoteAmount)}`);
-      
       const response = await api.patch(`/admin/quotes/${id}/price`, null, {
         params: {
           quote_amount: parseFloat(quoteAmount)
@@ -93,20 +88,18 @@ export default function QuoteDetailScreen() {
       
       console.log('Quote submitted successfully:', response.data);
       
-      // Navigate back to dashboard immediately
-      router.replace('/(tabs)');
-      
-      // Show success message after navigation
-      setTimeout(() => {
-        Alert.alert(
-          'Success', 
-          'Quote submitted successfully! The customer will be notified.'
-        );
-      }, 300);
+      Alert.alert(
+        'Success', 
+        'Quote submitted successfully! The customer will be notified.',
+        [
+          {
+            text: 'OK',
+            onPress: () => router.replace('/(tabs)')
+          }
+        ]
+      );
     } catch (error: any) {
       console.error('Error submitting quote:', error);
-      console.error('Error response:', error.response?.data);
-      console.error('Error status:', error.response?.status);
       
       Alert.alert(
         'Error', 
@@ -149,44 +142,58 @@ export default function QuoteDetailScreen() {
             <View style={styles.card}>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>Address</Text>
-                <Text style={styles.value}>{quote.street_address}</Text>
-                <Text style={styles.value}>{quote.city}, {quote.state} {quote.zip_code}</Text>
+                <Text style={styles.value}>{quote.property_address}</Text>
+                {quote.property_city && quote.property_zip && (
+                  <Text style={styles.value}>{quote.property_city}, TX {quote.property_zip}</Text>
+                )}
               </View>
               <View style={styles.divider} />
               <View style={styles.infoRow}>
-                <Text style={styles.label}>Inspection Type</Text>
-                <Text style={styles.value}>{quote.inspection_type}</Text>
+                <Text style={styles.label}>Property Type</Text>
+                <Text style={styles.value}>{quote.property_type}</Text>
               </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Square Footage</Text>
-                <Text style={styles.value}>{quote.square_footage.toLocaleString()} sq ft</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Year Built</Text>
-                <Text style={styles.value}>{quote.year_built}</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Foundation Type</Text>
-                <Text style={styles.value}>{quote.foundation_type}</Text>
-              </View>
-              {quote.total_units && (
+              {quote.square_feet && (
                 <>
                   <View style={styles.divider} />
                   <View style={styles.infoRow}>
-                    <Text style={styles.label}>Total Units</Text>
-                    <Text style={styles.value}>{quote.total_units}</Text>
+                    <Text style={styles.label}>Square Feet</Text>
+                    <Text style={styles.value}>{quote.square_feet.toLocaleString()} sq ft</Text>
                   </View>
                 </>
               )}
-              {quote.total_buildings && (
+              {quote.year_built && (
                 <>
                   <View style={styles.divider} />
                   <View style={styles.infoRow}>
-                    <Text style={styles.label}>Total Buildings</Text>
-                    <Text style={styles.value}>{quote.total_buildings}</Text>
+                    <Text style={styles.label}>Year Built</Text>
+                    <Text style={styles.value}>{quote.year_built}</Text>
+                  </View>
+                </>
+              )}
+              {quote.foundation_type && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Foundation Type</Text>
+                    <Text style={styles.value}>{quote.foundation_type}</Text>
+                  </View>
+                </>
+              )}
+              {quote.num_units && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Number of Units</Text>
+                    <Text style={styles.value}>{quote.num_units}</Text>
+                  </View>
+                </>
+              )}
+              {quote.num_buildings && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Number of Buildings</Text>
+                    <Text style={styles.value}>{quote.num_buildings}</Text>
                   </View>
                 </>
               )}
@@ -206,13 +213,18 @@ export default function QuoteDetailScreen() {
                 <Text style={styles.label}>Email</Text>
                 <Text style={styles.value}>{quote.customer_email}</Text>
               </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.label}>Phone</Text>
-                <Text style={styles.value}>{quote.customer_phone}</Text>
-              </View>
             </View>
           </View>
+
+          {/* Additional Notes */}
+          {quote.additional_notes && (
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Additional Notes</Text>
+              <View style={styles.card}>
+                <Text style={styles.value}>{quote.additional_notes}</Text>
+              </View>
+            </View>
+          )}
 
           {/* Quote Amount */}
           <View style={styles.section}>
@@ -249,14 +261,17 @@ export default function QuoteDetailScreen() {
         {/* Submit Button */}
         <View style={styles.footer}>
           <TouchableOpacity
-            style={[styles.submitButton, submitting && styles.submitButtonDisabled]}
+            style={[styles.submitButton, submitting && styles.buttonDisabled]}
             onPress={handleSubmitQuote}
             disabled={submitting}
           >
             {submitting ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.submitButtonText}>Submit Quote</Text>
+              <>
+                <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                <Text style={styles.submitButtonText}>Submit Quote to Customer</Text>
+              </>
             )}
           </TouchableOpacity>
         </View>
@@ -270,13 +285,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F2F2F7',
   },
-  keyboardView: {
-    flex: 1,
-  },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  keyboardView: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -300,17 +315,17 @@ const styles = StyleSheet.create({
     width: 32,
   },
   scrollContent: {
-    padding: 16,
-    paddingBottom: 100,
+    paddingBottom: 16,
   },
   section: {
-    marginBottom: 24,
+    marginTop: 16,
+    paddingHorizontal: 16,
   },
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginBottom: 12,
+    marginBottom: 8,
   },
   card: {
     backgroundColor: '#fff',
@@ -331,7 +346,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#E5E5EA',
+    backgroundColor: '#F2F2F7',
     marginVertical: 8,
   },
   inputContainer: {
@@ -340,38 +355,38 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E5E5EA',
     borderRadius: 8,
-    paddingHorizontal: 16,
-    height: 56,
+    paddingHorizontal: 12,
+    backgroundColor: '#F2F2F7',
   },
   dollarSign: {
     fontSize: 20,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginRight: 8,
+    marginRight: 4,
   },
   input: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 20,
+    fontWeight: '600',
     color: '#1C1C1E',
+    paddingVertical: 12,
   },
   footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#fff',
     padding: 16,
+    backgroundColor: '#fff',
     borderTopWidth: 1,
     borderTopColor: '#E5E5EA',
   },
   submitButton: {
     backgroundColor: '#007AFF',
     borderRadius: 12,
-    height: 56,
-    justifyContent: 'center',
+    paddingVertical: 16,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
   },
-  submitButtonDisabled: {
+  buttonDisabled: {
     opacity: 0.6,
   },
   submitButtonText: {
