@@ -157,7 +157,11 @@ export default function DashboardScreen() {
         <View style={styles.statsGrid}>
           <TouchableOpacity 
             style={styles.statCard}
-            onPress={() => router.push('/quotes/pending')}
+            onPress={() => {
+              // Route customers to their quotes, owners to pending quotes
+              const route = user?.role === 'customer' ? '/quotes/customer-list' : '/quotes/pending';
+              router.push(route);
+            }}
           >
             <Ionicons name="document-text-outline" size={32} color="#007AFF" />
             <Text style={styles.statNumber}>{stats?.pending_quotes || 0}</Text>
