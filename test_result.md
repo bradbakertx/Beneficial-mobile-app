@@ -147,7 +147,6 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE TESTING COMPLETED: Manual Inspection Edit Data Sync is working perfectly. Successfully tested with existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd using test credentials bradbakertx@gmail.com. ✅ Comprehensive Update Test: Updated all fields (client_name, client_email, client_phone, property_address, property_city, property_zip, inspection_date, inspection_time) and verified ALL fields synced correctly to inspections collection: customer_name='Updated Test Client', customer_email='updated@test.com', property_address='456 Updated St, Austin, TX 78701', scheduled_date='2025-10-20', scheduled_time='14:00'. ✅ Partial Update Test: Updated only client_name to 'Partial Update Test' and verified sync maintained other fields while updating the changed field. ✅ Backend logs confirm sync operations: 'Synced manual inspection 2b1fd3b5-4d94-4126-802d-faa096b192bd to inspections collection. Matched: 1, Modified: 1'. The fix is working correctly - changes made through manual inspection edit screen now properly reflect on Active Inspections cards."
 
-backend:
   - task: "Phase 4: Customer Time Slot Confirmation"
     implemented: true
     working: true
@@ -165,6 +164,21 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "CALENDAR INVITE FEATURE ADDED: Updated PATCH /inspections/{inspection_id}/confirm-time endpoint to automatically send calendar invites (.ics files with event details) to BOTH owner email (bradbakertx@gmail.com) and customer email when an inspection is confirmed. Uses existing send_inspection_calendar_invite function with proper date/time parsing, 2-hour duration, and attendee information. Customer Active Inspections tile already displays scheduled inspections correctly (status: 'scheduled'). Ready for user testing to verify calendar invites are received."
+
+  - task: "Pre-Inspection Agreement Customer Signature Alignment"
+    implemented: true
+    working: "NA"
+    file: "backend/agreement_service.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that customer signature in generated PDF is centered instead of left-aligned. Previous attempts to fix alignment using Table and TableStyle with LEFT alignment have not resolved the issue."
+      - working: "NA"
+        agent: "main"
+        comment: "SIGNATURE ALIGNMENT FIX APPLIED: Enhanced the signature rendering in agreement_service.py with three key improvements: 1) Added explicit hAlign='LEFT' to the RLImage object itself, 2) Changed table column width from fixed 2 inches to full page width (letter[0] - 1.5*inch) to ensure proper alignment space, 3) Added explicit padding removal in TableStyle with LEFTPADDING and RIGHTPADDING set to 0 to eliminate any default padding that might cause centering. Generated test PDF successfully at /app/backend/test_agreement_signature.pdf (28,177 bytes). Backend restarted and running. Ready for user verification to confirm signature is now left-aligned in generated PDFs."
 
 frontend:
   - task: "Authentication Flow"
