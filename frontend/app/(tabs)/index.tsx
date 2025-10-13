@@ -122,10 +122,12 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Blue Banner with "Dashboard" */}
-      <View style={styles.blueBanner}>
-        <Text style={styles.blueBannerText}>Dashboard</Text>
-      </View>
+      {/* Blue Banner with "Dashboard" - Customer Only */}
+      {user?.role === 'customer' && (
+        <View style={styles.blueBanner}>
+          <Text style={styles.blueBannerText}>Dashboard</Text>
+        </View>
+      )}
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}
