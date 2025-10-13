@@ -200,13 +200,12 @@ export default function CalendarWeekView() {
           <Text style={styles.emptyStateText}>No events this week</Text>
         </View>
       ) : (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.calendarScroll}>
-        <View>
+        <View style={styles.calendarContainer}>
           {/* Day headers */}
           <View style={styles.dayHeadersRow}>
-            <View style={styles.timeColumn} />
+            <View style={[styles.timeColumn, { width: TIME_COLUMN_WIDTH }]} />
             {weekDays.map((day, index) => (
-              <View key={index} style={styles.dayHeader}>
+              <View key={index} style={[styles.dayHeader, { width: dayColumnWidth }]}>
                 <Text style={styles.dayName}>{format(day, 'EEE')}</Text>
                 <Text style={[
                   styles.dayNumber,
@@ -218,11 +217,11 @@ export default function CalendarWeekView() {
             ))}
           </View>
 
-          {/* Calendar grid */}
-          <ScrollView showsVerticalScrollIndicator={false}>
+          {/* Calendar grid - vertical scroll only */}
+          <ScrollView showsVerticalScrollIndicator={false} style={styles.calendarScroll}>
             {renderHourSlots().map((hour) => (
               <View key={hour} style={styles.timeRow}>
-                <View style={styles.timeColumn}>
+                <View style={[styles.timeColumn, { width: TIME_COLUMN_WIDTH }]}>
                   <Text style={styles.timeText}>{hour % 12 || 12} {hour < 12 ? 'AM' : 'PM'}</Text>
                 </View>
                 {weekDays.map((day, dayIndex) => {
@@ -233,7 +232,7 @@ export default function CalendarWeekView() {
                   });
 
                   return (
-                    <View key={dayIndex} style={styles.dayColumn}>
+                    <View key={dayIndex} style={[styles.dayColumn, { width: dayColumnWidth }]}>
                       {hourEvents.map((event) => (
                         <View
                           key={event.id}
@@ -259,7 +258,6 @@ export default function CalendarWeekView() {
             ))}
           </ScrollView>
         </View>
-      </ScrollView>
       )}
     </View>
   );
