@@ -113,56 +113,72 @@ export default function CustomerPendingSchedulingScreen() {
           </View>
         ) : (
           inspections.map((inspection) => (
-            <TouchableOpacity
-              key={inspection.id}
-              style={styles.inspectionCard}
-              onPress={() => router.push(`/inspections/select-time?id=${inspection.id}`)}
-            >
-              <View style={styles.cardHeader}>
-                <View style={styles.propertyInfo}>
-                  <Ionicons name="home" size={20} color="#007AFF" />
-                  <Text style={styles.propertyAddress} numberOfLines={2}>
-                    {inspection.property_address}
-                  </Text>
-                </View>
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>NEW</Text>
-                </View>
-              </View>
-
-              <View style={styles.cardBody}>
-                <Text style={styles.infoTitle}>
-                  <Ionicons name="calendar" size={16} color="#34C759" /> Available Time Slots:
-                </Text>
-                
-                {inspection.offered_time_slots && inspection.offered_time_slots.length > 0 ? (
-                  <View style={styles.timeSlotPreview}>
-                    {inspection.offered_time_slots.slice(0, 2).map((slot, index) => (
-                      <View key={index} style={styles.previewSlot}>
-                        <Text style={styles.previewDate}>
-                          {format(new Date(slot.date), 'MMM dd')}
-                        </Text>
-                        <Text style={styles.previewTimes}>
-                          {slot.times.join(', ')}
-                        </Text>
-                      </View>
-                    ))}
-                    {inspection.offered_time_slots.length > 2 && (
-                      <Text style={styles.moreSlots}>
-                        +{inspection.offered_time_slots.length - 2} more date(s)
-                      </Text>
-                    )}
+            <View key={inspection.id} style={styles.inspectionCard}>
+              <TouchableOpacity
+                onPress={() => router.push(`/inspections/select-time?id=${inspection.id}`)}
+                style={styles.cardContent}
+              >
+                <View style={styles.cardHeader}>
+                  <View style={styles.propertyInfo}>
+                    <Ionicons name="home" size={20} color="#007AFF" />
+                    <Text style={styles.propertyAddress} numberOfLines={2}>
+                      {inspection.property_address}
+                    </Text>
                   </View>
-                ) : (
-                  <Text style={styles.noSlotsText}>Time slots pending...</Text>
-                )}
-              </View>
+                  <View style={styles.statusBadge}>
+                    <Text style={styles.statusText}>NEW</Text>
+                  </View>
+                </View>
 
-              <View style={styles.cardFooter}>
-                <Text style={styles.viewDetails}>Tap to select a time slot</Text>
-                <Ionicons name="chevron-forward" size={20} color="#007AFF" />
-              </View>
-            </TouchableOpacity>
+                <View style={styles.cardBody}>
+                  <Text style={styles.infoTitle}>
+                    <Ionicons name="calendar" size={16} color="#34C759" /> Available Time Slots:
+                  </Text>
+                  
+                  {inspection.offered_time_slots && inspection.offered_time_slots.length > 0 ? (
+                    <View style={styles.timeSlotPreview}>
+                      {inspection.offered_time_slots.slice(0, 2).map((slot, index) => (
+                        <View key={index} style={styles.previewSlot}>
+                          <Text style={styles.previewDate}>
+                            {format(new Date(slot.date), 'MMM dd')}
+                          </Text>
+                          <Text style={styles.previewTimes}>
+                            {slot.times.join(', ')}
+                          </Text>
+                        </View>
+                      ))}
+                      {inspection.offered_time_slots.length > 2 && (
+                        <Text style={styles.moreSlots}>
+                          +{inspection.offered_time_slots.length - 2} more date(s)
+                        </Text>
+                      )}
+                    </View>
+                  ) : (
+                    <Text style={styles.noSlotsText}>Time slots pending...</Text>
+                  )}
+                </View>
+
+                <View style={styles.cardFooter}>
+                  <Text style={styles.viewDetails}>Tap to select a time slot</Text>
+                  <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+                </View>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => handleCancelInspection(inspection.id, inspection.property_address)}
+                disabled={cancelingId === inspection.id}
+              >
+                {cancelingId === inspection.id ? (
+                  <ActivityIndicator size="small" color="#FF3B30" />
+                ) : (
+                  <>
+                    <Ionicons name="close-circle" size={20} color="#FF3B30" />
+                    <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            </View>
           ))
         )}
       </ScrollView>
