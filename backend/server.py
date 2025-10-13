@@ -541,8 +541,8 @@ async def confirm_time_slot(
             customer_email=customer_email,
             customer_phone=customer_phone,
             inspection_fee=inspection_fee,
-            inspector_name=owner.get("name", "Brad Baker"),
-            inspector_phone=owner.get("phone")
+            inspector_name=inspector_name,
+            inspector_phone=inspector_phone
         )
     
     # Send calendar invite to customer with full details
@@ -557,8 +557,8 @@ async def confirm_time_slot(
         customer_email=customer_email,
         customer_phone=customer_phone,
         inspection_fee=inspection_fee,
-        inspector_name=owners[0].get("name", "Brad Baker") if owners else "Brad Baker",
-        inspector_phone=owners[0].get("phone") if owners else None
+        inspector_name=inspector_name,
+        inspector_phone=inspector_phone
     )
     
     # Send calendar invite to agent if agent email exists
@@ -574,8 +574,8 @@ async def confirm_time_slot(
             customer_email=customer_email,
             customer_phone=customer_phone,
             inspection_fee=inspection_fee,
-            inspector_name=owners[0].get("name", "Brad Baker") if owners else "Brad Baker",
-            inspector_phone=owners[0].get("phone") if owners else None
+            inspector_name=inspector_name,
+            inspector_phone=inspector_phone
         )
         logging.info(f"Calendar invite sent to agent: {inspection['agent_email']}")
     
