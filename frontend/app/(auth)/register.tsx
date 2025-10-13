@@ -230,7 +230,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   logo: {
-    width: 80,
+    width: 240,
     height: 80,
     marginBottom: 16,
     alignSelf: 'center',
