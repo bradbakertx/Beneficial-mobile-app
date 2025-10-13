@@ -27,6 +27,50 @@ from auth import (
 security = HTTPBearer()
 
 
+# Helper function to normalize time formats for comparison
+def normalize_time_format(time_str: str) -> str:
+    """
+    Normalize time format to 24-hour HH:MM for consistent comparison.
+    Handles various formats: '08:00 AM', '8:00 AM', '8am', '8:00am', '08:00', etc.
+    """
+    if not time_str:
+        return ""
+    
+    # Remove spaces and convert to lowercase
+    time_str = time_str.strip().lower().replace(" ", "")
+    
+    # Extract hour, minute, and am/pm
+    hour = 0
+    minute = 0
+    is_pm = False
+    
+    # Check for am/pm
+    if 'pm' in time_str:
+        is_pm = True
+        time_str = time_str.replace('pm', '')
+    elif 'am' in time_str:
+        time_str = time_str.replace('am', '')
+    
+    # Parse time components
+    if ':' in time_str:
+        parts = time_str.split(':')
+        hour = int(parts[0])
+        if len(parts) > 1:
+            minute = int(parts[1])
+    else:
+        # Just hour, no minutes (e.g., "8")
+        hour = int(time_str) if time_str.isdigit() else 0
+    
+    # Convert to 24-hour format
+    if is_pm and hour != 12:
+        hour += 12
+    elif not is_pm and hour == 12:
+        hour = 0
+    
+    # Return normalized format HH:MM
+    return f"{hour:02d}:{minute:02d}"
+
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
