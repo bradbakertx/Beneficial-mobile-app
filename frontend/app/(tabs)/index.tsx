@@ -67,8 +67,12 @@ export default function DashboardScreen() {
       // Active inspections are confirmed or awaiting confirmation
       const activeInspections = confirmedInspections.length;
       
-      // Pending scheduling are those waiting for owner to set date/time
-      const pendingScheduling = pendingInspections.length;
+      // Pending scheduling:
+      // - For owners: inspections waiting for owner to offer times (status: pending_scheduling)
+      // - For customers: inspections waiting for customer to select a time (status: awaiting_customer_selection)
+      const pendingScheduling = user?.role === 'customer'
+        ? inspections.filter((i: any) => i.status === 'awaiting_customer_selection').length
+        : pendingInspections.length;
       
       console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling, unreadMessages: unreadCount });
       
