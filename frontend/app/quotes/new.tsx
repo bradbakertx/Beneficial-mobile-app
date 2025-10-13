@@ -86,9 +86,9 @@ export default function RequestQuoteScreen() {
       // Show success message after navigation
       setTimeout(() => {
         if (Platform.OS === 'web') {
-          window.alert('Your quote request has been submitted! You will receive a quote within 24 hours.');
+          window.alert('Your request has been submitted. We will notify you shortly with your inspection quote!');
         } else {
-          Alert.alert('Success', 'Your quote request has been submitted! You will receive a quote within 24 hours.');
+          Alert.alert('Success', 'Your request has been submitted. We will notify you shortly with your inspection quote!');
         }
       }, 500);
       
