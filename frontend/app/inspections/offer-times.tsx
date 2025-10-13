@@ -161,8 +161,14 @@ export default function OfferTimeSlotsScreen() {
 
       console.log('Submitting time slot offers:', offeredTimeSlots);
       
+      // Get selected inspector details
+      const inspector = INSPECTORS[selectedInspector];
+      
       const response = await api.patch(`/admin/inspections/${id}/offer-times`, {
-        offered_time_slots: offeredTimeSlots
+        offered_time_slots: offeredTimeSlots,
+        inspector_name: inspector.name,
+        inspector_license: inspector.license,
+        inspector_phone: inspector.phone
       });
       
       console.log('Time slots offered:', response.data);
