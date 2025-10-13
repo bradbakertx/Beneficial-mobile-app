@@ -1124,7 +1124,7 @@ async def sign_agreement(
         if quote and quote.get("quote_amount"):
             fee_amount = str(quote["quote_amount"])
     
-    # Generate PDF
+    # Generate PDF with inspector info
     try:
         pdf_bytes = generate_agreement_pdf(
             client_name=inspection["customer_name"],
@@ -1132,7 +1132,9 @@ async def sign_agreement(
             fee_amount=fee_amount,
             inspection_date=inspection.get("scheduled_date", "TBD"),
             inspection_time=inspection.get("scheduled_time", "TBD"),
-            signature_base64=signature_data
+            signature_base64=signature_data,
+            inspector_name=inspection.get("inspector_name", "Brad Baker"),
+            inspector_license=inspection.get("inspector_license", "TREC LIC. # 7522")
         )
     except Exception as e:
         logging.error(f"Error generating PDF: {e}")
