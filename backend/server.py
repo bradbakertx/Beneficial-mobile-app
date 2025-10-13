@@ -228,6 +228,29 @@ async def get_quote(
     return QuoteResponse(**quote)
 
 
+@api_router.delete("/quotes/{quote_id}")
+async def decline_quote(
+    quote_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Decline a quote (Customer only) - deletes the quote"""
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can decline quotes")
+    
+    quote = await db.quotes.find_one({"id": quote_id})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Check if customer owns this quote
+    if quote["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to decline this quote")
+    
+    # Delete the quote
+    await db.quotes.delete_one({"id": quote_id})
+    
+    return {"message": "Quote declined successfully"}
+
+
 # ============= ADMIN QUOTE ENDPOINTS =============
 
 @api_router.get("/admin/quotes", response_model=List[QuoteResponse])
