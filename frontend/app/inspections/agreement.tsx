@@ -183,26 +183,10 @@ export default function PreInspectionAgreementScreen() {
           <View style={styles.signaturePadContainer}>
             <Text style={styles.signaturePadTitle}>Sign Below:</Text>
             <View style={styles.signaturePadWrapper}>
-              <SignatureScreen
+              <SignaturePad
                 ref={signatureRef}
                 onEnd={handleSignature}
-                onEmpty={() => console.log('Signature cleared')}
-                onClear={() => console.log('Clear')}
-                onGetData={(data) => console.log('Data', data)}
-                autoClear={false}
-                webStyle={`
-                  .m-signature-pad {
-                    box-shadow: none;
-                    border: 2px solid #E5E5EA;
-                    border-radius: 8px;
-                  }
-                  .m-signature-pad--body {
-                    border: none;
-                  }
-                  .m-signature-pad--footer {
-                    display: none;
-                  }
-                `}
+                onClear={() => console.log('Signature cleared')}
               />
             </View>
             <View style={styles.signaturePadButtons}>
@@ -218,9 +202,7 @@ export default function PreInspectionAgreementScreen() {
               <TouchableOpacity
                 style={[styles.padButton, styles.donePadButton]}
                 onPress={() => {
-                  if (signatureRef.current) {
-                    signatureRef.current.readSignature();
-                  }
+                  setShowSignaturePad(false);
                 }}
               >
                 <Text style={styles.donePadButtonText}>Done</Text>
