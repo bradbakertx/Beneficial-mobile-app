@@ -254,15 +254,18 @@ def generate_agreement_pdf(
         signature_img.save(img_buffer, format='PNG')
         img_buffer.seek(0)
         
-        # Create image with fixed size
-        img = RLImage(img_buffer, width=2*inch, height=0.67*inch)
+        # Create image with fixed size and explicit left alignment
+        img = RLImage(img_buffer, width=2*inch, height=0.67*inch, hAlign='LEFT')
         
-        # Wrap in a table to force left alignment
-        signature_table = Table([[img]], colWidths=[2*inch])
-        signature_table.setStyle([
+        # Wrap in a table to force left alignment with full page width
+        page_width = letter[0] - 1.5*inch  # Full width minus margins
+        signature_table = Table([[img]], colWidths=[page_width])
+        signature_table.setStyle(TableStyle([
             ('ALIGN', (0, 0), (0, 0), 'LEFT'),
             ('VALIGN', (0, 0), (0, 0), 'TOP'),
-        ])
+            ('LEFTPADDING', (0, 0), (0, 0), 0),
+            ('RIGHTPADDING', (0, 0), (0, 0), 0),
+        ]))
         story.append(signature_table)
     except Exception as e:
         logger.error(f"Error adding signature to PDF: {e}")
