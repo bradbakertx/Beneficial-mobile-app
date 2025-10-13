@@ -162,6 +162,23 @@ export default function SelectTimeSlotScreen() {
           <Text style={styles.infoSubtitle}>Select your preferred date and time</Text>
         </View>
 
+        {/* Inspector Info */}
+        {inspection.inspector_name && (
+          <View style={styles.inspectorCard}>
+            <View style={styles.inspectorHeader}>
+              <Ionicons name="person-circle" size={24} color="#007AFF" />
+              <Text style={styles.inspectorTitle}>Your Inspector</Text>
+            </View>
+            <Text style={styles.inspectorName}>{inspection.inspector_name}</Text>
+            {inspection.inspector_license && (
+              <Text style={styles.inspectorDetail}>{inspection.inspector_license}</Text>
+            )}
+            {inspection.inspector_phone && (
+              <Text style={styles.inspectorDetail}>Phone: {inspection.inspector_phone}</Text>
+            )}
+          </View>
+        )}
+
         {/* Available Time Slots */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Available Time Slots:</Text>
