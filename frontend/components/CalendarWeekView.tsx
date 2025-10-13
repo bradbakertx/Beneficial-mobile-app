@@ -9,6 +9,8 @@ import {
   Linking,
   Alert,
   Platform,
+  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import api from '../services/api';
