@@ -52,7 +52,7 @@ class BackendTester:
             elif method == "POST":
                 response = requests.post(url, headers=headers, json=data)
             elif method == "PATCH":
-                response = requests.patch(url, headers=headers, json=data)
+                response = requests.patch(url, headers=headers, json=data, params=params)
             elif method == "DELETE":
                 response = requests.delete(url, headers=headers)
             else:
