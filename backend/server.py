@@ -626,10 +626,12 @@ async def decline_inspection(
         if owner.get("push_token"):
             send_push_notification(
                 push_token=owner["push_token"],
-                title="Inspection Declined",
-                body=f"{current_user.name} declined the inspection for {inspection['property_address']}",
-                data={"type": "inspection_declined", "inspection_id": inspection_id}
+                title="Inspection Canceled",
+                body=f"{current_user.name} canceled the inspection for {inspection['property_address']}",
+                data={"type": "inspection_canceled", "inspection_id": inspection_id}
             )
+    
+    logging.info(f"Customer {current_user.name} canceled inspection {inspection_id}. Push notifications sent to owners.")
     
     # Delete the inspection
     await db.inspections.delete_one({"id": inspection_id})
@@ -648,6 +650,8 @@ async def decline_inspection(
     
     return {
         "success": True,
+        "message": "Inspection canceled successfully"
+    }
         "message": "Inspection declined successfully"
     }
 
