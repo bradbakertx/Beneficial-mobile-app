@@ -386,6 +386,17 @@ async def schedule_inspection(
     
     await db.inspections.insert_one(inspection.dict())
     
+    # Update quote status to "accepted" so it no longer shows in customer's pending quotes
+    await db.quotes.update_one(
+        {"id": scheduling_data.quote_id},
+        {
+            "$set": {
+                "status": "accepted",  # New status for quotes that have moved to scheduling
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
     # Send push notification to all owners
     owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
     for owner in owners:
