@@ -204,15 +204,15 @@ def generate_agreement_pdf(
     story.append(Paragraph("<b>ACCEPTED AND AGREED TO BY:</b>", body_style))
     story.append(Spacer(1, 0.2*inch))
     
-    # Add Brad Baker's signature
+    # Add inspector's signature (left-aligned)
     try:
         inspector_sig_url = INSPECTOR_SIGNATURES.get(inspector_name)
         if inspector_sig_url:
             inspector_sig_response = requests.get(inspector_sig_url)
             inspector_sig_bytes = io.BytesIO(inspector_sig_response.content)
             
-            # Add inspector's signature
-            inspector_sig_img = RLImage(inspector_sig_bytes, width=2*inch, height=0.8*inch)
+            # Add inspector's signature with left alignment
+            inspector_sig_img = RLImage(inspector_sig_bytes, width=2*inch, height=0.8*inch, hAlign='LEFT')
             story.append(inspector_sig_img)
         else:
             logger.warning(f"No signature URL found for inspector: {inspector_name}")
@@ -224,7 +224,7 @@ def generate_agreement_pdf(
     story.append(Paragraph(f"{inspector_name} - {inspector_license}", body_style))
     story.append(Spacer(1, 0.3*inch))
     
-    # Add customer signature
+    # Add customer signature (left-aligned)
     story.append(Paragraph("<b>Customer Signature:</b>", body_style))
     story.append(Spacer(1, 0.1*inch))
     
@@ -242,8 +242,8 @@ def generate_agreement_pdf(
         signature_img.save(img_buffer, format='PNG')
         img_buffer.seek(0)
         
-        # Add to PDF (scaled to fit)
-        img = RLImage(img_buffer, width=3*inch, height=1*inch)
+        # Add to PDF with left alignment
+        img = RLImage(img_buffer, width=3*inch, height=1*inch, hAlign='LEFT')
         story.append(img)
     except Exception as e:
         logger.error(f"Error adding signature to PDF: {e}")
