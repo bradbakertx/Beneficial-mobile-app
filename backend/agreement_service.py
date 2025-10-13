@@ -159,6 +159,16 @@ def generate_agreement_pdf(
         fontName='Times-Bold'
     )
     
+    centered_title_style = ParagraphStyle(
+        'CenteredTitle',
+        parent=styles['BodyText'],
+        fontSize=10,
+        textColor='black',
+        spaceAfter=12,
+        alignment=TA_CENTER,
+        fontName='Times-Bold'
+    )
+    
     # Build content
     story = []
     
