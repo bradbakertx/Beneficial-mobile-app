@@ -103,6 +103,13 @@ class InspectionCreate(InspectionBase):
     pass
 
 
+class SchedulingRequestCreate(BaseModel):
+    quote_id: str
+    option_period_end_date: Optional[str] = None  # Date when option period ends
+    option_period_unsure: bool = False  # Checkbox if unsure
+    preferred_days_of_week: list[str] = []  # ["Mon", "Tue", "Wed", etc.]
+
+
 class InspectionInDB(InspectionBase):
     id: str
     customer_id: str
@@ -112,6 +119,12 @@ class InspectionInDB(InspectionBase):
     status: InspectionStatus = InspectionStatus.pending_scheduling
     scheduled_date: Optional[str] = None
     scheduled_time: Optional[str] = None
+    # Scheduling request fields
+    option_period_end_date: Optional[str] = None
+    option_period_unsure: bool = False
+    preferred_days_of_week: list[str] = []
+    # Owner's offered time slots
+    offered_time_slots: Optional[list[dict]] = None  # [{"date": "2025-10-15", "times": ["8am", "11am"]}]
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
