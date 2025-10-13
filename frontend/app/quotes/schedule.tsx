@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, addMonths, subMonths } from 'date-fns';
 import api from '../../services/api';
+import { formatDateLocal } from '../../utils/dateUtils';
 
 const DAYS_OF_WEEK = [
   { label: 'Monday', value: 'Mon' },
