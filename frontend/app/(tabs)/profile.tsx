@@ -17,44 +17,52 @@ export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     console.log('=== LOGOUT BUTTON PRESSED ===');
     
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { 
-          text: 'Cancel', 
-          style: 'cancel',
-          onPress: () => console.log('Logout cancelled')
-        },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              console.log('Starting logout process...');
-              
-              // Call logout function from context
-              await logout();
-              console.log('Logout completed, state cleared');
-              
-              // Give a small delay for state to update
-              await new Promise(resolve => setTimeout(resolve, 100));
-              
-              // Navigate to root which will redirect to login
-              console.log('Navigating to root...');
-              router.replace('/');
-              
-            } catch (error) {
-              console.error('Logout error:', error);
-              Alert.alert('Error', 'Failed to logout. Please try again.');
-            }
+    // For web, use window.confirm; for native, use Alert.alert
+    if (Platform.OS === 'web') {
+      const confirmed = window.confirm('Are you sure you want to logout?');
+      if (confirmed) {
+        try {
+          console.log('Starting logout process...');
+          await logout();
+          console.log('Logout completed, state cleared');
+          router.replace('/');
+        } catch (error) {
+          console.error('Logout error:', error);
+          window.alert('Failed to logout. Please try again.');
+        }
+      }
+    } else {
+      Alert.alert(
+        'Logout',
+        'Are you sure you want to logout?',
+        [
+          { 
+            text: 'Cancel', 
+            style: 'cancel',
+            onPress: () => console.log('Logout cancelled')
           },
-        },
-      ]
-    );
+          {
+            text: 'Logout',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                console.log('Starting logout process...');
+                await logout();
+                console.log('Logout completed, state cleared');
+                await new Promise(resolve => setTimeout(resolve, 100));
+                router.replace('/');
+              } catch (error) {
+                console.error('Logout error:', error);
+                Alert.alert('Error', 'Failed to logout. Please try again.');
+              }
+            },
+          },
+        ]
+      );
+    }
   };
 
   return (
