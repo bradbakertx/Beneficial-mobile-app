@@ -52,63 +52,52 @@ export default function ActiveInspectionsScreen() {
     }
   };
 
-  const handleCancelInspection = async (inspection: ActiveInspection) => {
-    console.log('Cancel button pressed for inspection:', inspection.id);
+  const handleCancelInspection = (inspection: ActiveInspection) => {
+    console.log('=== Cancel button pressed ===');
+    console.log('Inspection ID:', inspection.id);
+    console.log('Property:', inspection.property_address);
     
-    // Use a simpler confirmation for web
-    const confirmed = Platform.OS === 'web' 
-      ? window.confirm(`Cancel inspection at ${inspection.property_address}?\n\nCalendar cancellations will be sent.`)
-      : await new Promise<boolean>((resolve) => {
-          Alert.alert(
-            'Cancel Inspection',
-            `Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar notifications will be sent to you and ${inspection.customer_name}.`,
-            [
-              {
-                text: 'No, Keep It',
-                style: 'cancel',
-                onPress: () => resolve(false),
-              },
-              {
-                text: 'Yes, Cancel',
-                style: 'destructive',
-                onPress: () => resolve(true),
-              },
-            ]
-          );
-        });
-    
-    console.log('Confirmation result:', confirmed);
-    
-    if (!confirmed) {
-      console.log('User cancelled the cancellation');
-      return;
-    }
-    
-    try {
-      console.log('User confirmed cancellation');
-      console.log('Calling API to cancel inspection:', inspection.id);
-      
-      const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
-      console.log('Cancel response:', response.data);
-      
-      // Show success message
-      if (Platform.OS === 'web') {
-        window.alert('Inspection cancelled successfully. Calendar cancellations have been sent.');
-      }
-      
-      // Refresh the list
-      fetchActiveInspections();
-    } catch (error: any) {
-      console.error('Error cancelling inspection:', error);
-      console.error('Error details:', error.response?.data);
-      
-      const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
-      if (Platform.OS === 'web') {
-        window.alert(`Error: ${errorMessage}`);
-      } else {
-        Alert.alert('Error', errorMessage);
-      }
-    }
+    Alert.alert(
+      'Cancel Inspection',
+      `Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar cancellation notifications will be sent to the customer, owner, and inspector.`,
+      [
+        {
+          text: 'No, Keep It',
+          style: 'cancel',
+          onPress: () => {
+            console.log('User chose not to cancel');
+          },
+        },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            console.log('User confirmed cancellation');
+            try {
+              console.log('Calling DELETE /api/admin/inspections/' + inspection.id + '/cancel');
+              
+              const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
+              console.log('Cancel response:', response.data);
+              
+              Alert.alert(
+                'Success',
+                'Inspection cancelled successfully. Calendar cancellations have been sent.',
+                [{ text: 'OK' }]
+              );
+              
+              // Refresh the list
+              fetchActiveInspections();
+            } catch (error: any) {
+              console.error('Error cancelling inspection:', error);
+              console.error('Error response:', error.response?.data);
+              
+              const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
+              Alert.alert('Error', errorMessage);
+            }
+          },
+        },
+      ]
+    );
   };
 
   useEffect(() => {
