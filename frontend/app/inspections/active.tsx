@@ -259,13 +259,15 @@ const styles = StyleSheet.create({
   inspectionCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
-    padding: 16,
     marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 8,
     elevation: 2,
+  },
+  cardContent: {
+    padding: 16,
   },
   inspectionHeader: {
     flexDirection: 'row',
