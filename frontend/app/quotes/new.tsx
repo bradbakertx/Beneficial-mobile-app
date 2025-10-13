@@ -52,13 +52,27 @@ export default function RequestQuoteScreen() {
       Alert.alert('Error', 'Please enter a property address');
       return;
     }
+    if (!formData.property_city.trim()) {
+      Alert.alert('Error', 'Please enter a city');
+      return;
+    }
+    if (!formData.property_zip.trim()) {
+      Alert.alert('Error', 'Please enter a zip code');
+      return;
+    }
 
     setLoading(true);
     try {
       const payload = {
         property_address: formData.property_address.trim(),
+        property_city: formData.property_city.trim(),
+        property_zip: formData.property_zip.trim(),
+        square_feet: formData.square_feet ? parseInt(formData.square_feet) : null,
+        year_built: formData.year_built ? parseInt(formData.year_built) : null,
+        foundation_type: formData.foundation_type,
         property_type: formData.property_type,
-        property_size: formData.property_size ? parseInt(formData.property_size) : null,
+        num_buildings: showBuildingFields && formData.num_buildings ? parseInt(formData.num_buildings) : null,
+        num_units: showBuildingFields && formData.num_units ? parseInt(formData.num_units) : null,
         additional_notes: formData.additional_notes.trim() || null,
       };
 
@@ -72,7 +86,7 @@ export default function RequestQuoteScreen() {
         [
           {
             text: 'OK',
-            onPress: () => router.push('/(tabs)/quotes'),
+            onPress: () => router.push('/(tabs)'),
           },
         ]
       );
@@ -108,58 +122,133 @@ export default function RequestQuoteScreen() {
             
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
-                Property Address <Text style={styles.required}>*</Text>
+                Address <Text style={styles.required}>*</Text>
               </Text>
               <TextInput
                 style={styles.input}
-                placeholder="123 Main St, City, State ZIP"
+                placeholder="123 Main St"
                 value={formData.property_address}
                 onChangeText={(text) => setFormData({ ...formData, property_address: text })}
-                multiline
-                numberOfLines={2}
               />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>
+                City <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Austin"
+                value={formData.property_city}
+                onChangeText={(text) => setFormData({ ...formData, property_city: text })}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>
+                Zip Code <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="78701"
+                value={formData.property_zip}
+                onChangeText={(text) => setFormData({ ...formData, property_zip: text })}
+                keyboardType="numeric"
+                maxLength={5}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Square Feet</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="2000"
+                value={formData.square_feet}
+                onChangeText={(text) => setFormData({ ...formData, square_feet: text })}
+                keyboardType="numeric"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Year Built</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="2010"
+                value={formData.year_built}
+                onChangeText={(text) => setFormData({ ...formData, year_built: text })}
+                keyboardType="numeric"
+                maxLength={4}
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>
+                Foundation Type <Text style={styles.required}>*</Text>
+              </Text>
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={formData.foundation_type}
+                  onValueChange={(itemValue) =>
+                    setFormData({ ...formData, foundation_type: itemValue })
+                  }
+                  style={styles.picker}
+                >
+                  {foundationTypes.map((type) => (
+                    <Picker.Item key={type} label={type} value={type} />
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
                 Property Type <Text style={styles.required}>*</Text>
               </Text>
-              <View style={styles.propertyTypeContainer}>
-                {propertyTypes.map((type) => (
-                  <TouchableOpacity
-                    key={type}
-                    style={[
-                      styles.propertyTypeButton,
-                      formData.property_type === type && styles.propertyTypeButtonActive,
-                    ]}
-                    onPress={() => setFormData({ ...formData, property_type: type })}
-                  >
-                    <Text
-                      style={[
-                        styles.propertyTypeText,
-                        formData.property_type === type && styles.propertyTypeTextActive,
-                      ]}
-                    >
-                      {type}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
+              <View style={styles.pickerContainer}>
+                <Picker
+                  selectedValue={formData.property_type}
+                  onValueChange={(itemValue) =>
+                    setFormData({ ...formData, property_type: itemValue })
+                  }
+                  style={styles.picker}
+                >
+                  {propertyTypes.map((type) => (
+                    <Picker.Item key={type} label={type} value={type} />
+                  ))}
+                </Picker>
               </View>
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Property Size (sq ft)</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="2000"
-                value={formData.property_size}
-                onChangeText={(text) => setFormData({ ...formData, property_size: text })}
-                keyboardType="numeric"
-              />
-            </View>
+            {showBuildingFields && (
+              <>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Number of Buildings</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="1"
+                    value={formData.num_buildings}
+                    onChangeText={(text) => setFormData({ ...formData, num_buildings: text })}
+                    keyboardType="numeric"
+                  />
+                </View>
 
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Number of Units</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="4"
+                    value={formData.num_units}
+                    onChangeText={(text) => setFormData({ ...formData, num_units: text })}
+                    keyboardType="numeric"
+                  />
+                </View>
+              </>
+            )}
+          </View>
+
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Additional Notes</Text>
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Additional Notes</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Any specific concerns or requirements..."
@@ -259,30 +348,15 @@ const styles = StyleSheet.create({
   textArea: {
     minHeight: 100,
   },
-  propertyTypeContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  propertyTypeButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
+  pickerContainer: {
     backgroundColor: '#fff',
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: '#E5E5EA',
+    overflow: 'hidden',
   },
-  propertyTypeButtonActive: {
-    backgroundColor: '#007AFF',
-    borderColor: '#007AFF',
-  },
-  propertyTypeText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#1C1C1E',
-  },
-  propertyTypeTextActive: {
-    color: '#fff',
+  picker: {
+    height: 50,
   },
   footer: {
     padding: 16,
