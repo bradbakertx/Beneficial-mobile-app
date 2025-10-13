@@ -219,7 +219,7 @@ export default function OfferTimeSlotsScreen() {
               <Ionicons name="calendar" size={16} color="#FF9500" />
               <Text style={styles.preferenceText}>
                 Option Period End: {inspection.option_period_unsure ? 'Unsure' : 
-                  inspection.option_period_end_date ? format(new Date(inspection.option_period_end_date), 'MMM dd, yyyy') : 'Not specified'}
+                  inspection.option_period_end_date ? format(parseDateLocal(inspection.option_period_end_date), 'MMM dd, yyyy') : 'Not specified'}
               </Text>
             </View>
             <View style={styles.preferenceRow}>
