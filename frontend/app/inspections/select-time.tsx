@@ -175,7 +175,7 @@ export default function SelectTimeSlotScreen() {
                 <View style={styles.dateHeader}>
                   <Ionicons name="calendar" size={20} color="#007AFF" />
                   <Text style={styles.dateText}>
-                    {format(new Date(slot.date), 'EEEE, MMMM dd, yyyy')}
+                    {format(new Date(slot.date + 'T00:00:00'), 'EEEE, MMMM dd, yyyy')}
                   </Text>
                 </View>
                 
