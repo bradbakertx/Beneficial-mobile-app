@@ -1163,21 +1163,46 @@ async def sign_agreement(
         pdf_bytes=pdf_bytes
     )
     
-    # Send PDF to all owners
+    # Track emails sent to avoid duplicates
+    emails_sent = {current_user.email}
+    
+    # Send PDF to inspector (if they have an email and different from customer)
+    inspector_email = None
+    if inspection.get("inspector_name"):
+        # Map inspector name to email (you can expand this mapping later)
+        inspector_emails = {
+            "Brad Baker": "bradbakertx@gmail.com",
+            "Blake Gray": None  # TODO: Add Blake's email when available
+        }
+        inspector_email = inspector_emails.get(inspection.get("inspector_name"))
+        
+        if inspector_email and inspector_email not in emails_sent:
+            send_agreement_email(
+                to_email=inspector_email,
+                recipient_name=inspection.get("inspector_name"),
+                property_address=inspection["property_address"],
+                pdf_bytes=pdf_bytes
+            )
+            emails_sent.add(inspector_email)
+    
+    # Send PDF to all owners (if different from inspector and customer)
     owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
     for owner in owners:
-        send_agreement_email(
-            to_email=owner["email"],
-            recipient_name=owner["name"],
-            property_address=inspection["property_address"],
-            pdf_bytes=pdf_bytes
-        )
+        if owner["email"] not in emails_sent:
+            send_agreement_email(
+                to_email=owner["email"],
+                recipient_name=owner["name"],
+                property_address=inspection["property_address"],
+                pdf_bytes=pdf_bytes
+            )
+            emails_sent.add(owner["email"])
     
     logging.info(f"Agreement signed for inspection {inspection_id} by customer {current_user.name}")
+    logging.info(f"PDFs sent to: {', '.join(emails_sent)}")
     
     return {
         "success": True,
-        "message": "Agreement signed successfully. PDFs have been emailed to you and the inspector."
+        "message": "Agreement signed successfully. PDFs have been emailed to you, the inspector, and the owner."
     }
 
 
