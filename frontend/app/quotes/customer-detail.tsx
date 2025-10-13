@@ -75,7 +75,7 @@ export default function CustomerQuoteDetailScreen() {
   const handleDeclineQuote = async () => {
     setDeclining(true);
     try {
-      // Delete the quote
+      // Delete the quote (backend sends push notification to owner)
       await api.delete(`/quotes/${id}`);
       
       // Show thank you message
@@ -83,8 +83,8 @@ export default function CustomerQuoteDetailScreen() {
         window.alert('Thank You for Your Time.');
       }
       
-      // Navigate back to dashboard
-      router.replace('/(tabs)');
+      // Navigate back to quotes list
+      router.replace('/quotes/customer-list');
     } catch (error: any) {
       console.error('Error declining quote:', error);
       if (Platform.OS === 'web') {
