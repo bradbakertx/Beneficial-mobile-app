@@ -79,12 +79,12 @@ export default function RegisterScreen() {
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
             </TouchableOpacity>
             <Image 
-              source={require('../../assets/images/beneficial-logo-icon.jpg')}
+              source={{ uri: 'https://customer-assets.emergentagent.com/job_inspect-scheduler/artifacts/dzdr8ijd_beneficial_inspections_inc_large.jpg' }}
               style={styles.logo}
               resizeMode="contain"
             />
             <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join Beneficial Inspections</Text>
+            <Text style={styles.subtitle}>Join us today</Text>
           </View>
 
           <View style={styles.form}>
