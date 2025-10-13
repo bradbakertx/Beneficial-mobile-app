@@ -88,24 +88,29 @@ export default function QuoteDetailScreen() {
       
       console.log('Quote submitted successfully:', response.data);
       
-      Alert.alert(
-        'Success', 
-        'Quote submitted successfully! The customer will be notified.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.replace('/(tabs)')
-          }
-        ]
-      );
+      // Navigate immediately and show success message after
+      router.replace('/(tabs)');
+      
+      setTimeout(() => {
+        if (Platform.OS === 'web') {
+          window.alert('Quote submitted successfully! The customer will be notified.');
+        } else {
+          Alert.alert('Success', 'Quote submitted successfully! The customer will be notified.');
+        }
+      }, 500);
+      
     } catch (error: any) {
       console.error('Error submitting quote:', error);
-      
-      Alert.alert(
-        'Error', 
-        `Failed to submit quote. ${error.response?.data?.detail || error.message}\n\nPlease try again.`
-      );
       setSubmitting(false);
+      
+      if (Platform.OS === 'web') {
+        window.alert(`Failed to submit quote. ${error.response?.data?.detail || error.message}\n\nPlease try again.`);
+      } else {
+        Alert.alert(
+          'Error', 
+          `Failed to submit quote. ${error.response?.data?.detail || error.message}\n\nPlease try again.`
+        );
+      }
     }
   };
 
