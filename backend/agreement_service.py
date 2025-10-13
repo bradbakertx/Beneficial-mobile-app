@@ -167,7 +167,28 @@ def generate_agreement_pdf(
     story = []
     
     # Header
-    story.append(Paragraph("Beneficial Inspections, Inc", header_style))
+    # Add company logo at the top (centered)
+    try:
+        logo_url = "https://customer-assets.emergentagent.com/job_inspect-scheduler/artifacts/dzdr8ijd_beneficial_inspections_inc_large.jpg"
+        logo_response = requests.get(logo_url)
+        logo_bytes = io.BytesIO(logo_response.content)
+        
+        # Add logo with appropriate sizing (3 inches wide, maintain aspect ratio)
+        logo_img = RLImage(logo_bytes, width=3*inch, height=1*inch)
+        
+        # Center the logo using a table
+        logo_table = Table([[logo_img]], colWidths=[letter[0] - 1.5*inch])
+        logo_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (0, 0), 'CENTER'),
+            ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
+        ]))
+        story.append(logo_table)
+        story.append(Spacer(1, 0.1*inch))
+    except Exception as e:
+        logger.error(f"Error adding logo to PDF: {e}")
+        # Fallback to text if logo fails
+        story.append(Paragraph("Beneficial Inspections, Inc", header_style))
+    
     story.append(Paragraph("24114 Alpine Lodge", body_style))
     story.append(Paragraph("San Antonio, TX 78258", body_style))
     story.append(Paragraph("(210) 562-0673", body_style))
