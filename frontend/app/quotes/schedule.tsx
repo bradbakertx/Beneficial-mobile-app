@@ -94,7 +94,7 @@ export default function ScheduleInspectionScreen() {
     try {
       const payload = {
         quote_id: quoteId,
-        option_period_end_date: optionPeriodUnsure ? null : (selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null),
+        option_period_end_date: optionPeriodUnsure ? null : (selectedDate ? formatDateLocal(selectedDate) : null),
         option_period_unsure: optionPeriodUnsure,
         preferred_days_of_week: selectedDays,
       };
