@@ -641,6 +641,7 @@ async def decline_inspection(
 ):
     """Customer cancels/declines an inspection completely - deletes it"""
     from push_notification_service import send_push_notification
+    from email_service import send_inspection_calendar_cancellation
     
     if current_user.role != UserRole.customer:
         raise HTTPException(status_code=403, detail="Only customers can cancel inspections")
@@ -654,18 +655,104 @@ async def decline_inspection(
     if inspection["customer_id"] != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
     
-    # Send push notification to all owners
+    scheduled_date = inspection.get("scheduled_date")
+    scheduled_time = inspection.get("scheduled_time")
+    
+    # Track emails sent for calendar cancellations
+    cancellations_sent = {}
+    emails_sent = set()
+    
+    # Send calendar cancellation to customer
+    if scheduled_date and scheduled_time:
+        customer_email = inspection["customer_email"]
+        send_inspection_calendar_cancellation(
+            to_email=customer_email,
+            recipient_name=inspection["customer_name"],
+            property_address=inspection["property_address"],
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=False
+        )
+        emails_sent.add(customer_email.lower())
+        cancellations_sent["customer"] = customer_email
+        logging.info(f"Calendar cancellation sent to customer: {customer_email}")
+    
+    # Send calendar cancellation to owner
     owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
     for owner in owners:
-        if owner.get("push_token"):
+        if scheduled_date and scheduled_time:
+            owner_email = owner["email"]
+            if owner_email.lower() not in emails_sent:
+                send_inspection_calendar_cancellation(
+                    to_email=owner_email,
+                    recipient_name=owner["name"],
+                    property_address=inspection["property_address"],
+                    inspection_date=scheduled_date,
+                    inspection_time=scheduled_time,
+                    is_owner=True
+                )
+                emails_sent.add(owner_email.lower())
+                cancellations_sent["owner"] = owner_email
+                logging.info(f"Calendar cancellation sent to owner: {owner_email}")
+        
+        # Send push notification
+        if owner.get("expo_push_token"):
             send_push_notification(
-                push_token=owner["push_token"],
+                expo_token=owner["expo_push_token"],
                 title="Inspection Canceled",
                 body=f"{current_user.name} canceled the inspection for {inspection['property_address']}",
                 data={"type": "inspection_canceled", "inspection_id": inspection_id}
             )
     
-    logging.info(f"Customer {current_user.name} canceled inspection {inspection_id}. Push notifications sent to owners.")
+    # Send calendar cancellation to inspector (if different from owner)
+    inspector_email = None
+    if inspection.get("inspector_name") and scheduled_date and scheduled_time:
+        inspector_emails = {
+            "Brad Baker": "bradbakertx@gmail.com",
+            "Blake Gray": None
+        }
+        inspector_email = inspector_emails.get(inspection.get("inspector_name"))
+        
+        if inspector_email and inspector_email.lower() not in emails_sent:
+            send_inspection_calendar_cancellation(
+                to_email=inspector_email,
+                recipient_name=inspection.get("inspector_name"),
+                property_address=inspection["property_address"],
+                inspection_date=scheduled_date,
+                inspection_time=scheduled_time,
+                is_owner=False
+            )
+            emails_sent.add(inspector_email.lower())
+            cancellations_sent["inspector"] = inspector_email
+            logging.info(f"Calendar cancellation sent to inspector: {inspector_email}")
+            
+            # Send push notification to inspector if they have a user account
+            inspector_user = await db.users.find_one({"email": inspector_email})
+            if inspector_user and inspector_user.get("expo_push_token"):
+                send_push_notification(
+                    expo_token=inspector_user["expo_push_token"],
+                    title="Inspection Canceled",
+                    body=f"Inspection at {inspection['property_address']} has been canceled by the customer",
+                    data={"type": "inspection_canceled", "inspection_id": inspection_id}
+                )
+    
+    # Send calendar cancellation to agent if agent email exists
+    if inspection.get("agent_email") and scheduled_date and scheduled_time:
+        agent_email = inspection["agent_email"]
+        if agent_email.lower() not in emails_sent:
+            send_inspection_calendar_cancellation(
+                to_email=agent_email,
+                recipient_name=inspection.get("agent_name", "Agent"),
+                property_address=inspection["property_address"],
+                inspection_date=scheduled_date,
+                inspection_time=scheduled_time,
+                is_owner=False
+            )
+            emails_sent.add(agent_email.lower())
+            cancellations_sent["agent"] = agent_email
+            logging.info(f"Calendar cancellation sent to agent: {agent_email}")
+    
+    logging.info(f"Customer {current_user.name} canceled inspection {inspection_id}. Calendar cancellations and push notifications sent.")
     
     # Delete the inspection
     await db.inspections.delete_one({"id": inspection_id})
@@ -684,7 +771,8 @@ async def decline_inspection(
     
     return {
         "success": True,
-        "message": "Inspection canceled successfully"
+        "message": "Inspection canceled successfully. Calendar cancellations have been sent.",
+        "calendar_cancellations_sent": cancellations_sent
     }
 
 
