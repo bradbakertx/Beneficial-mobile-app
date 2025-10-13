@@ -122,13 +122,19 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
+      {/* Blue Banner with "Dashboard" */}
+      <View style={styles.blueBanner}>
+        <Text style={styles.blueBannerText}>Dashboard</Text>
+      </View>
+
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
+        {/* White Banner with Logo, Greeting, and Badge */}
         <View style={styles.topBanner}>
           <Image 
-            source={require('../../assets/images/beneficial-logo-icon.jpg')}
+            source={require('../../assets/beneficial-logo-icon.jpg')}
             style={styles.bannerLogo}
             resizeMode="contain"
           />
@@ -136,8 +142,17 @@ export default function DashboardScreen() {
             <Text style={styles.greeting}>Hello, {user?.name}!</Text>
             <Text style={styles.roleText}>{getRoleTitle()}</Text>
           </View>
-          <View style={styles.roleBadge}>
-            <Text style={styles.roleBadgeText}>{user?.role?.toUpperCase()}</Text>
+          <View style={[
+            styles.roleBadge,
+            user?.role === 'customer' && styles.customerBadge,
+            user?.role === 'agent' && styles.agentBadge,
+            user?.role === 'owner' && styles.ownerBadge
+          ]}>
+            <Text style={styles.roleBadgeText}>
+              {user?.role === 'customer' ? 'Customer' : 
+               user?.role === 'agent' ? 'Agent' : 
+               'Owner'}
+            </Text>
           </View>
         </View>
 
