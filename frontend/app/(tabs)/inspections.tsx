@@ -289,6 +289,52 @@ export default function InspectionsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Customer Cancel Inspection Modal */}
+      <Modal
+        visible={showCancelModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeCancelModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Ionicons name="warning-outline" size={32} color="#FF3B30" />
+              <Text style={styles.modalTitle}>Cancel Inspection</Text>
+            </View>
+            
+            <Text style={styles.modalMessage}>
+              Are you sure you want to cancel the inspection at{'\n\n'}
+              <Text style={styles.modalAddress}>{selectedInspection?.property_address}</Text>
+              {'\n\n'}
+              Calendar cancellation notifications will be sent to you, the owner, and the inspector.
+            </Text>
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonCancel]}
+                onPress={closeCancelModal}
+                disabled={cancelling}
+              >
+                <Text style={styles.modalButtonTextCancel}>No, Keep It</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.modalButtonConfirm]}
+                onPress={confirmCancellation}
+                disabled={cancelling}
+              >
+                {cancelling ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text style={styles.modalButtonTextConfirm}>Yes, Cancel</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
