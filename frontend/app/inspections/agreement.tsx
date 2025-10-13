@@ -202,6 +202,9 @@ export default function PreInspectionAgreementScreen() {
               <TouchableOpacity
                 style={[styles.padButton, styles.donePadButton]}
                 onPress={() => {
+                  if (signatureRef.current) {
+                    signatureRef.current.getSignature();
+                  }
                   setShowSignaturePad(false);
                 }}
               >
