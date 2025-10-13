@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameDay } from 'date-fns';
 import api from '../../services/api';
+import { formatDateLocal } from '../../utils/dateUtils';
 
 const TIME_SLOTS = ['8am', '11am', '2pm'];
 
