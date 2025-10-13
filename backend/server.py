@@ -870,7 +870,7 @@ async def cancel_inspection(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Cancel an inspection (Owner only)"""
-    from email_service import send_inspection_cancellation_email
+    from email_service import send_inspection_calendar_cancellation
     
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can cancel inspections")
@@ -880,37 +880,47 @@ async def cancel_inspection(
         raise HTTPException(status_code=404, detail="Inspection not found")
     
     # Get customer and owner info for notifications
-    customer = await db.users.find_one({"id": inspection["customer_id"]})
+    customer = await db.users.find_one({"id": inspection["customer_id"]}) if inspection.get("customer_id") != "manual-entry" else None
     owner = await db.users.find_one({"id": current_user.id})
     
-    cancellation_info = {
-        "property_address": inspection["property_address"],
-        "scheduled_date": inspection.get("scheduled_date"),
-        "scheduled_time": inspection.get("scheduled_time"),
-        "customer_email": inspection["customer_email"],
-        "customer_name": inspection["customer_name"],
-        "owner_email": owner["email"] if owner else None,
-        "owner_name": owner["name"] if owner else None,
-    }
+    scheduled_date = inspection.get("scheduled_date")
+    scheduled_time = inspection.get("scheduled_time")
     
-    # Send email notifications
-    customer_email_sent = send_inspection_cancellation_email(
-        to_email=cancellation_info["customer_email"],
-        recipient_name=cancellation_info["customer_name"],
-        property_address=cancellation_info["property_address"],
-        scheduled_date=cancellation_info.get("scheduled_date"),
-        scheduled_time=cancellation_info.get("scheduled_time"),
-        is_owner=False
-    )
+    # Send calendar cancellation to customer
+    if scheduled_date and scheduled_time:
+        send_inspection_calendar_cancellation(
+            to_email=inspection["customer_email"],
+            recipient_name=inspection["customer_name"],
+            property_address=inspection["property_address"],
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=False
+        )
+        logging.info(f"Calendar cancellation sent to customer: {inspection['customer_email']}")
     
-    owner_email_sent = send_inspection_cancellation_email(
-        to_email=cancellation_info["owner_email"],
-        recipient_name=cancellation_info["owner_name"],
-        property_address=cancellation_info["property_address"],
-        scheduled_date=cancellation_info.get("scheduled_date"),
-        scheduled_time=cancellation_info.get("scheduled_time"),
-        is_owner=True
-    )
+    # Send calendar cancellation to owner
+    if owner and scheduled_date and scheduled_time:
+        send_inspection_calendar_cancellation(
+            to_email=owner["email"],
+            recipient_name=owner["name"],
+            property_address=inspection["property_address"],
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=True
+        )
+        logging.info(f"Calendar cancellation sent to owner: {owner['email']}")
+    
+    # Send calendar cancellation to agent if agent email exists
+    if inspection.get("agent_email") and scheduled_date and scheduled_time:
+        send_inspection_calendar_cancellation(
+            to_email=inspection["agent_email"],
+            recipient_name=inspection.get("agent_name", "Agent"),
+            property_address=inspection["property_address"],
+            inspection_date=scheduled_date,
+            inspection_time=scheduled_time,
+            is_owner=False
+        )
+        logging.info(f"Calendar cancellation sent to agent: {inspection['agent_email']}")
     
     # Delete the inspection
     await db.inspections.delete_one({"id": inspection_id})
@@ -918,13 +928,10 @@ async def cancel_inspection(
     return {
         "success": True,
         "message": "Inspection cancelled successfully",
-        "notifications_sent": {
-            "customer": cancellation_info["customer_email"],
-            "owner": cancellation_info["owner_email"]
-        },
-        "emails_sent": {
-            "customer": customer_email_sent,
-            "owner": owner_email_sent
+        "calendar_cancellations_sent": {
+            "customer": inspection["customer_email"],
+            "owner": owner["email"] if owner else None,
+            "agent": inspection.get("agent_email")
         }
     }
 
