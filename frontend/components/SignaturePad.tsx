@@ -10,6 +10,7 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
+  const hasDrawn = useRef(false);
 
   useEffect(() => {
     if (Platform.OS === 'web' && canvasRef.current) {
@@ -30,6 +31,7 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
     if (!contextRef.current || !canvasRef.current) return;
     
     isDrawing.current = true;
+    hasDrawn.current = true;
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -53,7 +55,12 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
     if (!isDrawing.current) return;
     isDrawing.current = false;
     
-    if (canvasRef.current) {
+    // Only call onEnd when user explicitly clicks "Done", not on every stroke
+    // The signature is captured when the component's parent requests it
+  };
+
+  const getSignature = () => {
+    if (canvasRef.current && hasDrawn.current) {
       const dataUrl = canvasRef.current.toDataURL('image/png');
       onEnd(dataUrl);
     }
@@ -62,9 +69,16 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
   const clearSignature = () => {
     if (contextRef.current && canvasRef.current) {
       contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      hasDrawn.current = false;
       if (onClear) onClear();
     }
   };
+
+  // Expose methods to parent via ref
+  React.useImperativeHandle((ref: any) => ref, () => ({
+    getSignature,
+    clearSignature
+  }));
 
   if (Platform.OS === 'web') {
     return (
