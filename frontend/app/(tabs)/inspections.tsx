@@ -129,7 +129,7 @@ export default function InspectionsScreen() {
         </View>
 
         {/* Agreement Button for Customers */}
-        {user?.role === 'customer' && !item.agreement_signed && (
+        {user?.role === 'customer' && !item.agreement_signed && item.status === 'scheduled' && (
           <TouchableOpacity
             style={styles.agreementButton}
             onPress={() => router.push(`/inspections/agreement?id=${item.id}`)}
@@ -137,6 +137,17 @@ export default function InspectionsScreen() {
             <Ionicons name="document-text-outline" size={20} color="#FF9500" />
             <Text style={styles.agreementButtonText}>Sign Pre-Inspection Agreement</Text>
             <Ionicons name="chevron-forward" size={18} color="#FF9500" />
+          </TouchableOpacity>
+        )}
+
+        {/* Reschedule Button for Customers */}
+        {user?.role === 'customer' && item.status === 'scheduled' && (
+          <TouchableOpacity
+            style={styles.rescheduleButton}
+            onPress={() => setShowRescheduleModal(true)}
+          >
+            <Ionicons name="calendar-outline" size={20} color="#007AFF" />
+            <Text style={styles.rescheduleButtonText}>Request Reschedule</Text>
           </TouchableOpacity>
         )}
 
