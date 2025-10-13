@@ -235,6 +235,8 @@ async def decline_quote(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Decline a quote (Customer only) - deletes the quote"""
+    from push_notification_service import send_push_notification
+    
     if current_user.role != UserRole.customer:
         raise HTTPException(status_code=403, detail="Only customers can decline quotes")
     
@@ -245,6 +247,19 @@ async def decline_quote(
     # Check if customer owns this quote
     if quote["customer_id"] != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized to decline this quote")
+    
+    # Send push notification to all owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            send_push_notification(
+                push_token=owner["push_token"],
+                title="Quote Declined",
+                body=f"{current_user.name} declined the quote for {quote['property_address']}",
+                data={"type": "quote_declined", "quote_id": quote_id}
+            )
+    
+    logging.info(f"Quote {quote_id} declined by customer {current_user.name}. Push notifications sent to owners.")
     
     # Delete the quote
     await db.quotes.delete_one({"id": quote_id})
