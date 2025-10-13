@@ -134,6 +134,11 @@ class InspectionInDB(InspectionBase):
     agent_name: Optional[str] = None
     agent_email: Optional[str] = None
     agent_phone: Optional[str] = None
+    # Pre-Inspection Agreement
+    agreement_signed: bool = False
+    agreement_signed_date: Optional[datetime] = None
+    agreement_signature_data: Optional[str] = None  # Base64 signature image
+    quote_id: Optional[str] = None  # Link to quote for fee amount
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
