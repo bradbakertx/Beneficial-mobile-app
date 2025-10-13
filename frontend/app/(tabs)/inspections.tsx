@@ -204,6 +204,17 @@ export default function InspectionsScreen() {
           </TouchableOpacity>
         )}
 
+        {/* Cancel Button for Customers */}
+        {user?.role === 'customer' && item.status === 'scheduled' && (
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={() => handleCancelInspection(item)}
+          >
+            <Ionicons name="close-circle" size={20} color="#FF3B30" />
+            <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
+          </TouchableOpacity>
+        )}
+
         {item.report_url && (
           <TouchableOpacity style={styles.reportButton}>
             <Ionicons name="document-text" size={18} color="#007AFF" />
