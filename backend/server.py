@@ -503,6 +503,19 @@ async def confirm_time_slot(
     # Get all owners
     owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
     
+    # Get quote information for inspection fee
+    quote = None
+    inspection_fee = None
+    if inspection.get("quote_id"):
+        quote = await db.quotes.find_one({"id": inspection["quote_id"]})
+        if quote and quote.get("quote_amount"):
+            inspection_fee = str(quote["quote_amount"])
+    
+    # Prepare calendar invite details
+    customer_name = inspection.get("customer_name") or current_user.name
+    customer_email = inspection.get("customer_email") or current_user.email
+    customer_phone = inspection.get("customer_phone")
+    
     # Send push notifications and calendar invites to all owners
     for owner in owners:
         if owner.get("push_token"):
@@ -513,24 +526,36 @@ async def confirm_time_slot(
                 data={"type": "inspection_confirmed", "inspection_id": inspection_id}
             )
         
-        # Send calendar invite to owner
+        # Send calendar invite to owner with full details
         send_inspection_calendar_invite(
             to_email=owner["email"],
             recipient_name=owner["name"],
             property_address=inspection["property_address"],
             inspection_date=scheduled_date,
             inspection_time=scheduled_time,
-            is_owner=True
+            is_owner=True,
+            customer_name=customer_name,
+            customer_email=customer_email,
+            customer_phone=customer_phone,
+            inspection_fee=inspection_fee,
+            inspector_name=owner.get("name", "Brad Baker"),
+            inspector_phone=owner.get("phone")
         )
     
-    # Send calendar invite to customer
+    # Send calendar invite to customer with full details
     send_inspection_calendar_invite(
         to_email=current_user.email,
         recipient_name=current_user.name,
         property_address=inspection["property_address"],
         inspection_date=scheduled_date,
         inspection_time=scheduled_time,
-        is_owner=False
+        is_owner=False,
+        customer_name=customer_name,
+        customer_email=customer_email,
+        customer_phone=customer_phone,
+        inspection_fee=inspection_fee,
+        inspector_name=owners[0].get("name", "Brad Baker") if owners else "Brad Baker",
+        inspector_phone=owners[0].get("phone") if owners else None
     )
     
     # Send calendar invite to agent if agent email exists
@@ -541,7 +566,13 @@ async def confirm_time_slot(
             property_address=inspection["property_address"],
             inspection_date=scheduled_date,
             inspection_time=scheduled_time,
-            is_owner=False
+            is_owner=False,
+            customer_name=customer_name,
+            customer_email=customer_email,
+            customer_phone=customer_phone,
+            inspection_fee=inspection_fee,
+            inspector_name=owners[0].get("name", "Brad Baker") if owners else "Brad Baker",
+            inspector_phone=owners[0].get("phone") if owners else None
         )
         logging.info(f"Calendar invite sent to agent: {inspection['agent_email']}")
     
