@@ -80,25 +80,31 @@ export default function RequestQuoteScreen() {
       const response = await api.post('/quotes', payload);
       console.log('Quote created:', response.data);
 
-      Alert.alert(
-        'Success',
-        'Your quote request has been submitted! You will receive a quote within 24 hours.',
-        [
-          {
-            text: 'OK',
-            onPress: () => router.push('/(tabs)'),
-          },
-        ]
-      );
+      // Navigate immediately
+      router.push('/(tabs)');
+      
+      // Show success message after navigation
+      setTimeout(() => {
+        if (Platform.OS === 'web') {
+          window.alert('Your quote request has been submitted! You will receive a quote within 24 hours.');
+        } else {
+          Alert.alert('Success', 'Your quote request has been submitted! You will receive a quote within 24 hours.');
+        }
+      }, 500);
+      
     } catch (error: any) {
       console.error('Error creating quote:', error);
       console.error('Error response:', error.response?.data);
-      Alert.alert(
-        'Error',
-        error.response?.data?.detail || 'Failed to submit quote request. Please try again.'
-      );
-    } finally {
       setLoading(false);
+      
+      if (Platform.OS === 'web') {
+        window.alert(error.response?.data?.detail || 'Failed to submit quote request. Please try again.');
+      } else {
+        Alert.alert(
+          'Error',
+          error.response?.data?.detail || 'Failed to submit quote request. Please try again.'
+        );
+      }
     }
   };
 
