@@ -194,7 +194,13 @@ export default function DashboardScreen() {
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.statCard}
-            onPress={() => router.push('/inspections/active')}
+            onPress={() => {
+              // Route customers and owners to different screens
+              const route = user?.role === 'customer' 
+                ? '/(tabs)/inspections'  // Customer's inspections tab shows scheduled inspections
+                : '/inspections/active';  // Owner's active inspections screen
+              router.push(route);
+            }}
           >
             <Ionicons name="clipboard-outline" size={32} color="#34C759" />
             <Text style={styles.statNumber}>{stats?.active_inspections || 0}</Text>
