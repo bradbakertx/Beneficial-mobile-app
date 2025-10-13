@@ -23,8 +23,15 @@ export default function RescheduleInspectionScreen() {
   const currentTime = params.currentTime as string;
   const address = params.address as string;
 
-  // Initialize with current date or today
-  const initialDate = currentDate ? new Date(currentDate) : new Date();
+  // Parse the date string correctly to avoid timezone issues
+  // If date is "2025-10-16", create a date object for that exact day in local timezone
+  const parseLocalDate = (dateString: string): Date => {
+    if (!dateString) return new Date();
+    const [year, month, day] = dateString.split('-').map(Number);
+    return new Date(year, month - 1, day); // month is 0-indexed
+  };
+
+  const initialDate = currentDate ? parseLocalDate(currentDate) : new Date();
   const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
   const [selectedTime, setSelectedTime] = useState<string>(currentTime || '');
   const [submitting, setSubmitting] = useState(false);
