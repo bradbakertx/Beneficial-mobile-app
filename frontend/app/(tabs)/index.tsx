@@ -57,6 +57,14 @@ export default function DashboardScreen() {
         unreadMessages: unreadCount
       });
       
+      // For customers, log the inspection statuses
+      if (user?.role === 'customer') {
+        console.log('Customer inspection statuses:', {
+          pending: pendingInspections.map((i: any) => ({ id: i.id, status: i.status })),
+          confirmed: confirmedInspections.map((i: any) => ({ id: i.id, status: i.status }))
+        });
+      }
+      
       // Calculate statistics
       // For customers: show "quoted" quotes (waiting for customer response)
       // For owners: show "pending" quotes (waiting for owner to set price)
