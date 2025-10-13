@@ -122,13 +122,6 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      {/* Blue Banner with "Dashboard" - Customer Only */}
-      {user?.role === 'customer' && (
-        <View style={styles.blueBanner}>
-          <Text style={styles.blueBannerText}>Dashboard</Text>
-        </View>
-      )}
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
