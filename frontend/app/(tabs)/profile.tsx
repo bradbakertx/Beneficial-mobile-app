@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
   const router = useRouter();
+  const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
 
   const handleLogout = async () => {
     console.log('=== LOGOUT BUTTON PRESSED ===');
