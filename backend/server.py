@@ -505,7 +505,7 @@ async def set_inspection_datetime(
 @api_router.patch("/admin/inspections/{inspection_id}/offer-times")
 async def offer_time_slots(
     inspection_id: str,
-    offered_time_slots: list[dict] = Body(...),
+    request_body: dict = Body(...),
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Offer time slots to customer (Owner only)"""
@@ -513,6 +513,8 @@ async def offer_time_slots(
     
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can offer time slots")
+    
+    offered_time_slots = request_body.get("offered_time_slots", [])
     
     inspection = await db.inspections.find_one({"id": inspection_id})
     if not inspection:
