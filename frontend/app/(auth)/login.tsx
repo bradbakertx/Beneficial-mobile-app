@@ -119,6 +119,20 @@ export default function LoginScreen() {
               </Text>
             </TouchableOpacity>
           </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Beneficial Inspections Inc - Brad Baker TREC Lic #7522 since 2004
+            </Text>
+            <TouchableOpacity
+              onPress={() => Linking.openURL('https://www.trec.texas.gov/sites/default/files/pdf-forms/CN%201-5_0.pdf')}
+            >
+              <Text style={styles.footerLink}>
+                Texas Real Estate Commission Consumer Protection Notice
+              </Text>
+            </TouchableOpacity>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
