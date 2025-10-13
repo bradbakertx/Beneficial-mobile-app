@@ -77,6 +77,13 @@ export default function CalendarWeekView() {
       
       const response = await api.get(`/calendar/events?start_date=${start}&end_date=${end}`);
       setEvents(response.data.events || []);
+      
+      // Check if there's a message from the backend (e.g., calendar not connected properly)
+      if (response.data.message) {
+        setErrorMessage(response.data.message);
+      } else {
+        setErrorMessage('');
+      }
     } catch (error: any) {
       console.error('Error fetching events:', error);
       if (error.response?.status === 401) {
