@@ -448,7 +448,7 @@ async def confirm_time_slot(
 ):
     """Customer confirms a selected time slot"""
     from push_notification_service import send_push_notification
-    from email_service import send_inspection_confirmation_email
+    from email_service import send_inspection_scheduled_email
     
     if current_user.role != UserRole.customer:
         raise HTTPException(status_code=403, detail="Only customers can confirm time slots")
