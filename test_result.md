@@ -150,15 +150,18 @@ backend:
 backend:
   - task: "Phase 4: Customer Time Slot Confirmation"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented Phase 4 backend endpoints: 1) PATCH /inspections/{inspection_id}/confirm-time - Customer confirms selected time slot, updates inspection to 'scheduled' status, sends push notifications to owners, sends confirmation email to customer. 2) DELETE /inspections/{inspection_id} - Customer declines inspection offer, deletes inspection, reverts quote status back to 'quoted' for re-scheduling, sends push notifications to owners. Both endpoints include proper role-based access control (customer-only), validation, and error handling. Ready for backend testing."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE PHASE 4 BACKEND TESTING COMPLETED: Both Phase 4 endpoints are working correctly. Successfully tested complete workflow: quote creation → owner pricing → customer scheduling → owner time slot offers → customer confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted, quote status reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ Database State Changes: Verified inspection status updates, scheduled_date/time persistence, quote status reversion. ✅ Role-based Access Control: Owners correctly blocked with 403 Forbidden, proper error messages. ✅ Error Handling: 400 for validation errors, 404 for non-existent resources. Core Phase 4 functionality is production-ready. Minor: Some test requests experienced intermittent timeouts but manual verification confirms all endpoints working correctly."
 
 frontend:
   - task: "Authentication Flow"
