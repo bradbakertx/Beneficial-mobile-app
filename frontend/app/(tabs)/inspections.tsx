@@ -458,6 +458,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#007AFF',
   },
+  cancelButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFE5E5',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FF3B30',
+    marginTop: 8,
+  },
+  cancelButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FF3B30',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
