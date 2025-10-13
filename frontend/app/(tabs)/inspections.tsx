@@ -40,7 +40,14 @@ export default function InspectionsScreen() {
         endpoint = '/admin/inspections/confirmed';
       }
       const response = await api.get(endpoint);
-      setInspections(response.data);
+      
+      // For customers, filter to show only scheduled inspections
+      let inspectionsList = response.data;
+      if (user?.role === 'customer') {
+        inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled');
+      }
+      
+      setInspections(inspectionsList);
     } catch (error: any) {
       console.error('Error fetching inspections:', error);
       if (error.response?.status !== 401) {
