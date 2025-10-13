@@ -77,6 +77,56 @@ export default function InspectionsScreen() {
     fetchInspections();
   };
 
+  const handleCancelInspection = (inspection: Inspection) => {
+    console.log('=== Cancel button pressed (customer) ===');
+    console.log('Inspection ID:', inspection.id);
+    console.log('Property:', inspection.property_address);
+    
+    setSelectedInspection(inspection);
+    setShowCancelModal(true);
+  };
+
+  const confirmCancellation = async () => {
+    if (!selectedInspection) return;
+    
+    console.log('Customer confirmed cancellation');
+    setCancelling(true);
+    
+    try {
+      console.log('Calling DELETE /api/inspections/' + selectedInspection.id);
+      
+      const response = await api.delete(`/inspections/${selectedInspection.id}`);
+      console.log('Cancel response:', response.data);
+      
+      setShowCancelModal(false);
+      setSelectedInspection(null);
+      
+      Alert.alert(
+        'Success',
+        'Inspection cancelled successfully. Calendar cancellations and notifications have been sent.',
+        [{ text: 'OK' }]
+      );
+      
+      // Refresh the list
+      fetchInspections();
+    } catch (error: any) {
+      console.error('Error cancelling inspection:', error);
+      console.error('Error response:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const closeCancelModal = () => {
+    if (!cancelling) {
+      setShowCancelModal(false);
+      setSelectedInspection(null);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'scheduled':
