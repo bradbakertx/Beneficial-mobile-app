@@ -71,7 +71,7 @@ export default function DashboardScreen() {
       // - For owners: inspections waiting for owner to offer times (status: pending_scheduling)
       // - For customers: inspections waiting for customer to select a time (status: awaiting_customer_selection)
       const pendingScheduling = user?.role === 'customer'
-        ? inspections.filter((i: any) => i.status === 'awaiting_customer_selection').length
+        ? [...pendingInspections, ...confirmedInspections].filter((i: any) => i.status === 'awaiting_customer_selection').length
         : pendingInspections.length;
       
       console.log('Stats calculated:', { pendingQuotes, activeInspections, pendingScheduling, unreadMessages: unreadCount });
