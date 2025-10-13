@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import CalendarPicker from '../../components/CalendarPicker';
 import api from '../../services/api';
+import { format } from 'date-fns';
 
 export default function RescheduleInspectionScreen() {
   const router = useRouter();
@@ -22,7 +23,9 @@ export default function RescheduleInspectionScreen() {
   const currentTime = params.currentTime as string;
   const address = params.address as string;
 
-  const [selectedDate, setSelectedDate] = useState<string>(currentDate || '');
+  // Initialize with current date or today
+  const initialDate = currentDate ? new Date(currentDate) : new Date();
+  const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
   const [selectedTime, setSelectedTime] = useState<string>(currentTime || '');
   const [submitting, setSubmitting] = useState(false);
 
@@ -32,20 +35,27 @@ export default function RescheduleInspectionScreen() {
     { value: '02:00 PM', label: '2:00 PM', icon: 'partly-sunny-outline' },
   ];
 
+  const handleDateSelect = (date: Date) => {
+    setSelectedDate(date);
+  };
+
   const handleSubmit = async () => {
     if (!selectedDate || !selectedTime) {
       Alert.alert('Missing Information', 'Please select both a date and time');
       return;
     }
 
+    // Format date as YYYY-MM-DD
+    const formattedDate = format(selectedDate, 'yyyy-MM-dd');
+
     setSubmitting(true);
     try {
       console.log('Rescheduling inspection:', inspectionId);
-      console.log('New date:', selectedDate);
+      console.log('New date:', formattedDate);
       console.log('New time:', selectedTime);
 
       const response = await api.patch(`/admin/inspections/${inspectionId}/reschedule`, {
-        scheduled_date: selectedDate,
+        scheduled_date: formattedDate,
         scheduled_time: selectedTime,
       });
 
@@ -101,7 +111,7 @@ export default function RescheduleInspectionScreen() {
           <Text style={styles.sectionTitle}>Select New Date</Text>
           <CalendarPicker
             selectedDate={selectedDate}
-            onDateChange={setSelectedDate}
+            onDateSelect={handleDateSelect}
           />
         </View>
 
@@ -146,7 +156,7 @@ export default function RescheduleInspectionScreen() {
             <View style={styles.summaryText}>
               <Text style={styles.summaryLabel}>New Schedule:</Text>
               <Text style={styles.summaryValue}>
-                {selectedDate} at {selectedTime}
+                {format(selectedDate, 'MMMM dd, yyyy')} at {selectedTime}
               </Text>
             </View>
           </View>
