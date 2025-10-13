@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import { format } from 'date-fns';
+import { parseDateLocal } from '../../utils/dateUtils';
 
 interface Inspection {
   id: string;
