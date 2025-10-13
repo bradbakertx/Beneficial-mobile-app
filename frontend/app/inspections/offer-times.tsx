@@ -10,12 +10,18 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { Picker } from '@react-native-picker/picker';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, addMonths, subMonths, isSameDay } from 'date-fns';
 import api from '../../services/api';
 import { formatDateLocal, parseDateLocal } from '../../utils/dateUtils';
 
 const TIME_SLOTS = ['8am', '11am', '2pm'];
+
+const INSPECTORS = [
+  { name: 'Brad Baker', license: 'TREC #7522', phone: '2105620673' },
+  { name: 'Blake Gray', license: 'TREC #20798', phone: '2108378878' },
+];
 
 interface TimeSlotOffer {
   date: string;
@@ -31,6 +37,7 @@ export default function OfferTimeSlotsScreen() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [timeSlotSelections, setTimeSlotSelections] = useState<{ [key: string]: string[] }>({});
+  const [selectedInspector, setSelectedInspector] = useState(0); // Index in INSPECTORS array
 
   useEffect(() => {
     fetchInspection();
