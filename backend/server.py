@@ -1206,6 +1206,23 @@ async def reschedule_inspection(
     if inspection["status"] != "scheduled":
         raise HTTPException(status_code=400, detail="Only scheduled inspections can be rescheduled")
     
+    # Check for double-booking with same inspector
+    inspector_name = inspection.get("inspector_name")
+    if inspector_name:
+        conflict = await db.inspections.find_one({
+            "id": {"$ne": inspection_id},  # Exclude current inspection
+            "status": InspectionStatus.scheduled.value,
+            "scheduled_date": scheduled_date,
+            "scheduled_time": scheduled_time,
+            "inspector_name": inspector_name
+        })
+        
+        if conflict:
+            raise HTTPException(
+                status_code=409, 
+                detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
+            )
+    
     # Update the inspection with new date/time
     await db.inspections.update_one(
         {"id": inspection_id},
