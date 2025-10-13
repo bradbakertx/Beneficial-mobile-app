@@ -213,22 +213,22 @@ export default function DashboardScreen() {
               <>
                 <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes/new')}>
                   <View style={styles.actionIcon}>
-                    <Ionicons name="add-circle" size={24} color="#007AFF" />
+                    <Ionicons name="document-text" size={24} color="#007AFF" />
                   </View>
                   <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Request Quote</Text>
-                    <Text style={styles.actionDescription}>Get an inspection quote</Text>
+                    <Text style={styles.actionTitle}>Request a Quote</Text>
+                    <Text style={styles.actionDescription}>Get an inspection quote for your property</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/(tabs)/chat')}>
                   <View style={styles.actionIcon}>
-                    <Ionicons name="calendar" size={24} color="#34C759" />
+                    <Ionicons name="chatbubble-ellipses" size={24} color="#34C759" />
                   </View>
                   <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Schedule Inspection</Text>
-                    <Text style={styles.actionDescription}>Book your inspection</Text>
+                    <Text style={styles.actionTitle}>Chat with Inspector</Text>
+                    <Text style={styles.actionDescription}>Ask questions about your inspection</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
                 </TouchableOpacity>
