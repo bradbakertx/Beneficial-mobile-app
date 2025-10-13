@@ -502,6 +502,48 @@ async def set_inspection_datetime(
     return InspectionResponse(**updated_inspection)
 
 
+@api_router.patch("/admin/inspections/{inspection_id}/offer-times")
+async def offer_time_slots(
+    inspection_id: str,
+    offered_time_slots: list[dict] = Body(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Offer time slots to customer (Owner only)"""
+    from push_notification_service import send_push_notification
+    
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can offer time slots")
+    
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Update inspection with offered time slots
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {
+            "$set": {
+                "offered_time_slots": offered_time_slots,
+                "status": "awaiting_customer_selection",  # New status
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Send push notification to customer
+    customer = await db.users.find_one({"id": inspection["customer_id"]})
+    if customer and customer.get("push_token"):
+        send_push_notification(
+            push_token=customer["push_token"],
+            title="Inspection Times Available",
+            body=f"The inspector has offered {len(offered_time_slots)} date(s) for your inspection at {inspection['property_address']}",
+            data={"type": "time_slots_offered", "inspection_id": inspection_id}
+        )
+    
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    return InspectionResponse(**updated_inspection)
+
+
 @api_router.post("/admin/manual-inspection", response_model=ManualInspectionResponse)
 async def create_manual_inspection(
     inspection_data: ManualInspectionCreate,
