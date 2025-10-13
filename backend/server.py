@@ -534,19 +534,27 @@ async def confirm_time_slot(
     # Check for double-booking with same inspector
     inspector_name = inspection.get("inspector_name")
     if inspector_name:
-        conflict = await db.inspections.find_one({
+        # Get all scheduled inspections for the same date
+        potential_conflicts = await db.inspections.find({
             "id": {"$ne": inspection_id},  # Exclude current inspection
             "status": InspectionStatus.scheduled.value,
             "scheduled_date": scheduled_date,
-            "scheduled_time": scheduled_time,
             "inspector_name": inspector_name
-        })
+        }).to_list(100)
         
-        if conflict:
-            raise HTTPException(
-                status_code=409, 
-                detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
-            )
+        # Normalize the requested time
+        normalized_requested_time = normalize_time_format(scheduled_time)
+        
+        # Check if any existing inspection has a conflicting time
+        for existing in potential_conflicts:
+            existing_time = existing.get("scheduled_time", "")
+            normalized_existing_time = normalize_time_format(existing_time)
+            
+            if normalized_requested_time == normalized_existing_time:
+                raise HTTPException(
+                    status_code=409, 
+                    detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
+                )
     
     # Update inspection to scheduled status
     await db.inspections.update_one(
