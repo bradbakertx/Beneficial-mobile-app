@@ -9,6 +9,7 @@ import {
   RefreshControl,
   Alert,
   Platform,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -37,6 +38,9 @@ export default function ActiveInspectionsScreen() {
   const [inspections, setInspections] = useState<ActiveInspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [selectedInspection, setSelectedInspection] = useState<ActiveInspection | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const fetchActiveInspections = async () => {
     try {
@@ -57,47 +61,49 @@ export default function ActiveInspectionsScreen() {
     console.log('Inspection ID:', inspection.id);
     console.log('Property:', inspection.property_address);
     
-    Alert.alert(
-      'Cancel Inspection',
-      `Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar cancellation notifications will be sent to the customer, owner, and inspector.`,
-      [
-        {
-          text: 'No, Keep It',
-          style: 'cancel',
-          onPress: () => {
-            console.log('User chose not to cancel');
-          },
-        },
-        {
-          text: 'Yes, Cancel',
-          style: 'destructive',
-          onPress: async () => {
-            console.log('User confirmed cancellation');
-            try {
-              console.log('Calling DELETE /api/admin/inspections/' + inspection.id + '/cancel');
-              
-              const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
-              console.log('Cancel response:', response.data);
-              
-              Alert.alert(
-                'Success',
-                'Inspection cancelled successfully. Calendar cancellations have been sent.',
-                [{ text: 'OK' }]
-              );
-              
-              // Refresh the list
-              fetchActiveInspections();
-            } catch (error: any) {
-              console.error('Error cancelling inspection:', error);
-              console.error('Error response:', error.response?.data);
-              
-              const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
-              Alert.alert('Error', errorMessage);
-            }
-          },
-        },
-      ]
-    );
+    setSelectedInspection(inspection);
+    setShowCancelModal(true);
+  };
+
+  const confirmCancellation = async () => {
+    if (!selectedInspection) return;
+    
+    console.log('User confirmed cancellation');
+    setCancelling(true);
+    
+    try {
+      console.log('Calling DELETE /api/admin/inspections/' + selectedInspection.id + '/cancel');
+      
+      const response = await api.delete(`/admin/inspections/${selectedInspection.id}/cancel`);
+      console.log('Cancel response:', response.data);
+      
+      setShowCancelModal(false);
+      setSelectedInspection(null);
+      
+      Alert.alert(
+        'Success',
+        'Inspection cancelled successfully. Calendar cancellations have been sent.',
+        [{ text: 'OK' }]
+      );
+      
+      // Refresh the list
+      fetchActiveInspections();
+    } catch (error: any) {
+      console.error('Error cancelling inspection:', error);
+      console.error('Error response:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
+      Alert.alert('Error', errorMessage);
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const closeCancelModal = () => {
+    if (!cancelling) {
+      setShowCancelModal(false);
+      setSelectedInspection(null);
+    }
   };
 
   useEffect(() => {
