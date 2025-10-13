@@ -753,37 +753,48 @@ async def offer_time_slots(
     request_body: dict = Body(...),
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Offer time slots to customer (Owner only)"""
+    """Offer time slots and assign inspector to customer (Owner only)"""
     from push_notification_service import send_push_notification
     
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can offer time slots")
     
     offered_time_slots = request_body.get("offered_time_slots", [])
+    inspector_name = request_body.get("inspector_name")
+    inspector_license = request_body.get("inspector_license")
+    inspector_phone = request_body.get("inspector_phone")
     
     inspection = await db.inspections.find_one({"id": inspection_id})
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     
-    # Update inspection with offered time slots
+    # Update inspection with offered time slots and inspector info
+    update_data = {
+        "offered_time_slots": offered_time_slots,
+        "status": "awaiting_customer_selection",  # New status
+        "updated_at": datetime.utcnow()
+    }
+    
+    if inspector_name:
+        update_data["inspector_name"] = inspector_name
+    if inspector_license:
+        update_data["inspector_license"] = inspector_license
+    if inspector_phone:
+        update_data["inspector_phone"] = inspector_phone
+    
     await db.inspections.update_one(
         {"id": inspection_id},
-        {
-            "$set": {
-                "offered_time_slots": offered_time_slots,
-                "status": "awaiting_customer_selection",  # New status
-                "updated_at": datetime.utcnow()
-            }
-        }
+        {"$set": update_data}
     )
     
     # Send push notification to customer
     customer = await db.users.find_one({"id": inspection["customer_id"]})
     if customer and customer.get("push_token"):
+        inspector_info = f" with {inspector_name}" if inspector_name else ""
         send_push_notification(
             push_token=customer["push_token"],
             title="Inspection Times Available",
-            body=f"The inspector has offered {len(offered_time_slots)} date(s) for your inspection at {inspection['property_address']}",
+            body=f"The inspector{inspector_info} has offered {len(offered_time_slots)} date(s) for your inspection at {inspection['property_address']}",
             data={"type": "time_slots_offered", "inspection_id": inspection_id}
         )
     
