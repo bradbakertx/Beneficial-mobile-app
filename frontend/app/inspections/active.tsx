@@ -320,6 +320,11 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#E5E5EA',
   },
+  viewDetailsText: {
+    fontSize: 14,
+    color: '#007AFF',
+    fontWeight: '500',
+  },
   paymentBadge: {
     flexDirection: 'row',
     alignItems: 'center',
