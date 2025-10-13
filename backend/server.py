@@ -254,6 +254,8 @@ async def set_quote_price(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Set price for a quote (Owner only)"""
+    from push_notification_service import send_push_notification
+    
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can set quote prices")
     
@@ -272,6 +274,42 @@ async def set_quote_price(
             }
         }
     )
+    
+    # Send push notification to customer
+    customer = await db.users.find_one({"id": quote["customer_id"]})
+    if customer and customer.get("push_token"):
+        property_addr = quote.get("property_address", "your property")
+        send_push_notification(
+            push_token=customer["push_token"],
+            title="Quote Received",
+            body=f"You received a quote of ${quote_amount:.2f} for {property_addr}",
+            data={"type": "quote_received", "quote_id": quote_id, "amount": quote_amount}
+        )
+    
+    # Send email notification to customer
+    from email_service import send_email
+    customer_email = quote.get("customer_email")
+    if customer_email:
+        email_body = f"""
+        Hello {quote.get('customer_name', 'Customer')},
+        
+        You have received a quote for your inspection request at {quote.get('property_address', 'your property')}.
+        
+        Quote Amount: ${quote_amount:.2f}
+        
+        Please log in to your account to review and accept the quote.
+        
+        Best regards,
+        Beneficial Inspections
+        """
+        try:
+            send_email(
+                to_email=customer_email,
+                subject=f"Inspection Quote - ${quote_amount:.2f}",
+                body=email_body
+            )
+        except Exception as e:
+            print(f"Failed to send email to customer: {e}")
     
     updated_quote = await db.quotes.find_one({"id": quote_id})
     return QuoteResponse(**updated_quote)
