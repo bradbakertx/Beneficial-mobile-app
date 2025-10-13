@@ -277,6 +277,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  blueBanner: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  blueBannerText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: '600',
+  },
   scrollContent: {
     paddingBottom: 16,
   },
