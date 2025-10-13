@@ -182,7 +182,7 @@ export default function OfferTimeSlotsScreen() {
 
   const isOptionPeriodDate = (date: Date) => {
     if (!inspection?.option_period_end_date) return false;
-    const optionDate = new Date(inspection.option_period_end_date);
+    const optionDate = parseDateLocal(inspection.option_period_end_date);
     return isSameDay(date, optionDate);
   };
 
