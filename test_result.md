@@ -180,6 +180,21 @@ backend:
         agent: "main"
         comment: "SIGNATURE ALIGNMENT FIX APPLIED: Enhanced the signature rendering in agreement_service.py with three key improvements: 1) Added explicit hAlign='LEFT' to the RLImage object itself, 2) Changed table column width from fixed 2 inches to full page width (letter[0] - 1.5*inch) to ensure proper alignment space, 3) Added explicit padding removal in TableStyle with LEFTPADDING and RIGHTPADDING set to 0 to eliminate any default padding that might cause centering. Generated test PDF successfully at /app/backend/test_agreement_signature.pdf (28,177 bytes). Backend restarted and running. Ready for user verification to confirm signature is now left-aligned in generated PDFs."
 
+  - task: "Owner Cancel Inspection with Calendar Cancellations"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, frontend/app/inspections/active.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported that Cancel Inspection button on owner's Active Inspections screen does nothing when clicked. Expected behavior: Show confirmation dialog, then if confirmed, delete inspection from app and send calendar cancellation emails to customer, owner, and inspector (if different from owner)."
+      - working: "NA"
+        agent: "main"
+        comment: "CANCEL INSPECTION FIX IMPLEMENTED: Updated DELETE /api/admin/inspections/{inspection_id}/cancel endpoint to properly send calendar cancellations to all parties: 1) Customer - always receives cancellation, 2) Owner - receives cancellation, 3) Inspector - now sends cancellation if inspector is different from owner (uses inspector_emails mapping: Brad Baker -> bradbakertx@gmail.com), 4) Agent - sends if agent email exists. Added duplicate email detection using emails_sent set to prevent sending multiple cancellations to same person. Frontend already has confirmation dialog and proper API call. Backend restarted and ready for testing."
+
 frontend:
   - task: "Authentication Flow"
     implemented: true
