@@ -141,10 +141,19 @@ export default function OfferTimeSlotsScreen() {
     setSubmitting(true);
     try {
       // Build offered time slots array
-      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => ({
-        date: format(date, 'yyyy-MM-dd'),
-        times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
-      }));
+      // Use UTC date formatting to avoid timezone issues
+      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => {
+        // Get year, month, day in local timezone to avoid UTC conversion issues
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`;
+        
+        return {
+          date: dateString,
+          times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
+        };
+      });
 
       console.log('Submitting time slot offers:', offeredTimeSlots);
       
