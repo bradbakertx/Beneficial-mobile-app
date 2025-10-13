@@ -29,7 +29,9 @@ export default function ProfileScreen() {
       setShowLogoutConfirm(false);
       await logout();
       console.log('Logout completed, state cleared');
-      router.replace('/');
+      
+      // Navigate directly to login screen
+      router.replace('/(auth)/login');
     } catch (error) {
       console.error('Logout error:', error);
       Alert.alert('Error', 'Failed to logout. Please try again.');
