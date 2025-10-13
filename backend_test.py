@@ -147,7 +147,8 @@ class BackendTester:
         response = self.make_request("PATCH", f"/admin/quotes/{quote_id}/price", 
                                    token=self.owner_token, params={"quote_amount": 450.00})
         if not response or response.status_code != 200:
-            self.log_result("Set Quote Price", False, "Failed to set quote price")
+            error_msg = response.json().get("detail", "Unknown error") if response else "No response"
+            self.log_result("Set Quote Price", False, f"Failed to set quote price: {error_msg}")
             return None
         
         self.log_result("Set Quote Price", True, "Owner set quote price to $450.00")
