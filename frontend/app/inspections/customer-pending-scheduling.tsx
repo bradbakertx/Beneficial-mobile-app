@@ -252,10 +252,6 @@ const styles = StyleSheet.create({
   cardContent: {
     padding: 16,
   },
-    elevation: 3,
-    borderLeftWidth: 4,
-    borderLeftColor: '#34C759',
-  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
