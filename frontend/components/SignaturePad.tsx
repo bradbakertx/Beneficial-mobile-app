@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
 
 interface SignaturePadProps {
@@ -6,7 +6,12 @@ interface SignaturePadProps {
   onClear?: () => void;
 }
 
-export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
+export interface SignaturePadRef {
+  getSignature: () => void;
+  clearSignature: () => void;
+}
+
+const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(({ onEnd, onClear }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isDrawing = useRef(false);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -54,15 +59,16 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
   const stopDrawing = () => {
     if (!isDrawing.current) return;
     isDrawing.current = false;
-    
-    // Only call onEnd when user explicitly clicks "Done", not on every stroke
-    // The signature is captured when the component's parent requests it
   };
 
   const getSignature = () => {
+    console.log('getSignature called, hasDrawn:', hasDrawn.current);
     if (canvasRef.current && hasDrawn.current) {
       const dataUrl = canvasRef.current.toDataURL('image/png');
+      console.log('Signature data URL length:', dataUrl.length);
       onEnd(dataUrl);
+    } else {
+      console.log('No signature to get');
     }
   };
 
@@ -75,7 +81,7 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
   };
 
   // Expose methods to parent via ref
-  React.useImperativeHandle((ref: any) => ref, () => ({
+  useImperativeHandle(ref, () => ({
     getSignature,
     clearSignature
   }));
@@ -115,7 +121,11 @@ export default function SignaturePad({ onEnd, onClear }: SignaturePadProps) {
   // For native platforms, we'd use react-native-signature-canvas
   // For now, return null on native (implement later if needed)
   return null;
-}
+});
+
+SignaturePad.displayName = 'SignaturePad';
+
+export default SignaturePad;
 
 const styles = StyleSheet.create({
   container: {
