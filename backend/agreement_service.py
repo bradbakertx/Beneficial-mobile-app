@@ -73,12 +73,6 @@ Beneficial Inspections, Inc. may have an affiliation with third-party service pr
 Date of Service: {inspection_date}, at {inspection_time}
 
 CAUTION: This legal document consists of 3 pages. You are advised to read them and fully understand the contents of this report.
-
-ACCEPTED AND AGREED TO BY:
-
-{inspector_name} - {inspector_license}
-
-{client_name}
 """
 
 
