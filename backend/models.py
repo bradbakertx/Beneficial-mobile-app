@@ -126,6 +126,10 @@ class InspectionInDB(InspectionBase):
     preferred_days_of_week: list[str] = []
     # Owner's offered time slots
     offered_time_slots: Optional[list[dict]] = None  # [{"date": "2025-10-15", "times": ["8am", "11am"]}]
+    # Agent information (optional)
+    agent_name: Optional[str] = None
+    agent_email: Optional[str] = None
+    agent_phone: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
