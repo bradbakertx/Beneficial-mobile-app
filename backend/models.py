@@ -60,9 +60,17 @@ class TokenResponse(BaseModel):
 # Quote Models
 class QuoteBase(BaseModel):
     property_address: str
+    property_city: str
+    property_zip: str
     property_type: str
-    property_size: Optional[int] = None
+    square_feet: Optional[int] = None
+    year_built: Optional[int] = None
+    foundation_type: str
+    num_buildings: Optional[int] = None
+    num_units: Optional[int] = None
     additional_notes: Optional[str] = None
+    # Keep property_size for backwards compatibility
+    property_size: Optional[int] = None
 
 
 class QuoteCreate(QuoteBase):
