@@ -22,18 +22,29 @@ export default function RequestQuoteScreen() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     property_address: '',
-    property_type: 'Single Family',
-    property_size: '',
+    property_city: '',
+    property_zip: '',
+    square_feet: '',
+    year_built: '',
+    foundation_type: 'Slab',
+    property_type: 'Single family buyer\'s inspection',
+    num_buildings: '',
+    num_units: '',
     additional_notes: '',
   });
 
+  const foundationTypes = ['Slab', 'Pier & Beam'];
+  
   const propertyTypes = [
-    'Single Family',
-    'Multi-Family',
-    'Condo',
-    'Townhouse',
-    'Commercial',
+    'Single family buyer\'s inspection',
+    'Single family seller\'s pre-list inspection',
+    'Multi-family building inspection',
+    'Commercial inspection',
   ];
+
+  const showBuildingFields = 
+    formData.property_type === 'Multi-family building inspection' ||
+    formData.property_type === 'Commercial inspection';
 
   const handleSubmit = async () => {
     // Validation
