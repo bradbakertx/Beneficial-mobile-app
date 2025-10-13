@@ -53,12 +53,11 @@ export default function ActiveInspectionsScreen() {
   };
 
   const handleCancelInspection = async (inspection: ActiveInspection) => {
-    console.log('=== CANCEL BUTTON CLICKED ===');
-    console.log('Inspection to cancel:', inspection);
+    console.log('Cancel button pressed for inspection:', inspection.id);
     
-    // Web-compatible confirmation
+    // Use a simpler confirmation for web
     const confirmed = Platform.OS === 'web' 
-      ? window.confirm(`Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar notifications will be sent to you and ${inspection.customer_name}.`)
+      ? window.confirm(`Cancel inspection at ${inspection.property_address}?\n\nCalendar cancellations will be sent.`)
       : await new Promise<boolean>((resolve) => {
           Alert.alert(
             'Cancel Inspection',
@@ -78,6 +77,8 @@ export default function ActiveInspectionsScreen() {
           );
         });
     
+    console.log('Confirmation result:', confirmed);
+    
     if (!confirmed) {
       console.log('User cancelled the cancellation');
       return;
@@ -89,20 +90,21 @@ export default function ActiveInspectionsScreen() {
       
       const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
       console.log('Cancel response:', response.data);
-      console.log('Emails sent successfully, removing inspection from local state');
       
-      // Remove from local state immediately (no success dialog)
-      setInspections(inspections.filter(i => i.id !== inspection.id));
+      // Show success message
+      if (Platform.OS === 'web') {
+        window.alert('Inspection cancelled successfully. Calendar cancellations have been sent.');
+      }
       
-      // Navigate back to dashboard
-      router.push('/(tabs)');
+      // Refresh the list
+      fetchActiveInspections();
     } catch (error: any) {
       console.error('Error cancelling inspection:', error);
       console.error('Error details:', error.response?.data);
       
       const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
       if (Platform.OS === 'web') {
-        alert(`Error: ${errorMessage}`);
+        window.alert(`Error: ${errorMessage}`);
       } else {
         Alert.alert('Error', errorMessage);
       }
