@@ -292,11 +292,45 @@ def send_inspection_calendar_invite(
     property_address: str,
     inspection_date: str,
     inspection_time: str,
-    is_owner: bool = False
+    is_owner: bool = False,
+    customer_name: str = None,
+    customer_email: str = None,
+    customer_phone: str = None,
+    inspection_fee: str = None,
+    inspector_name: str = "Brad Baker",
+    inspector_phone: str = None
 ):
-    """Send inspection calendar invite with .ics attachment"""
+    """Send inspection calendar invite with .ics attachment including detailed information"""
     
     subject = f"Inspection Scheduled - {property_address}"
+    
+    # Build detailed notes/description
+    notes_lines = []
+    notes_lines.append(f"Property Address: {property_address}")
+    notes_lines.append(f"Date: {inspection_date}")
+    notes_lines.append(f"Time: {inspection_time}")
+    notes_lines.append("")
+    
+    if customer_name:
+        notes_lines.append(f"Client Name: {customer_name}")
+    if customer_phone:
+        notes_lines.append(f"Client Phone: {customer_phone}")
+    if customer_email:
+        notes_lines.append(f"Client Email: {customer_email}")
+    
+    if customer_name or customer_phone or customer_email:
+        notes_lines.append("")
+    
+    if inspection_fee:
+        notes_lines.append(f"Inspection Fee: ${inspection_fee}")
+        notes_lines.append("")
+    
+    if inspector_name:
+        notes_lines.append(f"Inspector: {inspector_name}")
+    if inspector_phone:
+        notes_lines.append(f"Inspector Phone: {inspector_phone}")
+    
+    description = "\n".join(notes_lines)
     
     # Create calendar event
     cal = Calendar()
@@ -306,7 +340,7 @@ def send_inspection_calendar_invite(
     
     event = Event()
     event.add('summary', f'Home Inspection - {property_address}')
-    event.add('description', f'Home inspection scheduled for {property_address}')
+    event.add('description', description)
     event.add('location', property_address)
     
     # Parse date and time
