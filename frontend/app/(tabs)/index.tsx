@@ -329,6 +329,15 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 12,
   },
+  customerBadge: {
+    backgroundColor: '#007AFF', // Blue for customer
+  },
+  agentBadge: {
+    backgroundColor: '#34C759', // Green for agent
+  },
+  ownerBadge: {
+    backgroundColor: '#FF9500', // Orange for owner
+  },
   roleBadgeText: {
     color: '#fff',
     fontSize: 12,
