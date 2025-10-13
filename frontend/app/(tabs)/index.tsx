@@ -187,7 +187,7 @@ export default function DashboardScreen() {
             onPress={() => {
               // Route customers and owners to different screens
               const route = user?.role === 'customer' 
-                ? '/inspections/pending-scheduling' 
+                ? '/inspections/customer-pending-scheduling' 
                 : '/inspections/pending-scheduling-list';
               router.push(route);
             }}
