@@ -74,7 +74,7 @@ export default function RescheduleInspectionScreen() {
         [
           {
             text: 'OK',
-            onPress: () => router.push('/inspections/active'),
+            onPress: () => router.push('/(tabs)'),
           },
         ]
       );
