@@ -198,9 +198,11 @@ def generate_agreement_pdf(
         if para.startswith('Beneficial Inspections') or para.startswith('Prepared For'):
             continue
             
+        # Centered section titles
+        if para in ['WARRANTY', 'LIMITATION OF LIABILITY', 'DISPUTES']:
+            story.append(Paragraph(para, centered_title_style))
         # Bold sections
-        if para.startswith('WARRANTY') or para.startswith('LIMITATION OF LIABILITY') or \
-           para.startswith('DISPUTES') or para.startswith('COMPANY RELATIONSHIPS') or \
+        elif para.startswith('COMPANY RELATIONSHIPS') or \
            para.startswith('THIS REPORT IS MADE') or para.startswith('CAUTION'):
             story.append(Paragraph(para, bold_style))
         else:
