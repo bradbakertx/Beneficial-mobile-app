@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import { format } from 'date-fns';
 import { useAuth } from '../../contexts/AuthContext';
+import * as DocumentPicker from 'expo-document-picker';
 
 interface ActiveInspection {
   id: string;
