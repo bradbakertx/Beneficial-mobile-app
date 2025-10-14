@@ -18,9 +18,16 @@ interface InspectionInfo {
   customer_id?: string;
   customer_name?: string;
   customer_email?: string;
+  customer_phone?: string;
   property_address: string;
   scheduled_date?: string;
   scheduled_time?: string;
+  inspector_name?: string;
+  inspector_email?: string;
+  inspector_phone?: string;
+  agent_name?: string;
+  agent_email?: string;
+  agent_phone?: string;
   status: string;
   quote_id?: string;
   created_at: string;
