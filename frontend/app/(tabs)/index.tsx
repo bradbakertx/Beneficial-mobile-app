@@ -210,10 +210,10 @@ export default function DashboardScreen() {
           <TouchableOpacity 
             style={styles.statCard}
             onPress={() => {
-              // Route customers and owners to different screens
-              const route = user?.role === 'customer' 
-                ? '/(tabs)/inspections'  // Customer's inspections tab shows scheduled inspections
-                : '/inspections/active';  // Owner's active inspections screen
+              // Route customers and agents to their inspections tab, owners to active inspections screen
+              const route = (user?.role === 'customer' || user?.role === 'agent')
+                ? '/(tabs)/inspections'  // Customer/Agent inspections tab shows scheduled inspections with chat buttons
+                : '/inspections/active';  // Owner's active inspections screen with edit buttons
               router.push(route);
             }}
           >
