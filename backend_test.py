@@ -18,50 +18,32 @@ API_BASE = f"{BACKEND_URL}/api"
 TEST_EMAIL = "bradbakertx@gmail.com"
 TEST_PASSWORD = "Beneficial1!"
 
-class BackendTester:
+class ChatSystemTester:
     def __init__(self):
-        self.owner_token = None
-        self.customer_token = None
+        self.session = requests.Session()
+        self.jwt_token = None
+        self.user_info = None
         self.test_results = []
         
-    def log_result(self, test_name, success, message, details=None):
+    def log_result(self, test_name, success, details="", response_data=None):
         """Log test result"""
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name} - {message}")
-        if details:
-            print(f"   Details: {details}")
-        
-        self.test_results.append({
+        result = {
             "test": test_name,
             "success": success,
-            "message": message,
-            "details": details
-        })
-    
-    def make_request(self, method, endpoint, token=None, data=None, params=None):
-        """Make HTTP request with proper headers"""
-        url = f"{BACKEND_URL}{endpoint}"
-        headers = {"Content-Type": "application/json"}
+            "details": details,
+            "timestamp": datetime.now().isoformat()
+        }
+        if response_data:
+            result["response_data"] = response_data
+        self.test_results.append(result)
         
-        if token:
-            headers["Authorization"] = f"Bearer {token}"
-        
-        try:
-            if method == "GET":
-                response = requests.get(url, headers=headers, params=params, timeout=30)
-            elif method == "POST":
-                response = requests.post(url, headers=headers, json=data, timeout=30)
-            elif method == "PATCH":
-                response = requests.patch(url, headers=headers, json=data, params=params, timeout=30)
-            elif method == "DELETE":
-                response = requests.delete(url, headers=headers, timeout=30)
-            else:
-                raise ValueError(f"Unsupported method: {method}")
-            
-            return response
-        except requests.exceptions.RequestException as e:
-            print(f"Request failed: {e}")
-            return None
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        if not success and response_data:
+            print(f"   Response: {response_data}")
+        print()
     
     def login_owner(self):
         """Login as owner and get token"""
