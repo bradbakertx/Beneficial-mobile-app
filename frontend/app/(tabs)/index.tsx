@@ -84,8 +84,8 @@ export default function DashboardScreen() {
         : quotes.filter((q: any) => q.status === 'pending' || q.status === 'pending_review').length;
       
       // Active inspections - only those with confirmed date/time (status: "scheduled")
-      const activeInspections = user?.role === 'customer'
-        ? pendingInspections.filter((i: any) => i.status === 'scheduled').length  // For customers, use one array to avoid duplicates
+      const activeInspections = (user?.role === 'customer' || user?.role === 'agent')
+        ? pendingInspections.filter((i: any) => i.status === 'scheduled').length  // For customers and agents, use one array to avoid duplicates
         : confirmedInspections.filter((i: any) => i.status === 'scheduled').length;
       
       // Pending scheduling:
