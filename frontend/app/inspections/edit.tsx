@@ -142,6 +142,16 @@ export default function EditInspectionScreen() {
       return;
     }
 
+    // Inspector validation for regular inspections (mandatory)
+    if (isManual !== 'true' && !selectedInspectorId) {
+      if (Platform.OS === 'web') {
+        alert('Inspector is required');
+      } else {
+        Alert.alert('Error', 'Inspector is required');
+      }
+      return;
+    }
+
     setSaving(true);
     try {
       const payload = {
@@ -162,6 +172,15 @@ export default function EditInspectionScreen() {
         inspection_date: inspectionDate.trim() || null,
         inspection_time: inspectionTime.trim() || null,
       };
+
+      // Add inspector data for regular inspections
+      if (isManual !== 'true' && selectedInspectorId) {
+        const selectedInspector = inspectors.find(i => i.id === selectedInspectorId);
+        if (selectedInspector) {
+          payload.inspector_id = selectedInspector.id;
+          payload.inspector_email = selectedInspector.email;
+        }
+      }
 
       console.log('Updating inspection with payload:', payload);
       
