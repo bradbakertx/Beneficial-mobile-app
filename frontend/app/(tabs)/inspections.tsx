@@ -50,9 +50,9 @@ export default function InspectionsScreen() {
       }
       const response = await api.get(endpoint);
       
-      // For customers, filter to show only scheduled inspections
+      // For customers and agents, filter to show only scheduled inspections
       let inspectionsList = response.data;
-      if (user?.role === 'customer') {
+      if (user?.role === 'customer' || user?.role === 'agent') {
         inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled');
       }
       
