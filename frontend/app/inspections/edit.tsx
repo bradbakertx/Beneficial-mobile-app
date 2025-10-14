@@ -66,8 +66,6 @@ export default function EditInspectionScreen() {
         setAgentPhone(data.agent_phone || '');
         setAgentEmail(data.agent_email || '');
         setPropertyAddress(data.property_address || '');
-        setPropertyCity(data.property_city || '');
-        setPropertyZip(data.property_zip || '');
         setSquareFeet(data.square_feet?.toString() || '');
         setYearBuilt(data.year_built?.toString() || '');
         setFoundationType(data.foundation_type || FOUNDATION_TYPES[0]);
