@@ -1,24 +1,20 @@
 #!/usr/bin/env python3
 """
-Backend API Testing Script for Chat System
-Tests authentication and chat endpoints as specified in the review request.
+Backend API Testing for Inspector Selection Feature
+Tests the newly implemented inspector selection functionality
 """
 
 import requests
 import json
 import sys
 from datetime import datetime
-import os
 
-# Get backend URL from environment
-BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://beneinspect.preview.emergentagent.com')
-API_BASE = f"{BACKEND_URL}/api"
-
-# Test credentials
+# Configuration
+BASE_URL = "https://beneinspect.preview.emergentagent.com/api"
 TEST_EMAIL = "bradbakertx@gmail.com"
 TEST_PASSWORD = "Beneficial1!"
 
-class ChatSystemTester:
+class InspectorSelectionTester:
     def __init__(self):
         self.session = requests.Session()
         self.jwt_token = None
