@@ -80,17 +80,15 @@ export default function ChatScreen() {
       
       console.log('Message sent successfully:', response.data);
 
-      // Clear message and go back
+      // Clear message and refresh
       setMessage('');
-      Alert.alert('Success', 'Message sent successfully!');
       
-      // Refresh messages if inspection chat
-      if (inspectionId) {
+      // Refresh messages to show the sent message
+      setTimeout(() => {
         fetchMessages();
-      } else {
-        // For owner chat, just go back after brief delay
-        setTimeout(() => router.back(), 1000);
-      }
+      }, 500);
+      
+      Alert.alert('Success', 'Message sent successfully!');
     } catch (error: any) {
       console.error('Error sending message:', error);
       console.error('Error details:', error.response?.data);
