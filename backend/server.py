@@ -108,6 +108,13 @@ async def get_current_user_from_token(credentials: HTTPAuthorizationCredentials 
 @api_router.post("/auth/register", response_model=TokenResponse)
 async def register(user_data: UserCreate):
     """Register a new user"""
+    # CRITICAL: Prevent creation of new owner accounts
+    if user_data.role == UserRole.owner:
+        raise HTTPException(
+            status_code=403, 
+            detail="Owner account registration is not allowed. Only customer, agent, and inspector accounts can be created."
+        )
+    
     # Check if user already exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
