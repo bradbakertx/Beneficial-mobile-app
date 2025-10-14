@@ -1721,43 +1721,157 @@ async def get_messages(
 async def get_conversations(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Get all conversations for current user"""
-    # Get inspections based on role
-    if current_user.role == UserRole.owner:
-        # Owner sees all inspections
-        inspections = await db.inspections.find().to_list(1000)
-    elif current_user.role == UserRole.customer:
-        # Customer sees their inspections
-        inspections = await db.inspections.find({"customer_id": current_user.id}).to_list(1000)
-    else:
-        # Agent sees inspections they're involved in (TODO: add agent_id to inspections)
-        inspections = []
+    """Get all conversations for current user - both owner chats and inspector chats"""
+    from datetime import datetime as dt
     
     conversations = []
-    for inspection in inspections:
-        # Get last message
-        last_message_doc = await db.messages.find_one(
-            {"inspection_id": inspection["id"]},
-            sort=[("created_at", -1)]
-        )
+    now = dt.utcnow()
+    
+    # Owner sees messages where they are the recipient
+    # Inspector sees messages where they are the recipient
+    # Customer sees their own sent messages (grouped by recipient)
+    
+    if current_user.role in [UserRole.owner, UserRole.inspector]:
+        # Get all messages where current user is the recipient
+        messages = await db.messages.find({
+            "recipient_id": current_user.id,
+            "$or": [
+                {"expires_at": {"$gt": now}},
+                {"expires_at": None}
+            ]
+        }).to_list(1000)
         
-        # Count unread messages (not sent by current user)
-        unread_count = await db.messages.count_documents({
-            "inspection_id": inspection["id"],
-            "sender_id": {"$ne": current_user.id},
-            "is_read": False
-        })
+        # Group by sender (customer) and inspection_id
+        conversation_map = {}
+        for msg in messages:
+            # Create unique conversation key
+            if msg.get("inspection_id"):
+                conv_key = f"inspector_{msg['inspection_id']}"
+            else:
+                conv_key = f"owner_{msg['sender_id']}"
+            
+            if conv_key not in conversation_map:
+                conversation_map[conv_key] = {
+                    "messages": [],
+                    "inspection_id": msg.get("inspection_id"),
+                    "sender_id": msg["sender_id"],
+                    "conversation_type": "inspector_chat" if msg.get("inspection_id") else "owner_chat"
+                }
+            conversation_map[conv_key]["messages"].append(msg)
         
-        conversation = ConversationSummary(
-            inspection_id=inspection["id"],
-            property_address=inspection["property_address"],
-            customer_name=inspection["customer_name"],
-            customer_id=inspection["customer_id"],
-            last_message=last_message_doc["message_text"] if last_message_doc else None,
-            last_message_time=last_message_doc["created_at"] if last_message_doc else None,
-            unread_count=unread_count
-        )
-        conversations.append(conversation)
+        # Build conversation summaries
+        for conv_key, conv_data in conversation_map.items():
+            messages_list = conv_data["messages"]
+            messages_list.sort(key=lambda x: x["created_at"], reverse=True)
+            last_msg = messages_list[0]
+            
+            # Get sender (customer) info
+            sender = await db.users.find_one({"id": conv_data["sender_id"]})
+            if not sender:
+                continue
+            
+            # Get inspection details if applicable
+            inspection_details = {}
+            if conv_data["inspection_id"]:
+                inspection = await db.inspections.find_one({"id": conv_data["inspection_id"]})
+                if inspection:
+                    inspection_details = {
+                        "property_address": inspection.get("property_address"),
+                        "inspection_date": inspection.get("scheduled_date"),
+                        "inspection_time": inspection.get("scheduled_time"),
+                        "inspector_name": inspection.get("inspector_name")
+                    }
+            
+            # Count unread
+            unread = sum(1 for m in messages_list if not m.get("is_read", False))
+            
+            conversation = ConversationSummary(
+                id=conv_key,
+                conversation_type=conv_data["conversation_type"],
+                inspection_id=conv_data["inspection_id"],
+                property_address=inspection_details.get("property_address"),
+                customer_name=sender["name"],
+                customer_id=sender["id"],
+                customer_phone=sender.get("phone"),
+                inspector_name=inspection_details.get("inspector_name"),
+                last_message=last_msg["message_text"],
+                last_message_time=last_msg["created_at"],
+                unread_count=unread,
+                expires_at=last_msg.get("expires_at"),
+                inspection_date=inspection_details.get("inspection_date"),
+                inspection_time=inspection_details.get("inspection_time")
+            )
+            conversations.append(conversation)
+    
+    elif current_user.role == UserRole.customer:
+        # Customers see their sent messages grouped by recipient
+        messages = await db.messages.find({
+            "sender_id": current_user.id,
+            "$or": [
+                {"expires_at": {"$gt": now}},
+                {"expires_at": None}
+            ]
+        }).to_list(1000)
+        
+        # Group by inspection_id or recipient
+        conversation_map = {}
+        for msg in messages:
+            if msg.get("inspection_id"):
+                conv_key = f"inspector_{msg['inspection_id']}"
+            else:
+                conv_key = f"owner_{msg.get('recipient_id', 'general')}"
+            
+            if conv_key not in conversation_map:
+                conversation_map[conv_key] = {
+                    "messages": [],
+                    "inspection_id": msg.get("inspection_id"),
+                    "recipient_id": msg.get("recipient_id"),
+                    "conversation_type": "inspector_chat" if msg.get("inspection_id") else "owner_chat"
+                }
+            conversation_map[conv_key]["messages"].append(msg)
+        
+        # Build summaries
+        for conv_key, conv_data in conversation_map.items():
+            messages_list = conv_data["messages"]
+            messages_list.sort(key=lambda x: x["created_at"], reverse=True)
+            last_msg = messages_list[0]
+            
+            # Get recipient info
+            recipient_name = "Owner"
+            if conv_data["recipient_id"]:
+                recipient = await db.users.find_one({"id": conv_data["recipient_id"]})
+                if recipient:
+                    recipient_name = recipient["name"]
+            
+            # Get inspection details
+            inspection_details = {}
+            if conv_data["inspection_id"]:
+                inspection = await db.inspections.find_one({"id": conv_data["inspection_id"]})
+                if inspection:
+                    inspection_details = {
+                        "property_address": inspection.get("property_address"),
+                        "inspection_date": inspection.get("scheduled_date"),
+                        "inspection_time": inspection.get("scheduled_time"),
+                        "inspector_name": inspection.get("inspector_name")
+                    }
+            
+            conversation = ConversationSummary(
+                id=conv_key,
+                conversation_type=conv_data["conversation_type"],
+                inspection_id=conv_data["inspection_id"],
+                property_address=inspection_details.get("property_address"),
+                customer_name=recipient_name,  # For customer view, show recipient name
+                customer_id=current_user.id,
+                customer_phone=current_user.phone,
+                inspector_name=inspection_details.get("inspector_name"),
+                last_message=last_msg["message_text"],
+                last_message_time=last_msg["created_at"],
+                unread_count=0,  # Customer sees their own messages
+                expires_at=last_msg.get("expires_at"),
+                inspection_date=inspection_details.get("inspection_date"),
+                inspection_time=inspection_details.get("inspection_time")
+            )
+            conversations.append(conversation)
     
     # Sort by last message time
     conversations.sort(key=lambda x: x.last_message_time or datetime.min, reverse=True)
