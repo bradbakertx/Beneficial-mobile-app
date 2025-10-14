@@ -1812,6 +1812,42 @@ async def sign_agreement(
     }
 
 
+@api_router.get("/inspections/{inspection_id}/agreement/download")
+async def download_agreement(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get a download URL for the signed agreement PDF"""
+    from s3_service import get_agreement_download_url
+    
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check permissions
+    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if agreement is signed
+    if not inspection.get("agreement_signed"):
+        raise HTTPException(status_code=404, detail="Agreement not signed yet")
+    
+    # Check if S3 key exists
+    s3_key = inspection.get("agreement_s3_key")
+    if not s3_key:
+        raise HTTPException(status_code=404, detail="Agreement PDF not found in storage")
+    
+    # Generate pre-signed download URL (valid for 1 hour)
+    try:
+        download_url = get_agreement_download_url(s3_key, expiration=3600)
+        return {
+            "download_url": download_url,
+            "expires_in": 3600  # seconds
+        }
+    except Exception as e:
+        logging.error(f"Failed to generate download URL: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate download URL")
 
 
 # ============= CHAT/MESSAGE ENDPOINTS =============
