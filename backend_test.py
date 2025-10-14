@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Phase 4: Customer Time Slot Confirmation
-Tests the newly implemented endpoints for customer time slot selection workflow.
+Backend API Testing Script for Chat System
+Tests authentication and chat endpoints as specified in the review request.
 """
 
 import requests
 import json
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime
+import os
 
-# Backend URL from environment
-BACKEND_URL = "https://inspectpro-app.preview.emergentagent.com/api"
+# Get backend URL from environment
+BACKEND_URL = os.environ.get('EXPO_PUBLIC_BACKEND_URL', 'https://inspectpro-app.preview.emergentagent.com')
+API_BASE = f"{BACKEND_URL}/api"
 
 # Test credentials
-OWNER_EMAIL = "bradbakertx@gmail.com"
-OWNER_PASSWORD = "Beneficial1!"
-CUSTOMER_EMAIL = "phase4customer@example.com"
-CUSTOMER_PASSWORD = "TestPass123!"
+TEST_EMAIL = "bradbakertx@gmail.com"
+TEST_PASSWORD = "Beneficial1!"
 
 class BackendTester:
     def __init__(self):
