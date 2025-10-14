@@ -1881,9 +1881,12 @@ async def get_conversations(
     if current_user.role in [UserRole.owner, UserRole.inspector]:
         # Get all messages where current user is the recipient OR any owner is the recipient (for owner role)
         if current_user.role == UserRole.owner:
-            # Owners see ALL messages sent to ANY owner (since there might be multiple owner accounts)
+            # Owners see ALL messages sent to ANY owner OR sent to them as inspector
             messages = await db.messages.find({
-                "recipient_role": UserRole.owner.value,
+                "$or": [
+                    {"recipient_role": UserRole.owner.value},  # Messages to any owner
+                    {"recipient_id": current_user.id},  # Messages to them as inspector
+                ],
                 "$or": [
                     {"expires_at": {"$gt": now}},
                     {"expires_at": None}
