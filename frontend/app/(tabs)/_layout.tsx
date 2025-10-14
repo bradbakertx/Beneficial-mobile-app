@@ -36,10 +36,19 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="add"
+        options={{
+          title: 'Add',
+          tabBarIcon: ({ color, size }) => <Ionicons name="add-circle" size={size} color={color} />,
+          href: user?.role === 'owner' ? '/add' : null, // Only show for owners
+        }}
+      />
+      <Tabs.Screen
         name="quotes"
         options={{
           title: 'Quotes',
           tabBarIcon: ({ color, size }) => <Ionicons name="document-text" size={size} color={color} />,
+          href: user?.role !== 'owner' ? '/quotes' : null, // Hide for owners
         }}
       />
       <Tabs.Screen
