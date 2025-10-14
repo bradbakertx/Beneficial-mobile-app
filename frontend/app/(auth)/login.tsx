@@ -59,7 +59,6 @@ export default function LoginScreen() {
               style={styles.logo}
               resizeMode="contain"
             />
-            <Text style={styles.subtitle}>Welcome back</Text>
           </View>
 
           <View style={styles.form}>
