@@ -179,6 +179,24 @@ export default function InspectionDetailScreen() {
           <Text style={styles.sectionTitle}>Customer Information</Text>
           <InfoRow label="Name" value={inspection!.customer_name} />
           {inspection!.customer_email && <InfoRow label="Email" value={inspection!.customer_email} />}
+          {inspection!.customer_phone && <InfoRow label="Phone" value={inspection!.customer_phone} />}
+        </View>
+      )}
+
+      {/* Inspector Information Section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Inspector</Text>
+        <InfoRow label="Name" value={inspection!.inspector_name || 'Not assigned'} />
+        {inspection!.inspector_email && <InfoRow label="Email" value={inspection!.inspector_email} />}
+        {inspection!.inspector_phone && <InfoRow label="Phone" value={inspection!.inspector_phone} />}
+      </View>
+
+      {inspection!.agent_name && (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Agent Information</Text>
+          <InfoRow label="Name" value={inspection!.agent_name} />
+          {inspection!.agent_email && <InfoRow label="Email" value={inspection!.agent_email} />}
+          {inspection!.agent_phone && <InfoRow label="Phone" value={inspection!.agent_phone} />}
         </View>
       )}
     </ScrollView>
