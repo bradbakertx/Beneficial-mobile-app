@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Inspector Selection Feature
-Tests the newly implemented inspector selection functionality
+Backend API Testing for Calendar Invite/Cancellation Feature
+Testing inspector change functionality with calendar invites/cancellations
 """
 
 import requests
@@ -14,7 +14,7 @@ BASE_URL = "https://beneinspect.preview.emergentagent.com/api"
 TEST_EMAIL = "bradbakertx@gmail.com"
 TEST_PASSWORD = "Beneficial1!"
 
-class InspectorSelectionTester:
+class CalendarInviteTester:
     def __init__(self):
         self.session = requests.Session()
         self.auth_token = None
