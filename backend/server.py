@@ -2053,7 +2053,8 @@ async def get_conversations(
             
             if conv_key not in conversation_map:
                 # For owner chat, set the customer as the "sender" for the conversation
-                sender_id = customer_id if not msg.get("inspection_id") else msg["sender_id"]
+                # For inspector chat, we'll get customer from inspection later
+                sender_id = customer_id if not msg.get("inspection_id") else None
                 
                 conversation_map[conv_key] = {
                     "messages": [],
