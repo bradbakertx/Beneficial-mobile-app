@@ -16,49 +16,35 @@ BASE_URL = "https://beneinspect.preview.emergentagent.com/api"
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
 
-class CalendarInviteTester:
+class ChatHistoryVisibilityTester:
     def __init__(self):
         self.session = requests.Session()
-        self.auth_token = None
-        self.user_data = None
+        self.owner_token = None
+        self.owner_user_id = None
         
-    def print_step(self, step_num, description):
-        """Print test step"""
-        print(f"\n📋 Step {step_num}: {description}")
-        print("-" * 50)
-
-    def login(self):
-        """Login with test credentials"""
-        self.print_step(1, "Login as owner")
-        
-        login_data = {
-            "email": TEST_EMAIL,
-            "password": TEST_PASSWORD
-        }
-        
+    def login_as_owner(self) -> bool:
+        """Login as owner and get JWT token"""
         try:
-            response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
+            response = self.session.post(f"{BASE_URL}/auth/login", json={
+                "email": OWNER_EMAIL,
+                "password": OWNER_PASSWORD
+            })
             
             if response.status_code == 200:
                 data = response.json()
-                self.auth_token = data.get("session_token")
-                self.user_data = data.get("user")
-                
-                # Set authorization header for future requests
+                self.owner_token = data["session_token"]
+                self.owner_user_id = data["user"]["id"]
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.auth_token}"
+                    "Authorization": f"Bearer {self.owner_token}"
                 })
-                
-                print(f"✅ Login successful!")
-                print(f"   User: {self.user_data.get('name')} ({self.user_data.get('email')})")
-                print(f"   Role: {self.user_data.get('role')}")
+                print(f"✅ Owner login successful: {data['user']['name']} ({data['user']['email']})")
                 return True
             else:
-                print(f"❌ Login failed: {response.status_code} - {response.text}")
+                print(f"❌ Owner login failed: {response.status_code} - {response.text}")
                 return False
                 
         except Exception as e:
-            print(f"❌ Login error: {str(e)}")
+            print(f"❌ Owner login error: {e}")
             return False
     def get_inspectors_list(self):
         """Get list of available inspectors"""
