@@ -195,19 +195,23 @@ class ManualInspectionResponse(ManualInspectionInDB):
 
 # Chat/Message Models
 class MessageCreate(BaseModel):
-    inspection_id: str
+    inspection_id: Optional[str] = None  # Optional - can be general owner chat
+    recipient_id: Optional[str] = None  # Who should receive the message (owner or inspector)
     message_text: str
 
 
 class MessageInDB(BaseModel):
     id: str
-    inspection_id: str
+    inspection_id: Optional[str] = None  # Optional for general owner chats
     sender_id: str
     sender_name: str
     sender_role: UserRole
+    recipient_id: Optional[str] = None  # Owner or inspector user ID
+    recipient_role: Optional[UserRole] = None  # owner or inspector
     message_text: str
     is_read: bool = False
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    expires_at: Optional[datetime] = None  # 24 hours after inspection
 
 
 class MessageResponse(MessageInDB):
@@ -215,12 +219,19 @@ class MessageResponse(MessageInDB):
 
 
 class ConversationSummary(BaseModel):
-    inspection_id: str
-    property_address: str
+    id: str  # conversation_id (inspection_id or customer_id for general chats)
+    conversation_type: str  # "owner_chat" or "inspector_chat"
+    inspection_id: Optional[str] = None
+    property_address: Optional[str] = None
     customer_name: str
     customer_id: str
+    customer_phone: Optional[str] = None
     agent_name: Optional[str] = None
     agent_id: Optional[str] = None
+    inspector_name: Optional[str] = None
     last_message: Optional[str] = None
     last_message_time: Optional[datetime] = None
     unread_count: int = 0
+    expires_at: Optional[datetime] = None
+    inspection_date: Optional[str] = None
+    inspection_time: Optional[str] = None
