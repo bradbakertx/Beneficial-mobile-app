@@ -221,30 +221,32 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 4,
-    paddingBottom: 16,
+    paddingTop: 0,
+    paddingBottom: 8,
   },
   header: {
-    marginBottom: 8,
+    marginBottom: 0,
   },
   backButton: {
-    marginBottom: 4,
+    marginBottom: 0,
   },
   logo: {
     width: 600,
-    height: 200,
-    marginBottom: 4,
+    height: 150,
+    marginBottom: 0,
+    marginTop: 0,
     alignSelf: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1a1a1a',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 12,
     color: '#666',
-    marginTop: 2,
+    marginTop: 0,
+    marginBottom: 4,
   },
   form: {
     width: '100%',
