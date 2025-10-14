@@ -1919,23 +1919,18 @@ async def get_conversations(
             messages_list.sort(key=lambda x: x["created_at"], reverse=True)
             last_msg = messages_list[0]
             
-            print(f"DEBUG Customer Conversation: key={conv_key}, type={conv_data['conversation_type']}, recipient_id={conv_data.get('recipient_id')}")
-            
             # Get recipient info - for owner chat, always show the current active owner
             recipient_name = "Owner"
             if conv_data["conversation_type"] == "owner_chat":
                 # For owner chats, always get the current active owner (not the deleted one)
                 current_owner = await db.users.find_one({"role": UserRole.owner.value})
-                print(f"DEBUG: Looking up owner for customer view. Found: {current_owner.get('name') if current_owner else 'None'} (ID: {current_owner.get('id') if current_owner else 'N/A'})")
                 if current_owner:
                     recipient_name = current_owner["name"]
-                print(f"DEBUG: recipient_name set to: {recipient_name}")
             elif conv_data["recipient_id"]:
                 # For inspector chats, use the specific recipient
                 recipient = await db.users.find_one({"id": conv_data["recipient_id"]})
                 if recipient:
                     recipient_name = recipient["name"]
-                print(f"DEBUG: Inspector chat, recipient_name: {recipient_name}")
             
             # Get inspection details
             inspection_details = {}
