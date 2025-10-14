@@ -208,6 +208,17 @@ export default function ActiveInspectionsScreen() {
         <Ionicons name="calendar-outline" size={20} color="#007AFF" />
         <Text style={styles.rescheduleButtonText}>Reschedule</Text>
       </TouchableOpacity>
+      
+      {/* Upload Report button - Owner only */}
+      {(user?.role === 'owner' || user?.role === 'admin') && (
+        <TouchableOpacity 
+          style={styles.uploadButton}
+          onPress={() => handleUploadReport(item)}
+        >
+          <Ionicons name="cloud-upload-outline" size={20} color="#34C759" />
+          <Text style={styles.uploadButtonText}>Upload Report</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
