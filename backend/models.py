@@ -148,6 +148,11 @@ class InspectionInDB(InspectionBase):
     agreement_signed: bool = False
     agreement_signed_date: Optional[datetime] = None
     agreement_signature_data: Optional[str] = None  # Base64 signature image
+    agreement_s3_key: Optional[str] = None  # S3 path to agreement PDF
+    agreement_s3_url: Optional[str] = None  # S3 URL for agreement PDF
+    # Inspection Report
+    report_s3_key: Optional[str] = None  # S3 path to report PDF
+    report_s3_url: Optional[str] = None  # S3 URL for report PDF
     quote_id: Optional[str] = None  # Link to quote for fee amount
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
