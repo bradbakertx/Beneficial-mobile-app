@@ -1248,6 +1248,12 @@ async def update_regular_inspection(
     new_inspector_email = update_fields.get("inspector_email")
     inspector_changed = new_inspector_id and (old_inspector_id != new_inspector_id)
     
+    # If inspector is being changed, fetch and set the inspector_name
+    if inspector_changed and new_inspector_email:
+        inspector_user = await db.users.find_one({"email": new_inspector_email})
+        if inspector_user:
+            update_fields["inspector_name"] = inspector_user.get("name", "")
+    
     # Map client_ fields to customer_ fields for inspections collection
     field_mapping = {
         'client_name': 'customer_name',
