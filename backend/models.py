@@ -153,6 +153,7 @@ class InspectionInDB(InspectionBase):
     # Inspection Report
     report_s3_key: Optional[str] = None  # S3 path to report PDF
     report_s3_url: Optional[str] = None  # S3 URL for report PDF
+    report_uploaded_at: Optional[datetime] = None  # When report was uploaded
     quote_id: Optional[str] = None  # Link to quote for fee amount
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
