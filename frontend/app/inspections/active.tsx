@@ -81,6 +81,79 @@ export default function ActiveInspectionsScreen() {
     setShowCancelModal(true);
   };
 
+  const handleUploadReport = async (inspection: ActiveInspection) => {
+    try {
+      // Pick a PDF document
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'application/pdf',
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) {
+        return;
+      }
+
+      const file = result.assets[0];
+      
+      // Validate it's a PDF
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        Alert.alert('Invalid File', 'Please select a PDF file');
+        return;
+      }
+
+      // Show confirmation
+      Alert.alert(
+        'Upload Report',
+        `Upload ${file.name} for ${inspection.property_address}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Upload',
+            onPress: async () => {
+              try {
+                // Create FormData
+                const formData = new FormData();
+                
+                // For React Native
+                const fileToUpload: any = {
+                  uri: file.uri,
+                  type: 'application/pdf',
+                  name: file.name,
+                };
+                
+                formData.append('file', fileToUpload);
+
+                // Upload to backend
+                const response = await api.post(
+                  `/inspections/${inspection.id}/report/upload`,
+                  formData,
+                  {
+                    headers: {
+                      'Content-Type': 'multipart/form-data',
+                    },
+                  }
+                );
+
+                Alert.alert(
+                  'Success',
+                  'Report uploaded successfully! Customer and agent will be notified.',
+                  [{ text: 'OK', onPress: () => fetchActiveInspections() }]
+                );
+              } catch (error: any) {
+                console.error('Upload error:', error);
+                const errorMessage = error.response?.data?.detail || 'Failed to upload report';
+                Alert.alert('Upload Failed', errorMessage);
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error('Document picker error:', error);
+      Alert.alert('Error', 'Failed to select file');
+    }
+  };
+
   const confirmCancellation = async () => {
     if (!selectedInspection) return;
     
