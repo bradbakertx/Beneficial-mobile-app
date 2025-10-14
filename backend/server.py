@@ -1768,14 +1768,25 @@ async def get_conversations(
     # Customer sees their own sent messages (grouped by recipient)
     
     if current_user.role in [UserRole.owner, UserRole.inspector]:
-        # Get all messages where current user is the recipient
-        messages = await db.messages.find({
-            "recipient_id": current_user.id,
-            "$or": [
-                {"expires_at": {"$gt": now}},
-                {"expires_at": None}
-            ]
-        }).to_list(1000)
+        # Get all messages where current user is the recipient OR any owner is the recipient (for owner role)
+        if current_user.role == UserRole.owner:
+            # Owners see ALL messages sent to ANY owner (since there might be multiple owner accounts)
+            messages = await db.messages.find({
+                "recipient_role": UserRole.owner.value,
+                "$or": [
+                    {"expires_at": {"$gt": now}},
+                    {"expires_at": None}
+                ]
+            }).to_list(1000)
+        else:
+            # Inspectors only see their own messages
+            messages = await db.messages.find({
+                "recipient_id": current_user.id,
+                "$or": [
+                    {"expires_at": {"$gt": now}},
+                    {"expires_at": None}
+                ]
+            }).to_list(1000)
         
         # Group by sender (customer) and inspection_id
         conversation_map = {}
