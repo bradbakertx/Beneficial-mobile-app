@@ -432,7 +432,7 @@ async def schedule_inspection(
         customer_id=current_user.id,
         customer_email=current_user.email,
         customer_name=current_user.name,
-        customer_phone=current_user.phone,  # Add customer phone from user account
+        customer_phone=getattr(current_user, 'phone', None),  # Safely get phone if it exists
         property_address=property_address,
         preferred_date=None,
         preferred_time=None,
