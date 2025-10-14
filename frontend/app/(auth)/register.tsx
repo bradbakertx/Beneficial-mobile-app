@@ -221,19 +221,19 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 12,
-    paddingBottom: 24,
+    paddingTop: 4,
+    paddingBottom: 16,
   },
   header: {
-    marginBottom: 16,
+    marginBottom: 8,
   },
   backButton: {
-    marginBottom: 12,
+    marginBottom: 4,
   },
   logo: {
     width: 600,
     height: 200,
-    marginBottom: 8,
+    marginBottom: 4,
     alignSelf: 'center',
   },
   title: {
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 14,
     color: '#666',
-    marginTop: 4,
+    marginTop: 2,
   },
   form: {
     width: '100%',
