@@ -213,7 +213,7 @@ export default function InspectionsScreen() {
         {user?.role === 'customer' && item.status === 'scheduled' && (
           <TouchableOpacity
             style={styles.chatButton}
-            onPress={() => router.push(`/chat?inspectionId=${item.id}&recipientName=Inspector&propertyAddress=${encodeURIComponent(item.property_address)}`)}
+            onPress={() => router.push(`/chat?inspectionId=${item.id}&recipientName=Inspector&propertyAddress=${encodeURIComponent(item.property_address)}&customerName=${encodeURIComponent(user?.name || '')}`)}
           >
             <Ionicons name="chatbubble-outline" size={20} color="#34C759" />
             <Text style={styles.chatButtonText}>Chat with Inspector</Text>
