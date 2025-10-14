@@ -39,8 +39,6 @@ export default function EditInspectionScreen() {
   const [agentPhone, setAgentPhone] = useState('');
   const [agentEmail, setAgentEmail] = useState('');
   const [propertyAddress, setPropertyAddress] = useState('');
-  const [propertyCity, setPropertyCity] = useState('');
-  const [propertyZip, setPropertyZip] = useState('');
   const [squareFeet, setSquareFeet] = useState('');
   const [yearBuilt, setYearBuilt] = useState('');
   const [foundationType, setFoundationType] = useState(FOUNDATION_TYPES[0]);
