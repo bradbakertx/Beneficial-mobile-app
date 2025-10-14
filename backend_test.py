@@ -266,13 +266,10 @@ class CalendarInviteTester:
         
         return success
 
-if __name__ == "__main__":
-    tester = InspectorSelectionTester()
+def main():
+    tester = CalendarInviteTester()
     success = tester.run_all_tests()
-    
-    if success:
-        print("\n🎉 All tests passed! Inspector Selection feature is working correctly.")
-        sys.exit(0)
-    else:
-        print("\n💥 Some tests failed. Please check the details above.")
-        sys.exit(1)
+    sys.exit(0 if success else 1)
+
+if __name__ == "__main__":
+    main()
