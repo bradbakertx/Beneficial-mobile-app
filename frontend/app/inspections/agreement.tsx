@@ -83,8 +83,8 @@ export default function PreInspectionAgreementScreen() {
         window.alert('Agreement signed successfully! PDFs have been emailed to you and the inspector.');
       }
 
-      // Navigate back to inspections
-      router.replace('/(tabs)/inspections');
+      // Navigate to agent info screen
+      router.replace(`/inspections/agent-info?inspectionId=${id}`);
     } catch (error: any) {
       console.error('Error signing agreement:', error);
       if (Platform.OS === 'web') {
