@@ -2071,13 +2071,25 @@ async def get_conversations(
             last_msg = messages_list[0]
             
             # Get sender (customer) info
-            sender = await db.users.find_one({"id": conv_data["sender_id"]})
-            if not sender:
-                continue
-            
-            # Skip if the "customer" is actually an owner (orphaned conversation)
-            if sender.get("role") == UserRole.owner.value:
-                continue
+            # For inspector chats, get customer from inspection; for owner chats, use sender_id
+            if conv_data["conversation_type"] == "inspector_chat" and conv_data["inspection_id"]:
+                # Get customer from inspection
+                inspection = await db.inspections.find_one({"id": conv_data["inspection_id"]})
+                if not inspection:
+                    continue
+                customer_id = inspection.get("customer_id")
+                sender = await db.users.find_one({"id": customer_id})
+                if not sender:
+                    continue
+            else:
+                # For owner chats, use the sender_id
+                sender = await db.users.find_one({"id": conv_data["sender_id"]})
+                if not sender:
+                    continue
+                
+                # Skip if the "customer" is actually an owner (orphaned conversation)
+                if sender.get("role") == UserRole.owner.value:
+                    continue
             
             # Get inspection details if applicable
             inspection_details = {}
