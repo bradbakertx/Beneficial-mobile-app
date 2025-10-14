@@ -1735,7 +1735,18 @@ async def sign_agreement(
         logging.error(f"Error generating PDF: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate PDF")
     
-    # Update inspection with signature
+    # Upload PDF to S3
+    from s3_service import upload_agreement_to_s3
+    
+    try:
+        s3_result = upload_agreement_to_s3(inspection_id, pdf_bytes)
+        logging.info(f"Agreement PDF uploaded to S3: {s3_result['s3_key']}")
+    except Exception as e:
+        logging.error(f"Failed to upload agreement to S3: {e}")
+        # Don't fail the whole request if S3 upload fails
+        s3_result = {"s3_key": None, "s3_url": None}
+    
+    # Update inspection with signature and S3 info
     await db.inspections.update_one(
         {"id": inspection_id},
         {
@@ -1743,6 +1754,8 @@ async def sign_agreement(
                 "agreement_signed": True,
                 "agreement_signed_date": datetime.utcnow(),
                 "agreement_signature_data": signature_data,
+                "agreement_s3_key": s3_result.get("s3_key"),
+                "agreement_s3_url": s3_result.get("s3_url"),
                 "updated_at": datetime.utcnow()
             }
         }
