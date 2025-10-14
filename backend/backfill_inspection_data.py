@@ -70,7 +70,7 @@ async def backfill_inspection_data():
             print(f"  ✅ Updated inspection {inspection['id'][:8]}... with {list(update_fields.keys())}")
     
     print(f"\n✅ Backfill complete: Updated {updated_count} inspections")
-    await client.close()
+    client.close()
 
 if __name__ == "__main__":
     asyncio.run(backfill_inspection_data())
