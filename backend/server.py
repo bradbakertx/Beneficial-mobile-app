@@ -1722,33 +1722,48 @@ async def get_owner_chat_messages(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Get all messages for owner chat (no inspection_id)"""
-    # Get owner
-    owner = await db.users.find_one({"role": UserRole.owner.value})
-    if not owner:
-        raise HTTPException(status_code=404, detail="Owner not found")
     
-    # Mark messages as read for current user
-    await db.messages.update_many(
-        {
+    if current_user.role == UserRole.owner:
+        # Owners see ALL owner chat messages (regardless of which specific owner ID)
+        # Mark all unread owner chat messages as read
+        await db.messages.update_many(
+            {
+                "inspection_id": None,
+                "recipient_role": UserRole.owner.value,
+                "is_read": False
+            },
+            {"$set": {"is_read": True}}
+        )
+        
+        # Get all owner chat messages (no inspection_id, sent to or from any owner)
+        messages = await db.messages.find({
             "inspection_id": None,
-            "sender_id": {"$ne": current_user.id},
-            "is_read": False,
             "$or": [
-                {"sender_id": current_user.id, "recipient_id": owner["id"]},
-                {"sender_id": owner["id"], "recipient_id": current_user.id}
+                {"recipient_role": UserRole.owner.value},
+                {"sender_role": UserRole.owner.value}
             ]
-        },
-        {"$set": {"is_read": True}}
-    )
-    
-    # Get messages between current user and owner (no inspection_id)
-    messages = await db.messages.find({
-        "inspection_id": None,
-        "$or": [
-            {"sender_id": current_user.id, "recipient_id": owner["id"]},
-            {"sender_id": owner["id"], "recipient_id": current_user.id}
-        ]
-    }).sort("created_at", 1).to_list(1000)
+        }).sort("created_at", 1).to_list(1000)
+    else:
+        # Customers/others see messages between them and ANY owner
+        # Mark messages as read for current user
+        await db.messages.update_many(
+            {
+                "inspection_id": None,
+                "sender_role": UserRole.owner.value,
+                "recipient_id": current_user.id,
+                "is_read": False
+            },
+            {"$set": {"is_read": True}}
+        )
+        
+        # Get messages between current user and any owner (no inspection_id)
+        messages = await db.messages.find({
+            "inspection_id": None,
+            "$or": [
+                {"sender_id": current_user.id, "recipient_role": UserRole.owner.value},
+                {"sender_role": UserRole.owner.value, "recipient_id": current_user.id}
+            ]
+        }).sort("created_at", 1).to_list(1000)
     
     return [MessageResponse(**msg) for msg in messages]
 
