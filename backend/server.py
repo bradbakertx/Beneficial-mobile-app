@@ -482,11 +482,16 @@ async def schedule_inspection(
 async def get_my_inspections(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Get inspections for current customer"""
-    if current_user.role != UserRole.customer:
-        raise HTTPException(status_code=403, detail="Only customers can view their inspections")
+    """Get inspections for current customer or agent"""
+    if current_user.role == UserRole.customer:
+        # Customers see their own inspections
+        inspections = await db.inspections.find({"customer_id": current_user.id}).to_list(1000)
+    elif current_user.role == UserRole.agent:
+        # Agents see inspections where they're listed as the agent
+        inspections = await db.inspections.find({"agent_email": current_user.email}).to_list(1000)
+    else:
+        raise HTTPException(status_code=403, detail="Only customers and agents can view their inspections")
     
-    inspections = await db.inspections.find({"customer_id": current_user.id}).to_list(1000)
     return [InspectionResponse(**inspection) for inspection in inspections]
 
 
