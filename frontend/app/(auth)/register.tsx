@@ -24,7 +24,7 @@ export default function RegisterScreen() {
     phone: '',
     password: '',
     confirmPassword: '',
-    role: 'customer' as 'customer' | 'agent' | 'owner',
+    role: 'customer' as 'customer' | 'agent',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
