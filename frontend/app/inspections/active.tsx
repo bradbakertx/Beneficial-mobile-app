@@ -45,6 +45,8 @@ export default function ActiveInspectionsScreen() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState<ActiveInspection | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState('');
 
   const fetchActiveInspections = async () => {
     try {
