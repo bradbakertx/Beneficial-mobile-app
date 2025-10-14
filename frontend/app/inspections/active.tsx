@@ -396,6 +396,17 @@ export default function ActiveInspectionsScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Upload Progress Indicator */}
+      {uploading && (
+        <View style={styles.uploadOverlay}>
+          <View style={styles.uploadIndicator}>
+            <ActivityIndicator size="large" color="#34C759" />
+            <Text style={styles.uploadText}>{uploadProgress}</Text>
+            <Text style={styles.uploadSubtext}>Please wait...</Text>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
