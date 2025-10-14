@@ -276,8 +276,8 @@ export default function DashboardScreen() {
                     <Ionicons name="chatbubble-ellipses" size={24} color="#34C759" />
                   </View>
                   <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Chat with Inspector</Text>
-                    <Text style={styles.actionDescription}>Ask questions about your inspection</Text>
+                    <Text style={styles.actionTitle}>Chat with Brad Baker</Text>
+                    <Text style={styles.actionDescription}>Ask any general questions</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
                 </TouchableOpacity>
