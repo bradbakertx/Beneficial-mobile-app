@@ -27,7 +27,7 @@ class CalendarInviteTester:
 
     def login(self):
         """Login with test credentials"""
-        print("🔐 Logging in with test credentials...")
+        self.print_step(1, "Login as owner")
         
         login_data = {
             "email": TEST_EMAIL,
@@ -47,24 +47,16 @@ class CalendarInviteTester:
                     "Authorization": f"Bearer {self.auth_token}"
                 })
                 
-                self.log_result(
-                    "Authentication", 
-                    True, 
-                    f"Logged in as {self.user_data.get('name')} ({self.user_data.get('role')})",
-                    {"user_id": self.user_data.get('id'), "role": self.user_data.get('role')}
-                )
+                print(f"✅ Login successful!")
+                print(f"   User: {self.user_data.get('name')} ({self.user_data.get('email')})")
+                print(f"   Role: {self.user_data.get('role')}")
                 return True
             else:
-                self.log_result(
-                    "Authentication", 
-                    False, 
-                    f"Login failed with status {response.status_code}",
-                    response.text
-                )
+                print(f"❌ Login failed: {response.status_code} - {response.text}")
                 return False
                 
         except Exception as e:
-            self.log_result("Authentication", False, f"Login error: {str(e)}")
+            print(f"❌ Login error: {str(e)}")
             return False
     def test_get_inspectors_endpoint(self):
         """Test GET /api/users/inspectors endpoint"""
