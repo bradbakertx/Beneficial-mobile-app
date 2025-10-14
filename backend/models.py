@@ -135,7 +135,9 @@ class InspectionInDB(InspectionBase):
     # Owner's offered time slots
     offered_time_slots: Optional[list[dict]] = None  # [{"date": "2025-10-15", "times": ["8am", "11am"]}]
     # Inspector information
+    inspector_id: Optional[str] = None
     inspector_name: Optional[str] = None
+    inspector_email: Optional[str] = None
     inspector_license: Optional[str] = None
     inspector_phone: Optional[str] = None
     # Agent information (optional)
