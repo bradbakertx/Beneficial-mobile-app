@@ -40,40 +40,39 @@ class InspectorSelectionTester:
         if not success and response_data:
             print(f"   Response: {response_data}")
         print()
-    
-    def test_authentication(self):
-        """Test authentication with provided credentials"""
-        print("=== TESTING AUTHENTICATION ===")
+
+    def login(self):
+        """Login with test credentials"""
+        print("🔐 Logging in with test credentials...")
+        
+        login_data = {
+            "email": TEST_EMAIL,
+            "password": TEST_PASSWORD
+        }
         
         try:
-            # Test login
-            login_data = {
-                "email": TEST_EMAIL,
-                "password": TEST_PASSWORD
-            }
-            
-            response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
+            response = self.session.post(f"{BASE_URL}/auth/login", json=login_data)
             
             if response.status_code == 200:
                 data = response.json()
-                self.jwt_token = data.get("session_token")
-                self.user_info = data.get("user")
+                self.auth_token = data.get("session_token")
+                self.user_data = data.get("user")
                 
                 # Set authorization header for future requests
                 self.session.headers.update({
-                    "Authorization": f"Bearer {self.jwt_token}"
+                    "Authorization": f"Bearer {self.auth_token}"
                 })
                 
                 self.log_result(
-                    "Authentication Login", 
+                    "Authentication", 
                     True, 
-                    f"Successfully logged in as {self.user_info.get('name')} ({self.user_info.get('role')})",
-                    {"user_id": self.user_info.get('id'), "role": self.user_info.get('role')}
+                    f"Logged in as {self.user_data.get('name')} ({self.user_data.get('role')})",
+                    {"user_id": self.user_data.get('id'), "role": self.user_data.get('role')}
                 )
                 return True
             else:
                 self.log_result(
-                    "Authentication Login", 
+                    "Authentication", 
                     False, 
                     f"Login failed with status {response.status_code}",
                     response.text
@@ -81,7 +80,7 @@ class InspectorSelectionTester:
                 return False
                 
         except Exception as e:
-            self.log_result("Authentication Login", False, f"Exception: {str(e)}")
+            self.log_result("Authentication", False, f"Login error: {str(e)}")
             return False
     
     def test_get_conversations(self):
