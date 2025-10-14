@@ -1727,20 +1727,13 @@ async def send_message(
         
         # Determine recipient (inspector from inspection or owner)
         if not recipient_id:
-            # Try to find inspector from inspection
-            inspector_name = inspection.get("inspector_name")
-            if inspector_name:
-                # Map inspector name to user
-                inspector_emails = {
-                    "Brad Baker": "bradbakertx@gmail.com",
-                    "Blake Gray": None
-                }
-                inspector_email = inspector_emails.get(inspector_name)
-                if inspector_email:
-                    inspector_user = await db.users.find_one({"email": inspector_email})
-                    if inspector_user:
-                        recipient_id = inspector_user["id"]
-                        recipient_role = UserRole.inspector
+            # Try to get inspector email directly from inspection
+            inspector_email = inspection.get("inspector_email")
+            if inspector_email:
+                inspector_user = await db.users.find_one({"email": inspector_email})
+                if inspector_user:
+                    recipient_id = inspector_user["id"]
+                    recipient_role = UserRole.inspector
         
         if not recipient_id:
             # Default to owner if no inspector
