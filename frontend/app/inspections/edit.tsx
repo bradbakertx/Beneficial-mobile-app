@@ -56,6 +56,15 @@ export default function EditInspectionScreen() {
     fetchInspectors();
   }, [id]);
 
+  const fetchInspectors = async () => {
+    try {
+      const response = await api.get('/users/inspectors');
+      setInspectors(response.data.inspectors || []);
+    } catch (error) {
+      console.error('Error fetching inspectors:', error);
+    }
+  };
+
   const fetchInspectionData = async () => {
     try {
       if (isManual === 'true') {
@@ -96,6 +105,10 @@ export default function EditInspectionScreen() {
         setPropertyType(data.property_type || PROPERTY_TYPES[0]);
         setNumBuildings(data.num_buildings?.toString() || '');
         setNumUnits(data.num_units?.toString() || '');
+        // Set inspector if available
+        if (data.inspector_id) {
+          setSelectedInspectorId(data.inspector_id);
+        }
         // Fee amount comes from quote, not inspection
         if (data.quote_id) {
           try {
