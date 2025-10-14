@@ -80,13 +80,20 @@ export default function EditInspectionScreen() {
         setInspectionDate(data.inspection_date || '');
         setInspectionTime(data.inspection_time || '');
       } else {
-        // Regular inspection - limited fields
+        // Regular inspection - get quote data for property details
         const response = await api.get(`/inspections/${id}`);
         const data = response.data;
         
         setClientName(data.customer_name || '');
         setClientEmail(data.customer_email || '');
+        setAgentName(data.agent_name || '');
+        setAgentEmail(data.agent_email || '');
+        setAgentPhone(data.agent_phone || '');
         setPropertyAddress(data.property_address || '');
+        setSquareFeet(data.square_feet?.toString() || '');
+        setYearBuilt(data.year_built?.toString() || '');
+        setFoundationType(data.foundation_type || FOUNDATION_TYPES[0]);
+        setPropertyType(data.property_type || PROPERTY_TYPES[0]);
         setInspectionDate(data.scheduled_date || '');
         setInspectionTime(data.scheduled_time || '');
       }
