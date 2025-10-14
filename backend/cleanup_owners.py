@@ -35,7 +35,8 @@ async def cleanup_owner_accounts():
     for owner in remaining:
         print(f"   - {owner.get('email')} | {owner.get('name')}")
     
-    await client.close()
+    
+    client.close()
 
 if __name__ == "__main__":
     asyncio.run(cleanup_owner_accounts())
