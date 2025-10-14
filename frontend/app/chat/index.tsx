@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { formatFullTimestamp } from '../../utils/timeUtils';
 
 export default function ChatScreen() {
   const router = useRouter();
