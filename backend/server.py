@@ -1849,6 +1849,10 @@ async def get_conversations(
             if not sender:
                 continue
             
+            # Skip if the "customer" is actually an owner (orphaned conversation)
+            if sender.get("role") == UserRole.owner.value:
+                continue
+            
             # Get inspection details if applicable
             inspection_details = {}
             if conv_data["inspection_id"]:
