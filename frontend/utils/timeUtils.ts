@@ -5,7 +5,16 @@
  * - Shows date for older messages (e.g., "Oct 12")
  */
 export function formatChatTime(timestamp: string | Date): string {
-  const date = new Date(timestamp);
+  // Ensure the timestamp is treated as UTC if it doesn't have timezone info
+  let date: Date;
+  if (typeof timestamp === 'string') {
+    // If timestamp doesn't end with Z, add it to indicate UTC
+    const utcTimestamp = timestamp.endsWith('Z') ? timestamp : timestamp + 'Z';
+    date = new Date(utcTimestamp);
+  } else {
+    date = timestamp;
+  }
+  
   const now = new Date();
   
   const isToday = date.toDateString() === now.toDateString();
@@ -42,7 +51,16 @@ export function formatChatTime(timestamp: string | Date): string {
  * Shows full date and time in local timezone
  */
 export function formatFullTimestamp(timestamp: string | Date): string {
-  const date = new Date(timestamp);
+  // Ensure the timestamp is treated as UTC if it doesn't have timezone info
+  let date: Date;
+  if (typeof timestamp === 'string') {
+    // If timestamp doesn't end with Z, add it to indicate UTC
+    const utcTimestamp = timestamp.endsWith('Z') ? timestamp : timestamp + 'Z';
+    date = new Date(utcTimestamp);
+  } else {
+    date = timestamp;
+  }
+  
   return date.toLocaleString([], {
     month: 'short',
     day: 'numeric',
