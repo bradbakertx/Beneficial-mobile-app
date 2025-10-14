@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Calendar Invite/Cancellation Feature
-Testing inspector change functionality with calendar invites/cancellations
+Backend API Testing for Chat History Visibility Feature
+Tests the newly added Chat History Visibility feature when inspector is changed.
 """
 
 import requests
 import json
 import sys
-from datetime import datetime
+from typing import Dict, List, Optional
 
-# Configuration
+# Backend API Configuration
 BASE_URL = "https://beneinspect.preview.emergentagent.com/api"
-TEST_EMAIL = "bradbakertx@gmail.com"
-TEST_PASSWORD = "Beneficial1!"
+
+# Test Credentials
+OWNER_EMAIL = "bradbakertx@gmail.com"
+OWNER_PASSWORD = "Beneficial1!"
 
 class CalendarInviteTester:
     def __init__(self):
