@@ -711,6 +711,45 @@ async def decline_offered_times(
     return InspectionResponse(**updated_inspection)
 
 
+@api_router.patch("/inspections/{inspection_id}/agent-info")
+async def update_agent_info(
+    inspection_id: str,
+    agent_data: dict,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Customer adds agent information after signing agreement"""
+    if current_user.role != UserRole.customer:
+        raise HTTPException(status_code=403, detail="Only customers can add agent information")
+    
+    # Get the inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify the inspection belongs to the customer
+    if inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    
+    # Update inspection with agent information
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {
+            "$set": {
+                "agent_name": agent_data.get("agent_name"),
+                "agent_email": agent_data.get("agent_email"),
+                "agent_phone": agent_data.get("agent_phone"),
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    logging.info(f"Agent info added to inspection {inspection_id}: {agent_data.get('agent_name')} ({agent_data.get('agent_email')})")
+    
+    # Return updated inspection
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    return InspectionResponse(**updated_inspection)
+
+
 @api_router.delete("/inspections/{inspection_id}")
 async def decline_inspection(
     inspection_id: str,
