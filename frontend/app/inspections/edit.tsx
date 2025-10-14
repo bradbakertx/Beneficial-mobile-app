@@ -76,20 +76,32 @@ export default function EditInspectionScreen() {
         setInspectionDate(data.inspection_date || '');
         setInspectionTime(data.inspection_time || '');
       } else {
-        // Regular inspection - get quote data for property details
+        // Regular inspection - load ALL fields from inspection data
         const response = await api.get(`/inspections/${id}`);
         const data = response.data;
         
         setClientName(data.customer_name || '');
+        setClientPhone(data.customer_phone || '');  // FIXED: Now loading phone
         setClientEmail(data.customer_email || '');
         setAgentName(data.agent_name || '');
-        setAgentEmail(data.agent_email || '');
         setAgentPhone(data.agent_phone || '');
+        setAgentEmail(data.agent_email || '');
         setPropertyAddress(data.property_address || '');
         setSquareFeet(data.square_feet?.toString() || '');
         setYearBuilt(data.year_built?.toString() || '');
         setFoundationType(data.foundation_type || FOUNDATION_TYPES[0]);
         setPropertyType(data.property_type || PROPERTY_TYPES[0]);
+        setNumBuildings(data.num_buildings?.toString() || '');
+        setNumUnits(data.num_units?.toString() || '');
+        // Fee amount comes from quote, not inspection
+        if (data.quote_id) {
+          try {
+            const quoteResponse = await api.get(`/quotes/${data.quote_id}`);
+            setFeeAmount(quoteResponse.data.quote_amount?.toString() || '');
+          } catch (error) {
+            console.log('Could not load quote amount:', error);
+          }
+        }
         setInspectionDate(data.scheduled_date || '');
         setInspectionTime(data.scheduled_time || '');
       }
