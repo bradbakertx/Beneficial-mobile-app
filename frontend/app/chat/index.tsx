@@ -149,29 +149,44 @@ export default function ChatScreen() {
         </View>
 
         <ScrollView
+          ref={scrollViewRef}
           style={styles.messagesContainer}
           contentContainerStyle={styles.messagesContent}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
         >
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#007AFF" />
             </View>
           ) : messages.length > 0 ? (
-            messages.map((msg) => (
-              <View
-                key={msg.id}
-                style={[
-                  styles.messageBubble,
-                  msg.sender_role === 'customer' ? styles.myMessage : styles.theirMessage,
-                ]}
-              >
-                <Text style={styles.messageSender}>{msg.sender_name}</Text>
-                <Text style={styles.messageText}>{msg.message_text}</Text>
-                <Text style={styles.messageTime}>
-                  {new Date(msg.created_at).toLocaleString()}
-                </Text>
-              </View>
-            ))
+            messages.map((msg) => {
+              const isMyMessage = msg.sender_role === user?.role;
+              return (
+                <View
+                  key={msg.id}
+                  style={[
+                    styles.messageBubble,
+                    isMyMessage ? styles.myMessage : styles.theirMessage,
+                  ]}
+                >
+                  {!isMyMessage && (
+                    <Text style={styles.messageSender}>{msg.sender_name}</Text>
+                  )}
+                  <Text style={[
+                    styles.messageText,
+                    isMyMessage && styles.myMessageText
+                  ]}>
+                    {msg.message_text}
+                  </Text>
+                  <Text style={[
+                    styles.messageTime,
+                    isMyMessage && styles.myMessageTime
+                  ]}>
+                    {new Date(msg.created_at).toLocaleString()}
+                  </Text>
+                </View>
+              );
+            })
           ) : (
             <View style={styles.emptyContainer}>
               <Ionicons name="chatbubbles-outline" size={64} color="#C7C7CC" />
