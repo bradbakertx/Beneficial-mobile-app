@@ -1230,6 +1230,8 @@ async def update_regular_inspection(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Update regular inspection details (Owner only) - for inspections created through normal flow"""
+    from push_notification_service import send_push_notification
+    
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can update inspections")
     
@@ -1239,6 +1241,12 @@ async def update_regular_inspection(
     
     # Filter out None values for partial update
     update_fields = {k: v for k, v in update_data.items() if v is not None}
+    
+    # Check if inspector is being changed
+    old_inspector_id = inspection.get("inspector_id")
+    new_inspector_id = update_fields.get("inspector_id")
+    new_inspector_email = update_fields.get("inspector_email")
+    inspector_changed = new_inspector_id and (old_inspector_id != new_inspector_id)
     
     # Map client_ fields to customer_ fields for inspections collection
     field_mapping = {
@@ -1261,6 +1269,27 @@ async def update_regular_inspection(
         )
         
         logging.info(f"Regular inspection {inspection_id} updated with fields: {list(mapped_updates.keys())}")
+    
+    # Send push notification to new inspector if inspector was changed
+    if inspector_changed and new_inspector_email:
+        # Find the new inspector by email
+        inspector_user = await db.users.find_one({"email": new_inspector_email})
+        if inspector_user and inspector_user.get("push_token"):
+            property_address = inspection.get("property_address", "Unknown address")
+            scheduled_date = inspection.get("scheduled_date", "TBD")
+            scheduled_time = inspection.get("scheduled_time", "TBD")
+            
+            send_push_notification(
+                push_token=inspector_user["push_token"],
+                title="New Inspection Assigned",
+                body=f"You've been assigned an inspection at {property_address} on {scheduled_date} at {scheduled_time}",
+                data={
+                    "type": "inspector_assigned",
+                    "inspection_id": inspection_id,
+                    "property_address": property_address
+                }
+            )
+            logging.info(f"Push notification sent to inspector {new_inspector_email} for inspection {inspection_id}")
     
     updated_inspection = await db.inspections.find_one({"id": inspection_id})
     return InspectionResponse(**updated_inspection)
