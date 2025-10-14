@@ -1188,6 +1188,49 @@ async def update_manual_inspection(
     return ManualInspectionResponse(**updated_inspection)
 
 
+@api_router.patch("/admin/inspections/{inspection_id}/update", response_model=InspectionResponse)
+async def update_regular_inspection(
+    inspection_id: str,
+    update_data: dict,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Update regular inspection details (Owner only) - for inspections created through normal flow"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can update inspections")
+    
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Filter out None values for partial update
+    update_fields = {k: v for k, v in update_data.items() if v is not None}
+    
+    # Map client_ fields to customer_ fields for inspections collection
+    field_mapping = {
+        'client_name': 'customer_name',
+        'client_email': 'customer_email',
+        'client_phone': 'customer_phone',
+    }
+    
+    mapped_updates = {}
+    for key, value in update_fields.items():
+        mapped_key = field_mapping.get(key, key)
+        mapped_updates[mapped_key] = value
+    
+    mapped_updates['updated_at'] = datetime.utcnow()
+    
+    if mapped_updates:
+        await db.inspections.update_one(
+            {"id": inspection_id},
+            {"$set": mapped_updates}
+        )
+        
+        logging.info(f"Regular inspection {inspection_id} updated with fields: {list(mapped_updates.keys())}")
+    
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    return InspectionResponse(**updated_inspection)
+
+
 @api_router.delete("/admin/inspections/{inspection_id}/cancel")
 async def cancel_inspection(
     inspection_id: str,
