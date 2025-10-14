@@ -157,7 +157,9 @@ export default function ChatScreen() {
             </View>
           ) : messages.length > 0 ? (
             messages.map((msg) => {
-              const isMyMessage = msg.sender_role === user?.role;
+              const isMyMessage = msg.sender_role === user?.role && msg.sender_name === user?.name;
+              const showSenderName = inspectionId; // Show sender name for all messages in group chats (inspection chats)
+              
               return (
                 <View
                   key={msg.id}
@@ -166,8 +168,13 @@ export default function ChatScreen() {
                     isMyMessage ? styles.myMessage : styles.theirMessage,
                   ]}
                 >
-                  {!isMyMessage && (
-                    <Text style={styles.messageSender}>{msg.sender_name}</Text>
+                  {showSenderName && (
+                    <Text style={[
+                      styles.messageSender,
+                      isMyMessage && styles.mySenderName
+                    ]}>
+                      {isMyMessage ? 'You' : msg.sender_name}
+                    </Text>
                   )}
                   <Text style={[
                     styles.messageText,
