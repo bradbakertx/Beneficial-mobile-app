@@ -23,6 +23,7 @@ interface ActiveInspection {
   customer_id: string;
   customer_email: string;
   customer_name: string;
+  customer_phone?: string;
   property_address: string;
   status: string;
   scheduled_date: string | null;
