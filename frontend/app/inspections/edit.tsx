@@ -304,6 +304,31 @@ export default function EditInspectionScreen() {
             autoCapitalize="none"
           />
 
+          {/* Inspector section - only show for regular inspections */}
+          {isManual !== 'true' && (
+            <>
+              <Text style={styles.sectionTitle}>Inspector Assignment</Text>
+              
+              <Text style={styles.label}>Inspector *</Text>
+              <View style={[styles.pickerContainer, !selectedInspectorId && styles.pickerError]}>
+                <Picker
+                  selectedValue={selectedInspectorId}
+                  onValueChange={setSelectedInspectorId}
+                  style={styles.picker}
+                >
+                  <Picker.Item label="Select an inspector..." value="" />
+                  {inspectors.map((inspector) => (
+                    <Picker.Item 
+                      key={inspector.id} 
+                      label={`${inspector.name} (${inspector.email})`} 
+                      value={inspector.id} 
+                    />
+                  ))}
+                </Picker>
+              </View>
+            </>
+          )}
+
           <Text style={styles.sectionTitle}>Property Information</Text>
           
           <Text style={styles.label}>Address</Text>
