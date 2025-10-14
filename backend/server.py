@@ -1817,13 +1817,23 @@ async def get_conversations(
             if msg.get("inspection_id"):
                 conv_key = f"inspector_{msg['inspection_id']}"
             else:
-                conv_key = f"owner_{msg['sender_id']}"
+                # For owner chats, group by the CUSTOMER (non-owner participant)
+                # If sender is not owner, use sender_id; if sender is owner, use recipient_id
+                if msg.get("sender_role") != UserRole.owner.value:
+                    customer_id = msg["sender_id"]
+                else:
+                    customer_id = msg.get("recipient_id")
+                
+                conv_key = f"owner_{customer_id}"
             
             if conv_key not in conversation_map:
+                # For owner chat, set the customer as the "sender" for the conversation
+                sender_id = customer_id if not msg.get("inspection_id") else msg["sender_id"]
+                
                 conversation_map[conv_key] = {
                     "messages": [],
                     "inspection_id": msg.get("inspection_id"),
-                    "sender_id": msg["sender_id"],
+                    "sender_id": sender_id,
                     "conversation_type": "inspector_chat" if msg.get("inspection_id") else "owner_chat"
                 }
             conversation_map[conv_key]["messages"].append(msg)
