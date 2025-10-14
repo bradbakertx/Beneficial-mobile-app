@@ -1594,17 +1594,64 @@ async def send_message(
     message_data: MessageCreate,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Send a message in an inspection conversation"""
+    """Send a message - either to owner (general) or to inspector (inspection-specific)"""
     from push_notification_service import send_push_notification
+    from datetime import timedelta
     
-    # Verify user has access to this inspection
-    inspection = await db.inspections.find_one({"id": message_data.inspection_id})
-    if not inspection:
-        raise HTTPException(status_code=404, detail="Inspection not found")
+    recipient_id = message_data.recipient_id
+    recipient_role = None
+    expires_at = None
     
-    # Check permissions
-    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    # If inspection_id is provided, this is an inspector chat
+    if message_data.inspection_id:
+        inspection = await db.inspections.find_one({"id": message_data.inspection_id})
+        if not inspection:
+            raise HTTPException(status_code=404, detail="Inspection not found")
+        
+        # Check permissions
+        if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized")
+        
+        # Calculate expiry: 24 hours after inspection
+        if inspection.get("scheduled_date") and inspection.get("scheduled_time"):
+            # Parse inspection datetime and add 24 hours
+            try:
+                from datetime import datetime as dt
+                inspection_datetime = dt.fromisoformat(f"{inspection['scheduled_date']}T{inspection['scheduled_time'].replace(' ', '')}")
+                expires_at = inspection_datetime + timedelta(hours=24)
+            except:
+                expires_at = datetime.utcnow() + timedelta(days=30)  # Fallback
+        
+        # Determine recipient (inspector from inspection or owner)
+        if not recipient_id:
+            # Try to find inspector from inspection
+            inspector_name = inspection.get("inspector_name")
+            if inspector_name:
+                # Map inspector name to user
+                inspector_emails = {
+                    "Brad Baker": "bradbakertx@gmail.com",
+                    "Blake Gray": None
+                }
+                inspector_email = inspector_emails.get(inspector_name)
+                if inspector_email:
+                    inspector_user = await db.users.find_one({"email": inspector_email})
+                    if inspector_user:
+                        recipient_id = inspector_user["id"]
+                        recipient_role = UserRole.inspector
+        
+        if not recipient_id:
+            # Default to owner if no inspector
+            owner = await db.users.find_one({"role": UserRole.owner.value})
+            if owner:
+                recipient_id = owner["id"]
+                recipient_role = UserRole.owner
+    else:
+        # General owner chat (no inspection)
+        owner = await db.users.find_one({"role": UserRole.owner.value})
+        if owner:
+            recipient_id = owner["id"]
+            recipient_role = UserRole.owner
+        expires_at = datetime.utcnow() + timedelta(days=30)  # General chats last longer
     
     message_id = str(uuid.uuid4())
     message = MessageInDB(
@@ -1613,34 +1660,29 @@ async def send_message(
         sender_id=current_user.id,
         sender_name=current_user.name,
         sender_role=current_user.role,
+        recipient_id=recipient_id,
+        recipient_role=recipient_role,
         message_text=message_data.message_text,
         is_read=False,
-        created_at=datetime.utcnow()
+        created_at=datetime.utcnow(),
+        expires_at=expires_at
     )
     
     await db.messages.insert_one(message.dict())
     
-    # Send push notifications to other participants
-    # If customer sends message, notify owner
-    if current_user.role == UserRole.customer:
-        owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
-        for owner in owners:
-            if owner.get("push_token"):
-                send_push_notification(
-                    push_token=owner["push_token"],
-                    title=f"New message from {current_user.name}",
-                    body=message_data.message_text[:100],
-                    data={"type": "new_message", "inspection_id": message_data.inspection_id}
-                )
-    # If owner sends message, notify customer
-    elif current_user.role == UserRole.owner:
-        customer = await db.users.find_one({"id": inspection["customer_id"]})
-        if customer and customer.get("push_token"):
+    # Send push notification to recipient
+    if recipient_id:
+        recipient_user = await db.users.find_one({"id": recipient_id})
+        if recipient_user and recipient_user.get("expo_push_token"):
             send_push_notification(
-                push_token=customer["push_token"],
+                expo_token=recipient_user["expo_push_token"],
                 title=f"New message from {current_user.name}",
                 body=message_data.message_text[:100],
-                data={"type": "new_message", "inspection_id": message_data.inspection_id}
+                data={
+                    "type": "new_message",
+                    "inspection_id": message_data.inspection_id or "general",
+                    "conversation_type": "inspector_chat" if message_data.inspection_id else "owner_chat"
+                }
             )
     
     return MessageResponse(**message.dict())
