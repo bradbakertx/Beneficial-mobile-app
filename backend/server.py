@@ -1919,9 +1919,15 @@ async def get_conversations(
             messages_list.sort(key=lambda x: x["created_at"], reverse=True)
             last_msg = messages_list[0]
             
-            # Get recipient info
+            # Get recipient info - for owner chat, always show the current active owner
             recipient_name = "Owner"
-            if conv_data["recipient_id"]:
+            if conv_data["conversation_type"] == "owner_chat":
+                # For owner chats, always get the current active owner (not the deleted one)
+                current_owner = await db.users.find_one({"role": UserRole.owner.value})
+                if current_owner:
+                    recipient_name = current_owner["name"]
+            elif conv_data["recipient_id"]:
+                # For inspector chats, use the specific recipient
                 recipient = await db.users.find_one({"id": conv_data["recipient_id"]})
                 if recipient:
                     recipient_name = recipient["name"]
