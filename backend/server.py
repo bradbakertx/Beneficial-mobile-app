@@ -1850,6 +1850,126 @@ async def download_agreement(
         raise HTTPException(status_code=500, detail="Failed to generate download URL")
 
 
+@api_router.post("/inspections/{inspection_id}/report/upload")
+async def upload_inspection_report(
+    inspection_id: str,
+    file: UploadFile = File(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Upload inspection report PDF to S3 (Owner only)"""
+    from s3_service import upload_report_to_s3
+    from push_notification_service import send_push_notification
+    
+    # Only owners can upload reports
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can upload reports")
+    
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Validate file is PDF
+    if not file.filename.lower().endswith('.pdf'):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+    
+    # Read file content
+    try:
+        pdf_content = await file.read()
+        
+        # Upload to S3
+        s3_result = upload_report_to_s3(inspection_id, pdf_content)
+        logging.info(f"Report uploaded to S3: {s3_result['s3_key']}")
+        
+        # Update inspection with report info
+        await db.inspections.update_one(
+            {"id": inspection_id},
+            {
+                "$set": {
+                    "report_s3_key": s3_result["s3_key"],
+                    "report_s3_url": s3_result["s3_url"],
+                    "report_uploaded_at": datetime.utcnow(),
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        # Send push notification to customer
+        customer = await db.users.find_one({"id": inspection["customer_id"]})
+        if customer and customer.get("push_token"):
+            property_address = inspection.get("property_address", "your property")
+            send_push_notification(
+                push_token=customer["push_token"],
+                title="Inspection Report Available",
+                body=f"Your inspection report for {property_address} is now available",
+                data={
+                    "type": "report_uploaded",
+                    "inspection_id": inspection_id
+                }
+            )
+            logging.info(f"Push notification sent to customer for report upload")
+        
+        # Send push notification to agent if exists
+        if inspection.get("agent_email"):
+            agent = await db.users.find_one({"email": inspection["agent_email"]})
+            if agent and agent.get("push_token"):
+                property_address = inspection.get("property_address", "the property")
+                send_push_notification(
+                    push_token=agent["push_token"],
+                    title="Inspection Report Available",
+                    body=f"The inspection report for {property_address} is now available",
+                    data={
+                        "type": "report_uploaded",
+                        "inspection_id": inspection_id
+                    }
+                )
+                logging.info(f"Push notification sent to agent for report upload")
+        
+        return {
+            "success": True,
+            "message": "Report uploaded successfully",
+            "s3_key": s3_result["s3_key"]
+        }
+        
+    except Exception as e:
+        logging.error(f"Failed to upload report: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload report: {str(e)}")
+
+
+@api_router.get("/inspections/{inspection_id}/report/download")
+async def download_inspection_report(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get a download URL for the inspection report PDF"""
+    from s3_service import get_report_download_url
+    
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check permissions - customer, agent, owner, or inspector can download
+    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Check if report exists
+    s3_key = inspection.get("report_s3_key")
+    if not s3_key:
+        raise HTTPException(status_code=404, detail="Report not uploaded yet")
+    
+    # Generate pre-signed download URL (valid for 1 hour)
+    try:
+        download_url = get_report_download_url(s3_key, expiration=3600)
+        return {
+            "download_url": download_url,
+            "expires_in": 3600  # seconds
+        }
+    except Exception as e:
+        logging.error(f"Failed to generate download URL: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate download URL")
+
+
 # ============= CHAT/MESSAGE ENDPOINTS =============
 
 @api_router.post("/messages", response_model=MessageResponse)
