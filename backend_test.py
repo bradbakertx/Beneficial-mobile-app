@@ -19,27 +19,11 @@ class CalendarInviteTester:
         self.session = requests.Session()
         self.auth_token = None
         self.user_data = None
-        self.test_results = []
         
-    def log_result(self, test_name, success, details="", response_data=None):
-        """Log test result"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat()
-        }
-        if response_data:
-            result["response_data"] = response_data
-        self.test_results.append(result)
-        
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status} {test_name}")
-        if details:
-            print(f"   Details: {details}")
-        if not success and response_data:
-            print(f"   Response: {response_data}")
-        print()
+    def print_step(self, step_num, description):
+        """Print test step"""
+        print(f"\n📋 Step {step_num}: {description}")
+        print("-" * 50)
 
     def login(self):
         """Login with test credentials"""
