@@ -220,30 +220,31 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 24,
-    paddingTop: 16,
+    paddingHorizontal: 24,
+    paddingTop: 12,
+    paddingBottom: 24,
   },
   header: {
-    marginBottom: 32,
+    marginBottom: 16,
   },
   backButton: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   logo: {
-    width: 240,
-    height: 80,
-    marginBottom: 16,
+    width: 600,
+    height: 200,
+    marginBottom: 8,
     alignSelf: 'center',
   },
   title: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#1a1a1a',
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#666',
-    marginTop: 8,
+    marginTop: 4,
   },
   form: {
     width: '100%',
