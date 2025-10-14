@@ -315,13 +315,23 @@ class ChatHistoryVisibilityTester:
             print("❌ CRITICAL: Need at least 2 inspectors for testing.")
             return False
         
-        # Step 6: Select a different inspector
+        # Step 6: Select a different inspector (prefer the fresh test inspector)
         print(f"\n🔄 STEP 6: Select Different Inspector")
         new_inspector = None
-        for inspector in inspectors:
-            if inspector["id"] != original_inspector_id:
-                new_inspector = inspector
-                break
+        
+        # First, try to use the fresh test inspector we just created
+        if test_inspector:
+            for inspector in inspectors:
+                if inspector["email"] == test_inspector["email"]:
+                    new_inspector = inspector
+                    break
+        
+        # If we couldn't use the fresh inspector, find any other different inspector
+        if not new_inspector:
+            for inspector in inspectors:
+                if inspector["id"] != original_inspector_id:
+                    new_inspector = inspector
+                    break
         
         if not new_inspector:
             print("❌ CRITICAL: Cannot find a different inspector for testing.")
@@ -337,6 +347,10 @@ class ChatHistoryVisibilityTester:
         if test_inspector and new_inspector["email"] == test_inspector["email"]:
             new_inspector_token = fresh_inspector_token
             print(f"✅ Using fresh test inspector token")
+        elif new_inspector["email"] == OWNER_EMAIL:
+            # If the new inspector is the owner, use owner credentials
+            new_inspector_token = self.owner_token
+            print(f"✅ Using owner token for owner inspector")
         else:
             # Try different password combinations for existing inspectors
             inspector_password = "TestPassword123!"
