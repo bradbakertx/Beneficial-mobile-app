@@ -1862,7 +1862,7 @@ async def get_conversations(
                 property_address=inspection_details.get("property_address"),
                 customer_name=recipient_name,  # For customer view, show recipient name
                 customer_id=current_user.id,
-                customer_phone=current_user.phone,
+                customer_phone=getattr(current_user, 'phone', None),
                 inspector_name=inspection_details.get("inspector_name"),
                 last_message=last_msg["message_text"],
                 last_message_time=last_msg["created_at"],
