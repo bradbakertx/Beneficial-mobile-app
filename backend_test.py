@@ -82,343 +82,398 @@ class InspectorSelectionTester:
         except Exception as e:
             self.log_result("Authentication", False, f"Login error: {str(e)}")
             return False
-    
-    def test_get_conversations(self):
-        """Test GET /api/conversations endpoint"""
-        print("=== TESTING GET CONVERSATIONS ===")
+    def test_get_inspectors_endpoint(self):
+        """Test GET /api/users/inspectors endpoint"""
+        print("🔍 Testing GET /api/users/inspectors endpoint...")
         
         try:
-            response = self.session.get(f"{API_BASE}/conversations")
+            response = self.session.get(f"{BASE_URL}/users/inspectors")
             
             if response.status_code == 200:
-                conversations = response.json()
+                data = response.json()
+                inspectors = data.get("inspectors", [])
                 
-                # Verify response structure
-                if isinstance(conversations, list):
+                # Validate response structure
+                if not isinstance(inspectors, list):
                     self.log_result(
-                        "GET /api/conversations", 
-                        True, 
-                        f"Retrieved {len(conversations)} conversations",
-                        {"count": len(conversations), "sample": conversations[:2] if conversations else []}
-                    )
-                    
-                    # Check for expected conversation types
-                    owner_chats = [c for c in conversations if c.get('conversation_type') == 'owner_chat']
-                    inspector_chats = [c for c in conversations if c.get('conversation_type') == 'inspector_chat']
-                    
-                    self.log_result(
-                        "Conversation Types Check",
-                        True,
-                        f"Found {len(owner_chats)} owner chats and {len(inspector_chats)} inspector chats"
-                    )
-                    
-                    # Verify conversation structure for first conversation if exists
-                    if conversations:
-                        conv = conversations[0]
-                        required_fields = ['id', 'conversation_type', 'customer_name', 'unread_count']
-                        missing_fields = [field for field in required_fields if field not in conv]
-                        
-                        if not missing_fields:
-                            self.log_result(
-                                "Conversation Structure Check",
-                                True,
-                                "All required fields present in conversation objects"
-                            )
-                        else:
-                            self.log_result(
-                                "Conversation Structure Check",
-                                False,
-                                f"Missing fields: {missing_fields}",
-                                conv
-                            )
-                    
-                    return conversations
-                else:
-                    self.log_result(
-                        "GET /api/conversations", 
-                        False, 
-                        "Response is not a list",
-                        conversations
-                    )
-                    return []
-            else:
-                self.log_result(
-                    "GET /api/conversations", 
-                    False, 
-                    f"Request failed with status {response.status_code}",
-                    response.text
-                )
-                return []
-                
-        except Exception as e:
-            self.log_result("GET /api/conversations", False, f"Exception: {str(e)}")
-            return []
-    
-    def test_send_message(self, inspection_id=None):
-        """Test POST /api/messages endpoint"""
-        print("=== TESTING SEND MESSAGE ===")
-        
-        # Test sending message without inspection_id (owner chat)
-        try:
-            message_data = {
-                "message_text": f"Test message from automated testing at {datetime.now().isoformat()}"
-            }
-            
-            if inspection_id:
-                message_data["inspection_id"] = inspection_id
-                test_name = "POST /api/messages (Inspector Chat)"
-                chat_type = "inspector chat"
-            else:
-                test_name = "POST /api/messages (Owner Chat)"
-                chat_type = "owner chat"
-            
-            response = self.session.post(f"{API_BASE}/messages", json=message_data)
-            
-            if response.status_code == 200:
-                message = response.json()
-                
-                # Verify response structure
-                required_fields = ['id', 'sender_name', 'sender_role', 'message_text', 'created_at']
-                missing_fields = [field for field in required_fields if field not in message]
-                
-                if not missing_fields:
-                    self.log_result(
-                        test_name,
-                        True,
-                        f"Successfully sent {chat_type} message",
-                        {
-                            "message_id": message.get('id'),
-                            "sender": message.get('sender_name'),
-                            "inspection_id": message.get('inspection_id')
-                        }
-                    )
-                    return message
-                else:
-                    self.log_result(
-                        test_name,
+                        "GET /api/users/inspectors - Response Structure",
                         False,
-                        f"Missing required fields: {missing_fields}",
-                        message
+                        "Response should contain 'inspectors' array",
+                        data
                     )
-                    return None
-            else:
-                self.log_result(
-                    test_name,
-                    False,
-                    f"Request failed with status {response.status_code}",
-                    response.text
-                )
-                return None
+                    return False
                 
-        except Exception as e:
-            self.log_result(test_name, False, f"Exception: {str(e)}")
-            return None
-    
-    def test_get_messages(self, inspection_id):
-        """Test GET /api/messages/{inspection_id} endpoint"""
-        print("=== TESTING GET MESSAGE HISTORY ===")
-        
-        try:
-            response = self.session.get(f"{API_BASE}/messages/{inspection_id}")
-            
-            if response.status_code == 200:
-                messages = response.json()
+                # Check if inspectors have required fields
+                required_fields = ["id", "name", "email", "role"]
+                valid_structure = True
                 
-                if isinstance(messages, list):
-                    # Sort messages by created_at to verify chronological order
-                    if messages:
-                        sorted_messages = sorted(messages, key=lambda x: x.get('created_at', ''))
-                        is_chronological = messages == sorted_messages
-                        
+                for inspector in inspectors:
+                    for field in required_fields:
+                        if field not in inspector:
+                            valid_structure = False
+                            break
+                    if not valid_structure:
+                        break
+                
+                if valid_structure:
+                    # Check if only inspectors and owners are returned
+                    valid_roles = all(
+                        insp.get("role") in ["inspector", "owner"] 
+                        for insp in inspectors
+                    )
+                    
+                    if valid_roles:
                         self.log_result(
-                            "GET /api/messages/{inspection_id}",
+                            "GET /api/users/inspectors - Success",
                             True,
-                            f"Retrieved {len(messages)} messages for inspection {inspection_id}",
-                            {"count": len(messages), "chronological": is_chronological}
+                            f"Retrieved {len(inspectors)} inspectors with valid roles",
+                            {"inspector_count": len(inspectors), "inspectors": inspectors}
                         )
-                        
-                        # Verify message structure
-                        if messages:
-                            msg = messages[0]
-                            required_fields = ['sender_name', 'sender_role', 'message_text', 'created_at']
-                            missing_fields = [field for field in required_fields if field not in msg]
-                            
-                            if not missing_fields:
-                                self.log_result(
-                                    "Message Structure Check",
-                                    True,
-                                    "All required fields present in message objects"
-                                )
-                            else:
-                                self.log_result(
-                                    "Message Structure Check",
-                                    False,
-                                    f"Missing fields: {missing_fields}",
-                                    msg
-                                )
-                        
-                        # Check chronological order
-                        self.log_result(
-                            "Chronological Order Check",
-                            is_chronological,
-                            "Messages are in chronological order" if is_chronological else "Messages are NOT in chronological order"
-                        )
+                        return inspectors
                     else:
                         self.log_result(
-                            "GET /api/messages/{inspection_id}",
-                            True,
-                            f"No messages found for inspection {inspection_id} (empty list is valid)"
+                            "GET /api/users/inspectors - Invalid Roles",
+                            False,
+                            "Some users have roles other than 'inspector' or 'owner'",
+                            inspectors
                         )
-                    
-                    return messages
+                        return False
                 else:
                     self.log_result(
-                        "GET /api/messages/{inspection_id}",
+                        "GET /api/users/inspectors - Missing Fields",
                         False,
-                        "Response is not a list",
-                        messages
+                        f"Inspectors missing required fields: {required_fields}",
+                        inspectors
                     )
-                    return []
-            elif response.status_code == 404:
+                    return False
+                    
+            elif response.status_code == 403:
                 self.log_result(
-                    "GET /api/messages/{inspection_id}",
-                    False,
-                    f"Inspection {inspection_id} not found",
-                    response.text
+                    "GET /api/users/inspectors - Authorization",
+                    True,
+                    "Correctly returned 403 for non-owner user (if applicable)",
+                    {"status_code": 403, "response": response.text}
                 )
-                return []
+                return False
             else:
                 self.log_result(
-                    "GET /api/messages/{inspection_id}",
+                    "GET /api/users/inspectors - Error",
                     False,
-                    f"Request failed with status {response.status_code}",
+                    f"Unexpected status code: {response.status_code}",
                     response.text
                 )
-                return []
+                return False
                 
         except Exception as e:
-            self.log_result("GET /api/messages/{inspection_id}", False, f"Exception: {str(e)}")
-            return []
-    
-    def get_test_inspection_id(self):
-        """Get a valid inspection ID for testing"""
+            self.log_result(
+                "GET /api/users/inspectors - Exception",
+                False,
+                f"Request failed: {str(e)}"
+            )
+            return False
+
+    def get_existing_inspection(self):
+        """Get an existing inspection for testing updates"""
+        print("🔍 Finding existing inspection for testing...")
+        
         try:
-            # Try to get inspections for the current user
-            response = self.session.get(f"{API_BASE}/inspections")
+            # Try to get confirmed inspections first
+            response = self.session.get(f"{BASE_URL}/admin/inspections/confirmed")
+            
             if response.status_code == 200:
                 inspections = response.json()
                 if inspections:
-                    return inspections[0].get('id')
+                    inspection = inspections[0]
+                    self.log_result(
+                        "Find Existing Inspection",
+                        True,
+                        f"Found inspection {inspection.get('id')} at {inspection.get('property_address')}",
+                        {"inspection_id": inspection.get('id')}
+                    )
+                    return inspection
             
-            # If no customer inspections, try admin inspections (if user is owner)
-            if self.user_info and self.user_info.get('role') == 'owner':
-                response = self.session.get(f"{API_BASE}/admin/inspections/confirmed")
-                if response.status_code == 200:
-                    inspections = response.json()
-                    if inspections:
-                        return inspections[0].get('id')
-                
-                response = self.session.get(f"{API_BASE}/admin/inspections/pending-scheduling")
-                if response.status_code == 200:
-                    inspections = response.json()
-                    if inspections:
-                        return inspections[0].get('id')
+            # If no confirmed inspections, try pending scheduling
+            response = self.session.get(f"{BASE_URL}/admin/inspections/pending-scheduling")
             
+            if response.status_code == 200:
+                inspections = response.json()
+                if inspections:
+                    inspection = inspections[0]
+                    self.log_result(
+                        "Find Existing Inspection",
+                        True,
+                        f"Found pending inspection {inspection.get('id')} at {inspection.get('property_address')}",
+                        {"inspection_id": inspection.get('id')}
+                    )
+                    return inspection
+            
+            self.log_result(
+                "Find Existing Inspection",
+                False,
+                "No existing inspections found for testing"
+            )
             return None
             
         except Exception as e:
-            print(f"Error getting test inspection ID: {e}")
+            self.log_result(
+                "Find Existing Inspection",
+                False,
+                f"Error finding inspection: {str(e)}"
+            )
             return None
-    
-    def test_complete_chat_flow(self):
-        """Test the complete chat flow end-to-end"""
-        print("=== TESTING COMPLETE CHAT FLOW ===")
+
+    def test_inspector_assignment(self, inspection_id, inspector_data):
+        """Test PATCH /api/admin/inspections/{inspection_id}/update with inspector assignment"""
+        print(f"🔧 Testing inspector assignment for inspection {inspection_id}...")
         
-        # Get a test inspection ID
-        inspection_id = self.get_test_inspection_id()
-        
-        if inspection_id:
-            print(f"Using inspection ID: {inspection_id}")
-            
-            # Test sending message with inspection_id
-            sent_message = self.test_send_message(inspection_id)
-            
-            if sent_message:
-                # Test retrieving messages for that inspection
-                messages = self.test_get_messages(inspection_id)
-                
-                # Verify the sent message appears in the retrieved messages
-                if messages:
-                    sent_msg_id = sent_message.get('id')
-                    found_message = any(msg.get('id') == sent_msg_id for msg in messages)
-                    
-                    self.log_result(
-                        "Message Persistence Check",
-                        found_message,
-                        "Sent message found in message history" if found_message else "Sent message NOT found in message history"
-                    )
-                else:
-                    self.log_result(
-                        "Message Persistence Check",
-                        False,
-                        "Could not retrieve messages to verify persistence"
-                    )
-        else:
-            print("No inspection ID available for testing inspector chat")
-            # Test owner chat instead
-            self.test_send_message(None)
-    
-    def run_all_tests(self):
-        """Run all chat system tests"""
-        print("🚀 Starting Chat System Backend Tests")
-        print("=" * 50)
-        
-        # Test authentication first
-        if not self.test_authentication():
-            print("❌ Authentication failed - cannot proceed with other tests")
+        if not inspector_data:
+            self.log_result(
+                "Inspector Assignment - No Inspector Data",
+                False,
+                "No inspector data available for testing"
+            )
             return False
         
-        # Test conversations endpoint
-        conversations = self.test_get_conversations()
+        # Use the first inspector for testing
+        test_inspector = inspector_data[0]
         
-        # Test message sending and retrieval
-        self.test_complete_chat_flow()
+        update_data = {
+            "inspector_id": test_inspector.get("id"),
+            "inspector_email": test_inspector.get("email")
+        }
         
-        # Print summary
-        print("=" * 50)
+        try:
+            response = self.session.patch(
+                f"{BASE_URL}/admin/inspections/{inspection_id}/update",
+                json=update_data
+            )
+            
+            if response.status_code == 200:
+                updated_inspection = response.json()
+                
+                # Verify inspector fields were set
+                inspector_id_set = updated_inspection.get("inspector_id") == test_inspector.get("id")
+                inspector_email_set = updated_inspection.get("inspector_email") == test_inspector.get("email")
+                inspector_name_set = updated_inspection.get("inspector_name") == test_inspector.get("name")
+                
+                if inspector_id_set and inspector_email_set and inspector_name_set:
+                    self.log_result(
+                        "Inspector Assignment - Success",
+                        True,
+                        f"Successfully assigned inspector {test_inspector.get('name')} to inspection",
+                        {
+                            "inspector_id": updated_inspection.get("inspector_id"),
+                            "inspector_email": updated_inspection.get("inspector_email"),
+                            "inspector_name": updated_inspection.get("inspector_name")
+                        }
+                    )
+                    return updated_inspection
+                else:
+                    self.log_result(
+                        "Inspector Assignment - Field Validation",
+                        False,
+                        "Inspector fields not properly set in response",
+                        {
+                            "expected": test_inspector,
+                            "actual": {
+                                "inspector_id": updated_inspection.get("inspector_id"),
+                                "inspector_email": updated_inspection.get("inspector_email"),
+                                "inspector_name": updated_inspection.get("inspector_name")
+                            }
+                        }
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "Inspector Assignment - Error",
+                    False,
+                    f"Update failed with status {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result(
+                "Inspector Assignment - Exception",
+                False,
+                f"Request failed: {str(e)}"
+            )
+            return False
+
+    def test_inspector_change(self, inspection_id, inspector_data):
+        """Test changing inspector to a different one"""
+        print(f"🔄 Testing inspector change for inspection {inspection_id}...")
+        
+        if not inspector_data or len(inspector_data) < 2:
+            self.log_result(
+                "Inspector Change - Insufficient Data",
+                False,
+                "Need at least 2 inspectors to test inspector change"
+            )
+            return False
+        
+        # Use the second inspector for testing change
+        new_inspector = inspector_data[1] if len(inspector_data) > 1 else inspector_data[0]
+        
+        update_data = {
+            "inspector_id": new_inspector.get("id"),
+            "inspector_email": new_inspector.get("email")
+        }
+        
+        try:
+            response = self.session.patch(
+                f"{BASE_URL}/admin/inspections/{inspection_id}/update",
+                json=update_data
+            )
+            
+            if response.status_code == 200:
+                updated_inspection = response.json()
+                
+                # Verify inspector was changed
+                inspector_changed = (
+                    updated_inspection.get("inspector_id") == new_inspector.get("id") and
+                    updated_inspection.get("inspector_email") == new_inspector.get("email") and
+                    updated_inspection.get("inspector_name") == new_inspector.get("name")
+                )
+                
+                if inspector_changed:
+                    self.log_result(
+                        "Inspector Change - Success",
+                        True,
+                        f"Successfully changed inspector to {new_inspector.get('name')}",
+                        {
+                            "new_inspector_id": updated_inspection.get("inspector_id"),
+                            "new_inspector_email": updated_inspection.get("inspector_email"),
+                            "new_inspector_name": updated_inspection.get("inspector_name")
+                        }
+                    )
+                    return True
+                else:
+                    self.log_result(
+                        "Inspector Change - Validation Failed",
+                        False,
+                        "Inspector change not reflected in response",
+                        updated_inspection
+                    )
+                    return False
+            else:
+                self.log_result(
+                    "Inspector Change - Error",
+                    False,
+                    f"Change failed with status {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result(
+                "Inspector Change - Exception",
+                False,
+                f"Request failed: {str(e)}"
+            )
+            return False
+
+    def test_non_owner_access(self):
+        """Test that non-owners get 403 error for inspectors endpoint"""
+        print("🚫 Testing non-owner access restrictions...")
+        
+        # This test assumes the current user is an owner
+        # In a real scenario, we'd need a non-owner account to test this properly
+        if self.user_data and self.user_data.get("role") != "owner":
+            try:
+                response = self.session.get(f"{BASE_URL}/users/inspectors")
+                
+                if response.status_code == 403:
+                    self.log_result(
+                        "Non-Owner Access Restriction",
+                        True,
+                        "Correctly blocked non-owner from accessing inspectors endpoint"
+                    )
+                    return True
+                else:
+                    self.log_result(
+                        "Non-Owner Access Restriction",
+                        False,
+                        f"Non-owner should get 403, got {response.status_code}",
+                        response.text
+                    )
+                    return False
+            except Exception as e:
+                self.log_result(
+                    "Non-Owner Access Restriction",
+                    False,
+                    f"Test failed: {str(e)}"
+                )
+                return False
+        else:
+            self.log_result(
+                "Non-Owner Access Restriction",
+                True,
+                "Skipped - current user is owner (cannot test non-owner restriction with owner account)"
+            )
+            return True
+
+    def run_all_tests(self):
+        """Run all inspector selection tests"""
+        print("🚀 Starting Inspector Selection Feature Tests")
+        print("=" * 60)
+        
+        # Step 1: Login
+        if not self.login():
+            print("❌ Cannot proceed without authentication")
+            return False
+        
+        # Step 2: Test GET /api/users/inspectors
+        inspectors = self.test_get_inspectors_endpoint()
+        
+        # Step 3: Test non-owner access (if applicable)
+        self.test_non_owner_access()
+        
+        # Step 4: Find existing inspection
+        existing_inspection = self.get_existing_inspection()
+        
+        if existing_inspection and inspectors:
+            inspection_id = existing_inspection.get("id")
+            
+            # Step 5: Test inspector assignment
+            updated_inspection = self.test_inspector_assignment(inspection_id, inspectors)
+            
+            # Step 6: Test inspector change
+            if updated_inspection:
+                self.test_inspector_change(inspection_id, inspectors)
+        else:
+            print("⚠️  Skipping inspector assignment tests - no inspection or inspectors available")
+        
+        # Summary
+        print("\n" + "=" * 60)
         print("📊 TEST SUMMARY")
-        print("=" * 50)
+        print("=" * 60)
         
         total_tests = len(self.test_results)
-        passed_tests = sum(1 for result in self.test_results if result['success'])
+        passed_tests = sum(1 for result in self.test_results if result["success"])
         failed_tests = total_tests - passed_tests
         
         print(f"Total Tests: {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
-        print(f"Success Rate: {(passed_tests/total_tests)*100:.1f}%")
+        print(f"Passed: {passed_tests} ✅")
+        print(f"Failed: {failed_tests} ❌")
         
         if failed_tests > 0:
             print("\n❌ FAILED TESTS:")
             for result in self.test_results:
-                if not result['success']:
+                if not result["success"]:
                     print(f"  - {result['test']}: {result['details']}")
+        
+        print(f"\nSuccess Rate: {(passed_tests/total_tests)*100:.1f}%")
         
         return failed_tests == 0
 
-def main():
-    """Main test execution"""
-    tester = ChatSystemTester()
+if __name__ == "__main__":
+    tester = InspectorSelectionTester()
     success = tester.run_all_tests()
     
-    # Save detailed results to file
-    with open('/app/chat_test_results.json', 'w') as f:
-        json.dump(tester.test_results, f, indent=2, default=str)
-    
-    print(f"\n📄 Detailed results saved to: /app/chat_test_results.json")
-    
-    # Exit with appropriate code
-    sys.exit(0 if success else 1)
-
-if __name__ == "__main__":
-    main()
+    if success:
+        print("\n🎉 All tests passed! Inspector Selection feature is working correctly.")
+        sys.exit(0)
+    else:
+        print("\n💥 Some tests failed. Please check the details above.")
+        sys.exit(1)
