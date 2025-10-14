@@ -51,17 +51,19 @@ export default function DashboardScreen() {
       const unreadCount = unreadRes.data?.unread_count || 0;
       
       console.log('Dashboard data:', { 
+        userRole: user?.role,
+        userEmail: user?.email,
         quotes: quotes.length, 
         pendingInspections: pendingInspections.length,
         confirmedInspections: confirmedInspections.length,
         unreadMessages: unreadCount
       });
       
-      // For customers, log the inspection statuses and check for unsigned agreements
-      if (user?.role === 'customer') {
-        console.log('Customer inspection statuses:', {
-          pending: pendingInspections.map((i: any) => ({ id: i.id, status: i.status })),
-          confirmed: confirmedInspections.map((i: any) => ({ id: i.id, status: i.status }))
+      // For customers and agents, log the inspection statuses
+      if (user?.role === 'customer' || user?.role === 'agent') {
+        console.log('Customer/Agent inspection statuses:', {
+          pending: pendingInspections.map((i: any) => ({ id: i.id.substring(0, 8), status: i.status })),
+          confirmed: confirmedInspections.map((i: any) => ({ id: i.id.substring(0, 8), status: i.status }))
         });
         
         // Check for unsigned agreement and auto-navigate
