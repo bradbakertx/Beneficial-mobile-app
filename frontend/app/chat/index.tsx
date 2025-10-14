@@ -175,7 +175,7 @@ export default function ChatScreen() {
                     styles.messageTime,
                     isMyMessage && styles.myMessageTime
                   ]}>
-                    {new Date(msg.created_at).toLocaleString()}
+                    {formatFullTimestamp(msg.created_at)}
                   </Text>
                 </View>
               );
