@@ -315,11 +315,11 @@ test_plan:
 backend:
   - task: "Inspector Selection Feature"
     implemented: true
-    working: "NA"
+    working: true
     file: "backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -327,6 +327,9 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "IMPLEMENTED: Added GET /api/users/inspectors endpoint that fetches all users with inspector or owner role (owners can also be inspectors). Updated PATCH /api/admin/inspections/{inspection_id}/update endpoint to handle inspector assignment. When inspector is changed, the endpoint now: 1) Fetches inspector_name from user record, 2) Sends push notification to new inspector with inspection details (property address, date, time), 3) Logs notification send. Backend restarted successfully."
+      - working: true
+        agent: "testing"
+        comment: "✅ COMPREHENSIVE INSPECTOR SELECTION TESTING COMPLETED: All backend functionality is working perfectly. Successfully tested with test credentials bradbakertx@gmail.com/Beneficial1!. ✅ GET /api/users/inspectors: Returns correct list of inspectors/owners with proper structure (id, name, email, role fields). Only users with 'inspector' or 'owner' roles are returned. Correctly enforces owner-only access (403 for non-owners). ✅ PATCH /api/admin/inspections/{inspection_id}/update: Successfully handles inspector assignment with inspector_id and inspector_email. Automatically fetches and sets inspector_name from user record. Push notification logic executes when inspector is changed (verified by creating test inspector and changing assignments). Backend logs confirm updates with proper field mapping. ✅ Inspector Change Scenario: Successfully tested changing inspector from Brad Baker to Test Inspector. All inspector fields (inspector_id, inspector_email, inspector_name) are correctly updated. Push notification logic is implemented and executes (notifications require registered push tokens). ✅ Error Handling: Correctly returns 404 for invalid inspection IDs, handles partial data updates. All HTTP status codes are correct. Inspector Selection feature is production-ready and fully functional."
 
 frontend:
   - task: "Inspector Dropdown in Edit Screen"
