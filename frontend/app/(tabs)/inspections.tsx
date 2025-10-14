@@ -220,6 +220,17 @@ export default function InspectionsScreen() {
           </TouchableOpacity>
         )}
 
+        {/* Chat Button for Agents - Group Chat with Customer and Inspector */}
+        {user?.role === 'agent' && item.status === 'scheduled' && (
+          <TouchableOpacity
+            style={styles.chatButton}
+            onPress={() => router.push(`/chat?inspectionId=${item.id}&recipientName=Inspector and Customer&propertyAddress=${encodeURIComponent(item.property_address)}&customerName=${encodeURIComponent(user?.name || '')}`)}
+          >
+            <Ionicons name="chatbubble-outline" size={20} color="#FF9500" />
+            <Text style={styles.chatButtonText}>Chat with Inspector and Customer</Text>
+          </TouchableOpacity>
+        )}
+
         {/* Reschedule Button for Customers */}
         {user?.role === 'customer' && item.status === 'scheduled' && (
           <TouchableOpacity
