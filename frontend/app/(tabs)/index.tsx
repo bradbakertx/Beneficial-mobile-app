@@ -79,7 +79,8 @@ export default function DashboardScreen() {
       // Calculate statistics
       // For customers: show "quoted" quotes (waiting for customer response)
       // For owners: show "pending" quotes (waiting for owner to set price)
-      const pendingQuotes = user?.role === 'customer' 
+      // For agents: show "quoted" quotes (same as customers)
+      const pendingQuotes = (user?.role === 'customer' || user?.role === 'agent')
         ? quotes.filter((q: any) => q.status === 'quoted').length
         : quotes.filter((q: any) => q.status === 'pending' || q.status === 'pending_review').length;
       
