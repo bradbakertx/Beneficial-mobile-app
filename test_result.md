@@ -314,7 +314,7 @@ test_plan:
 
 backend:
   - task: "Inspector Selection Feature"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "backend/server.py"
     stuck_count: 0
@@ -324,10 +324,13 @@ backend:
       - working: "NA"
         agent: "main"
         comment: "Implementing inspector selection for Edit Inspection screen. Adding GET /api/users/inspectors endpoint to fetch all inspectors. Updating PATCH /api/inspections/{inspection_id} to handle inspector_email and inspector_id updates. Adding push notification to new inspector when assigned. Inspector field will be mandatory."
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Added GET /api/users/inspectors endpoint that fetches all users with inspector or owner role (owners can also be inspectors). Updated PATCH /api/admin/inspections/{inspection_id}/update endpoint to handle inspector assignment. When inspector is changed, the endpoint now: 1) Fetches inspector_name from user record, 2) Sends push notification to new inspector with inspection details (property address, date, time), 3) Logs notification send. Backend restarted successfully."
 
 frontend:
   - task: "Inspector Dropdown in Edit Screen"
-    implemented: false
+    implemented: true
     working: "NA"
     file: "frontend/app/inspections/edit.tsx"
     stuck_count: 0
@@ -337,8 +340,13 @@ frontend:
       - working: "NA"
         agent: "main"
         comment: "Adding Inspector picker dropdown to Edit Inspection screen. Will fetch list of inspectors on load, display dropdown with current inspector pre-selected, and save inspector_email and inspector_id on update. Inspector field is mandatory."
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Added Inspector dropdown to Edit Inspection screen (only visible for regular inspections, not manual). Features: 1) Fetches inspector list from new GET /api/users/inspectors endpoint, 2) Displays inspector name and email in dropdown, 3) Pre-selects current inspector if one is assigned, 4) Mandatory field validation with visual error state (red border), 5) Saves inspector_id and inspector_email on update, 6) Shows 'Select an inspector...' placeholder. Ready for backend testing."
 
 agent_communication:
+  - agent: "main"
+    message: "INSPECTOR SELECTION FEATURE COMPLETE: Backend - Added GET /api/users/inspectors endpoint and updated PATCH /api/admin/inspections/{inspection_id}/update to handle inspector assignment with push notifications. Frontend - Added inspector dropdown to edit screen with mandatory validation, pre-selection, and error states. Backend restarted successfully. Ready for comprehensive backend testing."
   - agent: "main"
     message: "Starting implementation of Inspector Selection feature. Backend: Adding GET /api/users/inspectors endpoint and updating PATCH endpoint for inspector assignment with push notifications. Frontend: Adding Inspector dropdown to edit screen with mandatory validation."
   - agent: "main"
