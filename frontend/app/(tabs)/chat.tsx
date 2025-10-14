@@ -60,7 +60,7 @@ export default function ChatTabScreen() {
   };
 
   const handleConversationPress = (conv: Conversation) => {
-    router.push(`/chat?inspectionId=${conv.inspection_id || ''}&recipientName=${conv.conversation_type === 'owner_chat' ? 'Owner' : 'Inspector'}&propertyAddress=${encodeURIComponent(conv.property_address || '')}`);
+    router.push(`/chat?inspectionId=${conv.inspection_id || ''}&recipientName=${conv.conversation_type === 'owner_chat' ? 'Owner' : 'Inspector'}&propertyAddress=${encodeURIComponent(conv.property_address || '')}&customerName=${encodeURIComponent(conv.customer_name || '')}`);
   };
 
   const renderConversationCard = ({ item }: { item: Conversation }) => {
