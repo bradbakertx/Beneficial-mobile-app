@@ -254,9 +254,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f5f5f5',
     borderRadius: 12,
-    marginBottom: 16,
+    marginBottom: 12,
     paddingHorizontal: 16,
-    height: 56,
+    height: 48,
   },
   inputIcon: {
     marginRight: 12,
@@ -270,7 +270,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   roleContainer: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
   roleLabel: {
     fontSize: 14,
