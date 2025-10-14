@@ -271,14 +271,20 @@ frontend:
   - task: "Chat Screen"
     implemented: true
     working: "NA"
-    file: "app/(tabs)/chat.tsx"
+    file: "app/(tabs)/chat.tsx, app/chat/index.tsx"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Chat rooms list screen. Ready for WebSocket integration. Currently shows empty state."
+      - working: false
+        agent: "user"
+        comment: "User reported that clicking Send button does nothing - message doesn't appear in chat and input field doesn't clear. Backend logs confirm messages are being sent successfully (POST /api/messages returns 200), so issue is frontend-specific UI update problem."
+      - working: "NA"
+        agent: "main"
+        comment: "CHAT SYSTEM FIX IMPLEMENTED: Updated /app/frontend/app/chat/index.tsx with comprehensive improvements: 1) Optimistic UI updates - messages appear immediately when sent without waiting for API response, 2) Automatic input clearing after send, 3) Removed annoying success alert popup, 4) Auto-scroll to bottom when new messages arrive, 5) Fixed message bubble colors based on actual user role (not hardcoded 'customer'), 6) Added polling (5s interval) for new messages, 7) Added proper error handling that restores message text on failure, 8) Added ScrollView ref for smooth auto-scrolling, 9) Fixed text color for 'my' messages (white on blue background). Backend chat endpoints tested and all working perfectly (conversations, send message, fetch history). Ready for manual user testing."
 
   - task: "Profile Screen"
     implemented: true
