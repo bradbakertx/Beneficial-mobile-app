@@ -298,6 +298,8 @@ class ChatHistoryVisibilityTester:
         # Always create a fresh test inspector for this test to ensure we have proper credentials
         print("🔧 Creating fresh test inspector for this test...")
         test_inspector = self.create_test_inspector_account()
+        fresh_inspector_token = None
+        
         if test_inspector:
             # Add the new inspector to our list
             inspectors.append({
@@ -306,6 +308,7 @@ class ChatHistoryVisibilityTester:
                 "email": test_inspector["email"],
                 "role": "inspector"
             })
+            fresh_inspector_token = test_inspector["token"]
             print(f"✅ Fresh test inspector added: {test_inspector['name']} ({test_inspector['email']})")
         
         if len(inspectors) < 2:
@@ -329,10 +332,10 @@ class ChatHistoryVisibilityTester:
         # Step 7: Get conversations for NEW inspector BEFORE assignment
         print(f"\n📋 STEP 7: Check New Inspector's Conversations BEFORE Assignment")
         
-        # Use the fresh test inspector's token if we created one
+        # Use the fresh test inspector's token if we created one and it matches
         new_inspector_token = None
         if test_inspector and new_inspector["email"] == test_inspector["email"]:
-            new_inspector_token = test_inspector["token"]
+            new_inspector_token = fresh_inspector_token
             print(f"✅ Using fresh test inspector token")
         else:
             # Try different password combinations for existing inspectors
