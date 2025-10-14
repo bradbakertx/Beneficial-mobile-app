@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import api from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function ChatScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
+  const { user } = useAuth();
   const inspectionId = params.inspectionId as string | undefined;
   const recipientName = params.recipientName as string || 'Inspector';
   const propertyAddress = params.propertyAddress as string || '';
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
