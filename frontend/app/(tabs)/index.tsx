@@ -307,6 +307,17 @@ export default function DashboardScreen() {
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
                 </TouchableOpacity>
+
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/chat?recipientName=Owner')}>
+                  <View style={styles.actionIcon}>
+                    <Ionicons name="chatbubble-ellipses" size={24} color="#FF9500" />
+                  </View>
+                  <View style={styles.actionContent}>
+                    <Text style={styles.actionTitle}>Chat with Brad Baker</Text>
+                    <Text style={styles.actionDescription}>Ask any general questions</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
               </>
             )}
           </View>
