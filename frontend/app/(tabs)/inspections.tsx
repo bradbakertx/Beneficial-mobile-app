@@ -485,6 +485,23 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#007AFF',
   },
+  chatButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#E8F5E9',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#34C759',
+    marginTop: 8,
+  },
+  chatButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#34C759',
+  },
   cancelButton: {
     flexDirection: 'row',
     alignItems: 'center',
