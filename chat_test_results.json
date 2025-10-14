@@ -1,0 +1,67 @@
+[
+  {
+    "test": "Authentication Login",
+    "success": true,
+    "details": "Successfully logged in as Brad Baker (owner)",
+    "timestamp": "2025-10-14T01:53:38.266237",
+    "response_data": {
+      "user_id": "ac4f1343-ee5f-4988-928e-3bb9ff4f0669",
+      "role": "owner"
+    }
+  },
+  {
+    "test": "GET /api/conversations",
+    "success": true,
+    "details": "Retrieved 0 conversations",
+    "timestamp": "2025-10-14T01:53:38.284321",
+    "response_data": {
+      "count": 0,
+      "sample": []
+    }
+  },
+  {
+    "test": "Conversation Types Check",
+    "success": true,
+    "details": "Found 0 owner chats and 0 inspector chats",
+    "timestamp": "2025-10-14T01:53:38.284348"
+  },
+  {
+    "test": "POST /api/messages (Inspector Chat)",
+    "success": true,
+    "details": "Successfully sent inspector chat message",
+    "timestamp": "2025-10-14T01:53:38.364833",
+    "response_data": {
+      "message_id": "d2afca9e-223f-4377-a687-2785695b5cae",
+      "sender": "Brad Baker",
+      "inspection_id": "737c416d-d0ae-4e4d-b6b7-c328d339eb72"
+    }
+  },
+  {
+    "test": "GET /api/messages/{inspection_id}",
+    "success": true,
+    "details": "Retrieved 1 messages for inspection 737c416d-d0ae-4e4d-b6b7-c328d339eb72",
+    "timestamp": "2025-10-14T01:53:38.416682",
+    "response_data": {
+      "count": 1,
+      "chronological": true
+    }
+  },
+  {
+    "test": "Message Structure Check",
+    "success": true,
+    "details": "All required fields present in message objects",
+    "timestamp": "2025-10-14T01:53:38.416712"
+  },
+  {
+    "test": "Chronological Order Check",
+    "success": true,
+    "details": "Messages are in chronological order",
+    "timestamp": "2025-10-14T01:53:38.416717"
+  },
+  {
+    "test": "Message Persistence Check",
+    "success": true,
+    "details": "Sent message found in message history",
+    "timestamp": "2025-10-14T01:53:38.416732"
+  }
+]
