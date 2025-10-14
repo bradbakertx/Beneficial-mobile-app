@@ -328,12 +328,19 @@ class ChatHistoryVisibilityTester:
         
         # Step 7: Get conversations for NEW inspector BEFORE assignment
         print(f"\n📋 STEP 7: Check New Inspector's Conversations BEFORE Assignment")
-        # Try different password combinations for test inspectors
-        inspector_password = "TestPassword123!"
-        if "test.inspector@example.com" in new_inspector["email"]:
-            inspector_password = "Beneficial1!"  # This might be the existing test inspector
         
-        new_inspector_token = self.login_as_inspector(new_inspector["email"], inspector_password)
+        # Use the fresh test inspector's token if we created one
+        new_inspector_token = None
+        if test_inspector and new_inspector["email"] == test_inspector["email"]:
+            new_inspector_token = test_inspector["token"]
+            print(f"✅ Using fresh test inspector token")
+        else:
+            # Try different password combinations for existing inspectors
+            inspector_password = "TestPassword123!"
+            if "test.inspector@example.com" in new_inspector["email"]:
+                inspector_password = "Beneficial1!"  # This might be the existing test inspector
+            
+            new_inspector_token = self.login_as_inspector(new_inspector["email"], inspector_password)
         
         if new_inspector_token:
             conversations_before = self.get_conversations(new_inspector_token)
