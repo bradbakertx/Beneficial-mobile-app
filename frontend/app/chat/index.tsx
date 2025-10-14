@@ -25,6 +25,7 @@ export default function ChatScreen() {
   const inspectionId = params.inspectionId as string | undefined;
   const recipientName = params.recipientName as string || 'Inspector';
   const propertyAddress = params.propertyAddress as string || '';
+  const customerName = params.customerName as string || '';
   const scrollViewRef = useRef<ScrollView>(null);
 
   const [message, setMessage] = useState('');
