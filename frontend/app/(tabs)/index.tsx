@@ -92,13 +92,14 @@ export default function DashboardScreen() {
       // Pending scheduling:
       // - For owners: inspections waiting for owner to offer times (status: pending_scheduling)
       // - For customers: inspections waiting for customer to select a time (status: awaiting_customer_selection)
+      // - For agents: inspections waiting for customer to select a time (status: awaiting_customer_selection)
       let pendingScheduling = 0;
-      if (user?.role === 'customer') {
-        // For customers, pendingInspections and confirmedInspections are the same array (both from /inspections)
+      if (user?.role === 'customer' || user?.role === 'agent') {
+        // For customers and agents, pendingInspections and confirmedInspections are the same array (both from /inspections)
         // So we only need to use one of them to avoid duplicates
         const awaitingSelection = pendingInspections.filter((i: any) => i.status === 'awaiting_customer_selection');
         pendingScheduling = awaitingSelection.length;
-        console.log('Customer pending scheduling calculation:', {
+        console.log('Customer/Agent pending scheduling calculation:', {
           totalInspections: pendingInspections.length,
           awaitingSelection: awaitingSelection.map((i: any) => ({ id: i.id, status: i.status })),
           count: pendingScheduling
