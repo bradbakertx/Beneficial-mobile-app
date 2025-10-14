@@ -33,14 +33,25 @@ export default function ChatScreen() {
   }, []);
 
   const fetchMessages = async () => {
-    if (!inspectionId) {
-      setLoading(false);
-      return; // General owner chat - no messages to load initially
-    }
-
     try {
-      const response = await api.get(`/messages/${inspectionId}`);
-      setMessages(response.data);
+      // For owner chat (no inspection), fetch messages by conversation
+      if (!inspectionId) {
+        const response = await api.get('/conversations');
+        console.log('Conversations response:', response.data);
+        
+        // Find owner chat conversation
+        const ownerConversation = response.data.find((conv: any) => conv.conversation_type === 'owner_chat');
+        
+        if (ownerConversation && ownerConversation.inspection_id) {
+          // Fetch messages for this conversation
+          const messagesResponse = await api.get(`/messages/${ownerConversation.inspection_id}`);
+          setMessages(messagesResponse.data);
+        }
+      } else {
+        // Inspector chat - fetch by inspection ID
+        const response = await api.get(`/messages/${inspectionId}`);
+        setMessages(response.data);
+      }
     } catch (error) {
       console.error('Error fetching messages:', error);
     } finally {
