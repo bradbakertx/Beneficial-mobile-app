@@ -125,7 +125,7 @@ export default function ChatTabScreen() {
               </Text>
               {item.last_message_time && (
                 <Text style={styles.lastMessageTime}>
-                  {new Date(item.last_message_time).toLocaleString()}
+                  {formatChatTime(item.last_message_time)}
                 </Text>
               )}
             </View>
