@@ -1853,10 +1853,10 @@ async def download_agreement(
 @api_router.post("/inspections/{inspection_id}/report/upload")
 async def upload_inspection_report(
     inspection_id: str,
-    file: UploadFile = File(...),
+    files: List[UploadFile] = File(...),
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Upload inspection report PDF to S3 (Owner only)"""
+    """Upload multiple inspection report PDFs to S3 (Owner only)"""
     from s3_service import upload_report_to_s3
     from push_notification_service import send_push_notification
     
@@ -1869,25 +1869,49 @@ async def upload_inspection_report(
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     
-    # Validate file is PDF
-    if not file.filename.lower().endswith('.pdf'):
-        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+    # Validate all files are PDFs
+    for file in files:
+        if not file.filename.lower().endswith('.pdf'):
+            raise HTTPException(status_code=400, detail=f"Only PDF files are allowed: {file.filename}")
     
-    # Read file content
+    # Upload all files
+    uploaded_files = []
     try:
-        pdf_content = await file.read()
+        for idx, file in enumerate(files):
+            pdf_content = await file.read()
+            
+            # Create unique S3 key for each file
+            # If single file, use standard naming; if multiple, add index
+            if len(files) == 1:
+                s3_key_suffix = ""
+            else:
+                s3_key_suffix = f"-{idx + 1}"
+            
+            # Upload to S3 with modified filename
+            s3_result = upload_report_to_s3(inspection_id, pdf_content, suffix=s3_key_suffix)
+            logging.info(f"Report uploaded to S3: {s3_result['s3_key']}")
+            
+            uploaded_files.append({
+                "s3_key": s3_result["s3_key"],
+                "s3_url": s3_result["s3_url"],
+                "filename": file.filename,
+                "uploaded_at": datetime.utcnow().isoformat()
+            })
         
-        # Upload to S3
-        s3_result = upload_report_to_s3(inspection_id, pdf_content)
-        logging.info(f"Report uploaded to S3: {s3_result['s3_key']}")
+        # Get existing report files
+        existing_files = inspection.get("report_files", [])
+        if existing_files is None:
+            existing_files = []
         
-        # Update inspection with report info
+        # Append new files to existing
+        all_files = existing_files + uploaded_files
+        
+        # Update inspection with all report files
         await db.inspections.update_one(
             {"id": inspection_id},
             {
                 "$set": {
-                    "report_s3_key": s3_result["s3_key"],
-                    "report_s3_url": s3_result["s3_url"],
+                    "report_files": all_files,
                     "report_uploaded_at": datetime.utcnow(),
                     "updated_at": datetime.utcnow()
                 }
@@ -1898,10 +1922,12 @@ async def upload_inspection_report(
         customer = await db.users.find_one({"id": inspection["customer_id"]})
         if customer and customer.get("push_token"):
             property_address = inspection.get("property_address", "your property")
+            file_count = len(uploaded_files)
+            file_word = "file" if file_count == 1 else "files"
             send_push_notification(
                 push_token=customer["push_token"],
                 title="Inspection Report Available",
-                body=f"Your inspection report for {property_address} is now available",
+                body=f"{file_count} report {file_word} for {property_address} uploaded",
                 data={
                     "type": "report_uploaded",
                     "inspection_id": inspection_id
@@ -1914,10 +1940,12 @@ async def upload_inspection_report(
             agent = await db.users.find_one({"email": inspection["agent_email"]})
             if agent and agent.get("push_token"):
                 property_address = inspection.get("property_address", "the property")
+                file_count = len(uploaded_files)
+                file_word = "file" if file_count == 1 else "files"
                 send_push_notification(
                     push_token=agent["push_token"],
                     title="Inspection Report Available",
-                    body=f"The inspection report for {property_address} is now available",
+                    body=f"{file_count} report {file_word} for {property_address} uploaded",
                     data={
                         "type": "report_uploaded",
                         "inspection_id": inspection_id
@@ -1927,8 +1955,8 @@ async def upload_inspection_report(
         
         return {
             "success": True,
-            "message": "Report uploaded successfully",
-            "s3_key": s3_result["s3_key"]
+            "message": f"{len(uploaded_files)} report(s) uploaded successfully",
+            "uploaded_files": uploaded_files
         }
         
     except Exception as e:
