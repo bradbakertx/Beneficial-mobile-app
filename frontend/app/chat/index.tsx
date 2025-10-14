@@ -84,31 +84,46 @@ export default function ChatScreen() {
       return;
     }
 
+    const messageText = message.trim();
+    const tempId = `temp-${Date.now()}`;
+    
+    // Optimistically add message to UI
+    const tempMessage = {
+      id: tempId,
+      message_text: messageText,
+      sender_role: user?.role || 'customer',
+      sender_name: user?.name || 'You',
+      created_at: new Date().toISOString(),
+    };
+    
+    setMessages(prev => [...prev, tempMessage]);
+    setMessage(''); // Clear input immediately
+
     setSending(true);
     try {
       console.log('Sending message to API...');
       const response = await api.post('/messages', {
         inspection_id: inspectionId || null,
         recipient_id: null, // Auto-determined by backend
-        message_text: message.trim(),
+        message_text: messageText,
       });
       
       console.log('Message sent successfully:', response.data);
 
-      // Clear message and refresh
-      setMessage('');
-      
-      // Refresh messages to show the sent message
-      setTimeout(() => {
-        fetchMessages();
-      }, 500);
-      
-      Alert.alert('Success', 'Message sent successfully!');
+      // Refresh messages to get server version with correct IDs
+      await fetchMessages();
     } catch (error: any) {
       console.error('Error sending message:', error);
       console.error('Error details:', error.response?.data);
+      
+      // Remove temp message on error
+      setMessages(prev => prev.filter(m => m.id !== tempId));
+      
       const errorMessage = error.response?.data?.detail || 'Failed to send message';
       Alert.alert('Error', errorMessage);
+      
+      // Restore message text so user can try again
+      setMessage(messageText);
     } finally {
       setSending(false);
     }
