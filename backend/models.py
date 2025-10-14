@@ -151,9 +151,10 @@ class InspectionInDB(InspectionBase):
     agreement_s3_key: Optional[str] = None  # S3 path to agreement PDF
     agreement_s3_url: Optional[str] = None  # S3 URL for agreement PDF
     # Inspection Report
-    report_s3_key: Optional[str] = None  # S3 path to report PDF
-    report_s3_url: Optional[str] = None  # S3 URL for report PDF
-    report_uploaded_at: Optional[datetime] = None  # When report was uploaded
+    report_s3_key: Optional[str] = None  # DEPRECATED - use report_files
+    report_s3_url: Optional[str] = None  # DEPRECATED - use report_files
+    report_files: Optional[List[dict]] = None  # List of report files: [{"s3_key": "...", "s3_url": "...", "filename": "...", "uploaded_at": "..."}]
+    report_uploaded_at: Optional[datetime] = None  # When report was last uploaded
     quote_id: Optional[str] = None  # Link to quote for fee amount
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
