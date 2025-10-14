@@ -45,22 +45,47 @@ class ChatSystemTester:
             print(f"   Response: {response_data}")
         print()
     
-    def login_owner(self):
-        """Login as owner and get token"""
-        print("\n=== OWNER LOGIN ===")
-        response = self.make_request("POST", "/auth/login", data={
-            "email": OWNER_EMAIL,
-            "password": OWNER_PASSWORD
-        })
+    def test_authentication(self):
+        """Test authentication with provided credentials"""
+        print("=== TESTING AUTHENTICATION ===")
         
-        if response and response.status_code == 200:
-            data = response.json()
-            self.owner_token = data.get("session_token")
-            self.log_result("Owner Login", True, f"Successfully logged in as {OWNER_EMAIL}")
-            return True
-        else:
-            error_msg = response.json().get("detail", "Unknown error") if response else "No response"
-            self.log_result("Owner Login", False, f"Failed to login as owner: {error_msg}")
+        try:
+            # Test login
+            login_data = {
+                "email": TEST_EMAIL,
+                "password": TEST_PASSWORD
+            }
+            
+            response = self.session.post(f"{API_BASE}/auth/login", json=login_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.jwt_token = data.get("session_token")
+                self.user_info = data.get("user")
+                
+                # Set authorization header for future requests
+                self.session.headers.update({
+                    "Authorization": f"Bearer {self.jwt_token}"
+                })
+                
+                self.log_result(
+                    "Authentication Login", 
+                    True, 
+                    f"Successfully logged in as {self.user_info.get('name')} ({self.user_info.get('role')})",
+                    {"user_id": self.user_info.get('id'), "role": self.user_info.get('role')}
+                )
+                return True
+            else:
+                self.log_result(
+                    "Authentication Login", 
+                    False, 
+                    f"Login failed with status {response.status_code}",
+                    response.text
+                )
+                return False
+                
+        except Exception as e:
+            self.log_result("Authentication Login", False, f"Exception: {str(e)}")
             return False
     
     def login_or_create_customer(self):
