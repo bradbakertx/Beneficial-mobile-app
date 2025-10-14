@@ -296,6 +296,9 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     color: '#666',
   },
+  mySenderName: {
+    color: 'rgba(255, 255, 255, 0.9)',
+  },
   messageText: {
     fontSize: 16,
     color: '#1C1C1E',
