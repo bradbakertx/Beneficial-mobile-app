@@ -441,6 +441,12 @@ async def schedule_inspection(
         customer_name=current_user.name,
         customer_phone=getattr(current_user, 'phone', None),  # Safely get phone if it exists
         property_address=property_address,
+        square_feet=quote.get("square_feet"),
+        year_built=quote.get("year_built"),
+        foundation_type=quote.get("foundation_type"),
+        property_type=quote.get("property_type"),
+        num_buildings=quote.get("num_buildings"),
+        num_units=quote.get("num_units"),
         preferred_date=None,
         preferred_time=None,
         option_period_end_date=scheduling_data.option_period_end_date,
