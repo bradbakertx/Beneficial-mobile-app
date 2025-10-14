@@ -162,10 +162,18 @@ export default function ChatTabScreen() {
           <View style={styles.emptyContainer}>
             <Ionicons name="chatbubbles-outline" size={64} color="#C7C7CC" />
             <Text style={styles.emptyText}>No conversations yet</Text>
-            <Text style={styles.emptySubtext}>Messages will appear here</Text>
+            <Text style={styles.emptySubtext}>Click "Chat with Inspector" on Dashboard to start</Text>
           </View>
         }
       />
+      
+      {/* Floating Action Button - New Chat with Owner */}
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={() => router.push('/chat?recipientName=Owner')}
+      >
+        <Ionicons name="add" size={28} color="#fff" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
