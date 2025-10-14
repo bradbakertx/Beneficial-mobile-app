@@ -119,6 +119,12 @@ class InspectionInDB(InspectionBase):
     customer_name: str
     customer_phone: Optional[str] = None
     property_address: str
+    square_feet: Optional[int] = None
+    year_built: Optional[int] = None
+    foundation_type: Optional[str] = None
+    property_type: Optional[str] = None
+    num_buildings: Optional[int] = None
+    num_units: Optional[int] = None
     status: InspectionStatus = InspectionStatus.pending_scheduling
     scheduled_date: Optional[str] = None
     scheduled_time: Optional[str] = None
