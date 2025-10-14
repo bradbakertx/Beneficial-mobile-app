@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import { format } from 'date-fns';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ActiveInspection {
   id: string;
