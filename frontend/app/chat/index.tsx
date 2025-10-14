@@ -33,7 +33,19 @@ export default function ChatScreen() {
 
   useEffect(() => {
     fetchMessages();
-  }, []);
+    // Poll for new messages every 5 seconds
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
+  }, [inspectionId]);
+
+  useEffect(() => {
+    // Auto-scroll to bottom when messages change
+    if (scrollViewRef.current && messages.length > 0) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [messages]);
 
   const fetchMessages = async () => {
     try {
