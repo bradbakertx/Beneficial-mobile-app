@@ -39,7 +39,7 @@ export default function DashboardScreen() {
       const confirmedInspectionsEndpoint = (user?.role === 'owner' || user?.role === 'admin') ? '/admin/inspections/confirmed' : '/inspections';
       
       const [quotesRes, pendingInspectionsRes, confirmedInspectionsRes, unreadRes] = await Promise.all([
-        api.get(quotesEndpoint),
+        api.get(quotesEndpoint).catch(() => ({ data: [] })),  // Handle 403 for agents
         api.get(pendingInspectionsEndpoint).catch(() => ({ data: [] })),
         api.get(confirmedInspectionsEndpoint).catch(() => ({ data: [] })),
         api.get('/conversations/unread-count').catch(() => ({ data: { unread_count: 0 } }))
