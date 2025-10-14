@@ -1170,6 +1170,9 @@ async def update_manual_inspection(
             "scheduled_time": updated_manual['inspection_time'],
             "preferred_date": updated_manual['inspection_date'],  # Sync to preferred as well
             "preferred_time": updated_manual['inspection_time'],  # Sync to preferred as well
+            "agent_name": updated_manual.get('agent_name'),
+            "agent_email": updated_manual.get('agent_email'),
+            "agent_phone": updated_manual.get('agent_phone'),
             "updated_at": datetime.utcnow()
         }
         
