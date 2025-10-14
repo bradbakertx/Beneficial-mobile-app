@@ -49,6 +49,10 @@ export default function ChatScreen() {
   };
 
   const handleSend = async () => {
+    console.log('=== handleSend called ===');
+    console.log('Message:', message);
+    console.log('InspectionId:', inspectionId);
+    
     if (!message.trim()) {
       Alert.alert('Error', 'Please enter a message');
       return;
@@ -56,27 +60,29 @@ export default function ChatScreen() {
 
     setSending(true);
     try {
-      await api.post('/messages', {
+      console.log('Sending message to API...');
+      const response = await api.post('/messages', {
         inspection_id: inspectionId || null,
         recipient_id: null, // Auto-determined by backend
         message_text: message.trim(),
       });
+      
+      console.log('Message sent successfully:', response.data);
 
-      Alert.alert(
-        'Success',
-        'Message sent successfully',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              setMessage('');
-              router.back();
-            },
-          },
-        ]
-      );
+      // Clear message and go back
+      setMessage('');
+      Alert.alert('Success', 'Message sent successfully!');
+      
+      // Refresh messages if inspection chat
+      if (inspectionId) {
+        fetchMessages();
+      } else {
+        // For owner chat, just go back after brief delay
+        setTimeout(() => router.back(), 1000);
+      }
     } catch (error: any) {
       console.error('Error sending message:', error);
+      console.error('Error details:', error.response?.data);
       const errorMessage = error.response?.data?.detail || 'Failed to send message';
       Alert.alert('Error', errorMessage);
     } finally {
