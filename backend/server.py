@@ -2010,12 +2010,28 @@ async def get_conversations(
                 ]
             }).to_list(1000)
         else:
-            # Inspectors only see their own messages
+            # Inspectors see messages where they are the recipient OR inspections they are assigned to
+            # First, get all inspection IDs where this inspector is assigned
+            assigned_inspections = await db.inspections.find({
+                "inspector_id": current_user.id
+            }).to_list(1000)
+            assigned_inspection_ids = [insp["id"] for insp in assigned_inspections]
+            
+            # Get messages where they are the recipient OR messages for their assigned inspections
             messages = await db.messages.find({
-                "recipient_id": current_user.id,
-                "$or": [
-                    {"expires_at": {"$gt": now}},
-                    {"expires_at": None}
+                "$and": [
+                    {
+                        "$or": [
+                            {"recipient_id": current_user.id},  # Direct messages to them
+                            {"inspection_id": {"$in": assigned_inspection_ids}}  # Messages for their assigned inspections
+                        ]
+                    },
+                    {
+                        "$or": [
+                            {"expires_at": {"$gt": now}},
+                            {"expires_at": None}
+                        ]
+                    }
                 ]
             }).to_list(1000)
         
