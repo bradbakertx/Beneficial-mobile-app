@@ -157,6 +157,12 @@ export default function ActiveInspectionsScreen() {
             <Ionicons name="mail-outline" size={16} color="#8E8E93" />
             <Text style={styles.detailText}>{item.customer_email}</Text>
           </View>
+          {item.customer_phone && (
+            <View style={styles.detailRow}>
+              <Ionicons name="call-outline" size={16} color="#8E8E93" />
+              <Text style={styles.detailText}>{item.customer_phone}</Text>
+            </View>
+          )}
           {item.scheduled_date && item.scheduled_time && (
             <View style={styles.detailRow}>
               <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
