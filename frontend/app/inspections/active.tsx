@@ -117,55 +117,65 @@ export default function ActiveInspectionsScreen() {
           { text: 'Cancel', style: 'cancel' },
           {
             text: 'Upload',
-            onPress: async () => {
-              // Set uploading state
-              setUploading(true);
-              setUploadProgress(`Uploading ${fileCount} ${fileWord}...`);
-              
-              try {
-                // Create FormData
-                const formData = new FormData();
+            onPress: () => {
+              // Small delay to let Alert dismiss first
+              setTimeout(async () => {
+                // Set uploading state
+                setUploading(true);
+                setUploadProgress(`Uploading ${fileCount} ${fileWord}...`);
+                console.log('🚀 Starting upload...');
                 
-                // Add all files to FormData
-                files.forEach((file) => {
-                  const fileToUpload: any = {
-                    uri: file.uri,
-                    type: 'application/pdf',
-                    name: file.name,
-                  };
-                  formData.append('files', fileToUpload);
-                });
+                try {
+                  // Create FormData
+                  const formData = new FormData();
+                  
+                  // Add all files to FormData
+                  console.log(`📦 Adding ${fileCount} files to FormData...`);
+                  files.forEach((file, idx) => {
+                    const fileToUpload: any = {
+                      uri: file.uri,
+                      type: 'application/pdf',
+                      name: file.name,
+                    };
+                    formData.append('files', fileToUpload);
+                    console.log(`  ✓ File ${idx + 1}: ${file.name}`);
+                  });
 
-                // Upload to backend
-                const response = await api.post(
-                  `/inspections/${inspection.id}/report/upload`,
-                  formData,
-                  {
-                    headers: {
-                      'Content-Type': 'multipart/form-data',
-                    },
-                  }
-                );
+                  // Upload to backend
+                  console.log('📤 Uploading to backend...');
+                  const response = await api.post(
+                    `/inspections/${inspection.id}/report/upload`,
+                    formData,
+                    {
+                      headers: {
+                        'Content-Type': 'multipart/form-data',
+                      },
+                    }
+                  );
 
-                // Clear uploading state
-                setUploading(false);
-                setUploadProgress('');
+                  console.log('✅ Upload successful!', response.data);
+                  
+                  // Clear uploading state
+                  setUploading(false);
+                  setUploadProgress('');
 
-                Alert.alert(
-                  'Success',
-                  `${fileCount} report ${fileWord} uploaded successfully! Customer and agent will be notified.`,
-                  [{ text: 'OK', onPress: () => fetchActiveInspections() }]
-                );
-              } catch (error: any) {
-                console.error('Upload error:', error);
-                
-                // Clear uploading state
-                setUploading(false);
-                setUploadProgress('');
-                
-                const errorMessage = error.response?.data?.detail || 'Failed to upload reports';
-                Alert.alert('Upload Failed', errorMessage);
-              }
+                  Alert.alert(
+                    'Success',
+                    `${fileCount} report ${fileWord} uploaded successfully! Customer and agent will be notified.`,
+                    [{ text: 'OK', onPress: () => fetchActiveInspections() }]
+                  );
+                } catch (error: any) {
+                  console.error('❌ Upload error:', error);
+                  console.error('Error details:', error.response?.data);
+                  
+                  // Clear uploading state
+                  setUploading(false);
+                  setUploadProgress('');
+                  
+                  const errorMessage = error.response?.data?.detail || 'Failed to upload reports';
+                  Alert.alert('Upload Failed', errorMessage);
+                }
+              }, 500); // 500ms delay to let Alert dismiss
             },
           },
         ]
