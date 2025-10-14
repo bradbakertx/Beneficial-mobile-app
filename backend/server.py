@@ -200,6 +200,35 @@ async def register_push_token(
     return {"success": True, "message": "Push token registered"}
 
 
+# ============= USER ENDPOINTS =============
+
+@api_router.get("/users/inspectors")
+async def get_inspectors(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get list of all inspectors (Owner only)"""
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can view inspectors")
+    
+    # Fetch all users with role inspector or owner (owners can also be inspectors)
+    inspectors = await db.users.find({
+        "role": {"$in": [UserRole.inspector.value, UserRole.owner.value]}
+    }).to_list(100)
+    
+    # Return simplified inspector info
+    inspector_list = [
+        {
+            "id": insp["id"],
+            "name": insp["name"],
+            "email": insp["email"],
+            "role": insp["role"]
+        }
+        for insp in inspectors
+    ]
+    
+    return {"inspectors": inspector_list}
+
+
 # ============= QUOTE ENDPOINTS =============
 
 @api_router.post("/quotes", response_model=QuoteResponse)
