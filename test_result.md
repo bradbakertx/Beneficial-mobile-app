@@ -315,7 +315,7 @@ test_plan:
 backend:
   - task: "Inspector Selection Feature"
     implemented: true
-    working: false
+    working: true
     file: "backend/server.py"
     stuck_count: 1
     priority: "high"
@@ -342,6 +342,9 @@ backend:
       - working: false
         agent: "testing"
         comment: "❌ CRITICAL ISSUE FOUND: Chat History Visibility Feature NOT WORKING. Comprehensive testing reveals that when an inspector is changed on an inspection, the NEW inspector CANNOT see the conversation in their conversations list (GET /api/conversations), despite being able to access messages directly (GET /api/messages/{inspection_id}). ✅ WORKING: Inspector assignment, calendar invites/cancellations, message access. ❌ FAILING: Conversation visibility in inspector's conversation list. The GET /api/conversations endpoint logic for inspectors (lines 2015-2036 in server.py) should show conversations for inspections they are assigned to, but this is not working. Test Results: 1) New inspector can access 8 messages directly via /api/messages/{inspection_id} ✅, 2) New inspector sees 0 conversations in /api/conversations ❌, 3) Conversation should appear with conversation_type='inspector_chat' and inspection_id='737c416d-d0ae-4e4d-b6b7-c328d339eb72' but does not. This breaks chat continuity when inspectors are reassigned. REQUIRES IMMEDIATE FIX."
+      - working: true
+        agent: "testing"
+        comment: "✅ CHAT HISTORY VISIBILITY FEATURE RE-TESTING COMPLETED: After thorough debugging, the Chat History Visibility feature is WORKING CORRECTLY. The previous test failure was due to incorrect test logic, not a backend issue. ✅ COMPREHENSIVE VERIFICATION: 1) Created fresh test inspector (Debug Inspector 1760477162), 2) Assigned inspector to inspection 737c416d-d0ae-4e4d-b6b7-c328d339eb72 with 8 existing messages, 3) Verified new inspector can see conversation in GET /api/conversations with correct structure: conversation_type='inspector_chat', inspection_id='737c416d-d0ae-4e4d-b6b7-c328d339eb72', customer_name='Kristi Baker', property_address populated, 4) Verified new inspector can access all 8 messages via GET /api/messages/{inspection_id}. ✅ CHAT CONTINUITY CONFIRMED: When inspector is changed, the new inspector immediately sees the conversation in their conversations list with all historical messages accessible. The backend logic correctly queries inspections by inspector_id and includes messages for assigned inspections. Feature is production-ready and fully functional."
 
 frontend:
   - task: "Inspector Dropdown in Edit Screen"
