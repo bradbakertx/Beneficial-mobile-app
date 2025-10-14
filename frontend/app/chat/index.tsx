@@ -296,10 +296,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1C1C1E',
   },
+  myMessageText: {
+    color: '#fff',
+  },
   messageTime: {
     fontSize: 11,
     color: '#8E8E93',
     marginTop: 4,
+  },
+  myMessageTime: {
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   emptyContainer: {
     flex: 1,
