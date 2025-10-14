@@ -118,6 +118,10 @@ export default function ActiveInspectionsScreen() {
           {
             text: 'Upload',
             onPress: async () => {
+              // Set uploading state
+              setUploading(true);
+              setUploadProgress(`Uploading ${fileCount} ${fileWord}...`);
+              
               try {
                 // Create FormData
                 const formData = new FormData();
@@ -143,6 +147,10 @@ export default function ActiveInspectionsScreen() {
                   }
                 );
 
+                // Clear uploading state
+                setUploading(false);
+                setUploadProgress('');
+
                 Alert.alert(
                   'Success',
                   `${fileCount} report ${fileWord} uploaded successfully! Customer and agent will be notified.`,
@@ -150,6 +158,11 @@ export default function ActiveInspectionsScreen() {
                 );
               } catch (error: any) {
                 console.error('Upload error:', error);
+                
+                // Clear uploading state
+                setUploading(false);
+                setUploadProgress('');
+                
                 const errorMessage = error.response?.data?.detail || 'Failed to upload reports';
                 Alert.alert('Upload Failed', errorMessage);
               }
