@@ -543,6 +543,10 @@ const styles = StyleSheet.create({
   picker: {
     height: 50,
   },
+  pickerError: {
+    borderColor: '#FF3B30',
+    borderWidth: 1.5,
+  },
   saveButton: {
     backgroundColor: '#007AFF',
     borderRadius: 12,
