@@ -17,8 +17,8 @@ TEST_PASSWORD = "Beneficial1!"
 class InspectorSelectionTester:
     def __init__(self):
         self.session = requests.Session()
-        self.jwt_token = None
-        self.user_info = None
+        self.auth_token = None
+        self.user_data = None
         self.test_results = []
         
     def log_result(self, test_name, success, details="", response_data=None):
@@ -34,7 +34,7 @@ class InspectorSelectionTester:
         self.test_results.append(result)
         
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name}")
+        print(f"{status} {test_name}")
         if details:
             print(f"   Details: {details}")
         if not success and response_data:
