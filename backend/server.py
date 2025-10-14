@@ -1717,6 +1717,42 @@ async def get_messages(
     return [MessageResponse(**msg) for msg in messages]
 
 
+@api_router.get("/messages/owner/chat", response_model=List[MessageResponse])
+async def get_owner_chat_messages(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get all messages for owner chat (no inspection_id)"""
+    # Get owner
+    owner = await db.users.find_one({"role": UserRole.owner.value})
+    if not owner:
+        raise HTTPException(status_code=404, detail="Owner not found")
+    
+    # Mark messages as read for current user
+    await db.messages.update_many(
+        {
+            "inspection_id": None,
+            "sender_id": {"$ne": current_user.id},
+            "is_read": False,
+            "$or": [
+                {"sender_id": current_user.id, "recipient_id": owner["id"]},
+                {"sender_id": owner["id"], "recipient_id": current_user.id}
+            ]
+        },
+        {"$set": {"is_read": True}}
+    )
+    
+    # Get messages between current user and owner (no inspection_id)
+    messages = await db.messages.find({
+        "inspection_id": None,
+        "$or": [
+            {"sender_id": current_user.id, "recipient_id": owner["id"]},
+            {"sender_id": owner["id"], "recipient_id": current_user.id}
+        ]
+    }).sort("created_at", 1).to_list(1000)
+    
+    return [MessageResponse(**msg) for msg in messages]
+
+
 @api_router.get("/conversations", response_model=List[ConversationSummary])
 async def get_conversations(
     current_user: UserInDB = Depends(get_current_user_from_token)
