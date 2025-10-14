@@ -8,6 +8,7 @@ class UserRole(str, Enum):
     customer = "customer"
     agent = "agent"
     owner = "owner"
+    inspector = "inspector"
 
 
 class QuoteStatus(str, Enum):
