@@ -37,6 +37,7 @@ interface ActiveInspection {
 
 export default function ActiveInspectionsScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [inspections, setInspections] = useState<ActiveInspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,9 +47,21 @@ export default function ActiveInspectionsScreen() {
 
   const fetchActiveInspections = async () => {
     try {
-      const response = await api.get('/admin/inspections/confirmed');
+      // Use appropriate endpoint based on user role
+      const endpoint = (user?.role === 'owner' || user?.role === 'admin') 
+        ? '/admin/inspections/confirmed' 
+        : '/inspections';
+      
+      const response = await api.get(endpoint);
       console.log('Active inspections:', response.data);
-      setInspections(response.data);
+      
+      // For customers and agents, filter to only show 'scheduled' status
+      let inspectionsList = response.data;
+      if (user?.role === 'customer' || user?.role === 'agent') {
+        inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled');
+      }
+      
+      setInspections(inspectionsList);
     } catch (error: any) {
       console.error('Error fetching active inspections:', error);
       Alert.alert('Error', 'Failed to fetch active inspections');
