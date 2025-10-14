@@ -135,6 +135,9 @@ export default function ChatScreen() {
           </TouchableOpacity>
           <View style={styles.headerText}>
             <Text style={styles.headerTitle}>Message {recipientName}</Text>
+            {customerName && inspectionId && (
+              <Text style={styles.headerSubtitle}>{customerName}</Text>
+            )}
             {propertyAddress && (
               <Text style={styles.headerSubtitle}>{propertyAddress}</Text>
             )}
