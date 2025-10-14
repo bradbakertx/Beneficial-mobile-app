@@ -286,24 +286,13 @@ export default function DashboardScreen() {
 
             {user?.role === 'agent' && (
               <>
-                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes')}>
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes/new')}>
                   <View style={styles.actionIcon}>
                     <Ionicons name="document-text" size={24} color="#007AFF" />
                   </View>
                   <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>Manage Quotes</Text>
-                    <Text style={styles.actionDescription}>View client quotes</Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections')}>
-                  <View style={styles.actionIcon}>
-                    <Ionicons name="calendar" size={24} color="#34C759" />
-                  </View>
-                  <View style={styles.actionContent}>
-                    <Text style={styles.actionTitle}>View Schedule</Text>
-                    <Text style={styles.actionDescription}>Check availability</Text>
+                    <Text style={styles.actionTitle}>Request a Quote</Text>
+                    <Text style={styles.actionDescription}>Get an inspection quote for your client</Text>
                   </View>
                   <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
                 </TouchableOpacity>
