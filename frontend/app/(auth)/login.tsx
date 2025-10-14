@@ -224,8 +224,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   footer: {
-    marginTop: 40,
-    paddingTop: 24,
+    marginTop: 24,
+    paddingTop: 16,
     paddingBottom: 16,
     borderTopWidth: 1,
     borderTopColor: '#E5E5EA',
