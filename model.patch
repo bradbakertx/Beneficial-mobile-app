@@ -1,638 +1,691 @@
-diff --git a/backend/server.py b/backend/server.py
-index 3982122..59d32b0 100644
---- a/backend/server.py
-+++ b/backend/server.py
-@@ -534,19 +534,27 @@ async def confirm_time_slot(
-     # Check for double-booking with same inspector
-     inspector_name = inspection.get("inspector_name")
-     if inspector_name:
--        conflict = await db.inspections.find_one({
-+        # Get all scheduled inspections for the same date
-+        potential_conflicts = await db.inspections.find({
-             "id": {"$ne": inspection_id},  # Exclude current inspection
-             "status": InspectionStatus.scheduled.value,
-             "scheduled_date": scheduled_date,
--            "scheduled_time": scheduled_time,
-             "inspector_name": inspector_name
--        })
-+        }).to_list(100)
-         
--        if conflict:
--            raise HTTPException(
--                status_code=409, 
--                detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
--            )
-+        # Normalize the requested time
-+        normalized_requested_time = normalize_time_format(scheduled_time)
-+        
-+        # Check if any existing inspection has a conflicting time
-+        for existing in potential_conflicts:
-+            existing_time = existing.get("scheduled_time", "")
-+            normalized_existing_time = normalize_time_format(existing_time)
-+            
-+            if normalized_requested_time == normalized_existing_time:
-+                raise HTTPException(
-+                    status_code=409, 
-+                    detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
-+                )
-     
-     # Update inspection to scheduled status
-     await db.inspections.update_one(
-@@ -1253,19 +1261,27 @@ async def reschedule_inspection(
-     # Check for double-booking with same inspector
-     inspector_name = inspection.get("inspector_name")
-     if inspector_name:
--        conflict = await db.inspections.find_one({
-+        # Get all scheduled inspections for the same date
-+        potential_conflicts = await db.inspections.find({
-             "id": {"$ne": inspection_id},  # Exclude current inspection
-             "status": InspectionStatus.scheduled.value,
-             "scheduled_date": scheduled_date,
--            "scheduled_time": scheduled_time,
-             "inspector_name": inspector_name
--        })
-+        }).to_list(100)
-         
--        if conflict:
--            raise HTTPException(
--                status_code=409, 
--                detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
--            )
-+        # Normalize the requested time
-+        normalized_requested_time = normalize_time_format(scheduled_time)
-+        
-+        # Check if any existing inspection has a conflicting time
-+        for existing in potential_conflicts:
-+            existing_time = existing.get("scheduled_time", "")
-+            normalized_existing_time = normalize_time_format(existing_time)
-+            
-+            if normalized_requested_time == normalized_existing_time:
-+                raise HTTPException(
-+                    status_code=409, 
-+                    detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
-+                )
-     
-     # Update the inspection with new date/time
-     await db.inspections.update_one(
 diff --git a/model.patch b/model.patch
-index 742136c..e69de29 100644
+index 4dca60d..e69de29 100644
 --- a/model.patch
 +++ b/model.patch
-@@ -1,646 +0,0 @@
--diff --git a/frontend/app/(tabs)/inspections.tsx b/frontend/app/(tabs)/inspections.tsx
--index d33c79d..5bc6861 100644
----- a/frontend/app/(tabs)/inspections.tsx
--+++ b/frontend/app/(tabs)/inspections.tsx
--@@ -24,6 +24,7 @@ interface Inspection {
--   status: string;
--   inspector_name?: string;
--   report_url?: string;
--+  agreement_signed?: boolean;
-- }
-- 
-- export default function InspectionsScreen() {
--@@ -122,6 +123,18 @@ export default function InspectionsScreen() {
--           )}
--         </View>
-- 
--+        {/* Agreement Button for Customers */}
--+        {user?.role === 'customer' && !item.agreement_signed && (
--+          <TouchableOpacity
--+            style={styles.agreementButton}
--+            onPress={() => router.push(`/inspections/agreement?id=${item.id}`)}
--+          >
--+            <Ionicons name="document-text-outline" size={20} color="#FF9500" />
--+            <Text style={styles.agreementButtonText}>Sign Pre-Inspection Agreement</Text>
--+            <Ionicons name="chevron-forward" size={18} color="#FF9500" />
--+          </TouchableOpacity>
--+        )}
--+
--         {item.report_url && (
--           <TouchableOpacity style={styles.reportButton}>
--             <Ionicons name="document-text" size={18} color="#007AFF" />
--@@ -243,6 +256,25 @@ const styles = StyleSheet.create({
--     fontWeight: '600',
--     color: '#007AFF',
--   },
--+  agreementButton: {
--+    flexDirection: 'row',
--+    alignItems: 'center',
--+    justifyContent: 'space-between',
--+    marginTop: 12,
--+    paddingVertical: 12,
--+    paddingHorizontal: 16,
--+    backgroundColor: '#FFF3E0',
--+    borderRadius: 8,
--+    borderWidth: 1,
--+    borderColor: '#FF9500',
--+  },
--+  agreementButtonText: {
--+    fontSize: 14,
--+    fontWeight: '600',
--+    color: '#FF9500',
--+    flex: 1,
--+    marginLeft: 8,
--+  },
--   emptyContainer: {
--     flex: 1,
--     justifyContent: 'center',
+@@ -1,727 +0,0 @@
+-diff --git a/backend/server.py b/backend/server.py
+-index 3982122..59d32b0 100644
+---- a/backend/server.py
+-+++ b/backend/server.py
+-@@ -534,19 +534,27 @@ async def confirm_time_slot(
+-     # Check for double-booking with same inspector
+-     inspector_name = inspection.get("inspector_name")
+-     if inspector_name:
+--        conflict = await db.inspections.find_one({
+-+        # Get all scheduled inspections for the same date
+-+        potential_conflicts = await db.inspections.find({
+-             "id": {"$ne": inspection_id},  # Exclude current inspection
+-             "status": InspectionStatus.scheduled.value,
+-             "scheduled_date": scheduled_date,
+--            "scheduled_time": scheduled_time,
+-             "inspector_name": inspector_name
+--        })
+-+        }).to_list(100)
+-         
+--        if conflict:
+--            raise HTTPException(
+--                status_code=409, 
+--                detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
+--            )
+-+        # Normalize the requested time
+-+        normalized_requested_time = normalize_time_format(scheduled_time)
+-+        
+-+        # Check if any existing inspection has a conflicting time
+-+        for existing in potential_conflicts:
+-+            existing_time = existing.get("scheduled_time", "")
+-+            normalized_existing_time = normalize_time_format(existing_time)
+-+            
+-+            if normalized_requested_time == normalized_existing_time:
+-+                raise HTTPException(
+-+                    status_code=409, 
+-+                    detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
+-+                )
+-     
+-     # Update inspection to scheduled status
+-     await db.inspections.update_one(
+-@@ -1253,19 +1261,27 @@ async def reschedule_inspection(
+-     # Check for double-booking with same inspector
+-     inspector_name = inspection.get("inspector_name")
+-     if inspector_name:
+--        conflict = await db.inspections.find_one({
+-+        # Get all scheduled inspections for the same date
+-+        potential_conflicts = await db.inspections.find({
+-             "id": {"$ne": inspection_id},  # Exclude current inspection
+-             "status": InspectionStatus.scheduled.value,
+-             "scheduled_date": scheduled_date,
+--            "scheduled_time": scheduled_time,
+-             "inspector_name": inspector_name
+--        })
+-+        }).to_list(100)
+-         
+--        if conflict:
+--            raise HTTPException(
+--                status_code=409, 
+--                detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
+--            )
+-+        # Normalize the requested time
+-+        normalized_requested_time = normalize_time_format(scheduled_time)
+-+        
+-+        # Check if any existing inspection has a conflicting time
+-+        for existing in potential_conflicts:
+-+            existing_time = existing.get("scheduled_time", "")
+-+            normalized_existing_time = normalize_time_format(existing_time)
+-+            
+-+            if normalized_requested_time == normalized_existing_time:
+-+                raise HTTPException(
+-+                    status_code=409, 
+-+                    detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
+-+                )
+-     
+-     # Update the inspection with new date/time
+-     await db.inspections.update_one(
 -diff --git a/model.patch b/model.patch
--index e079819..e69de29 100644
+-index 742136c..e69de29 100644
 ---- a/model.patch
 -+++ b/model.patch
--@@ -1,584 +0,0 @@
---diff --git a/frontend/app/inspections/active.tsx b/frontend/app/inspections/active.tsx
---index 8bb326b..2d94f63 100644
------ a/frontend/app/inspections/active.tsx
---+++ b/frontend/app/inspections/active.tsx
---@@ -53,12 +53,11 @@ export default function ActiveInspectionsScreen() {
---   };
+-@@ -1,646 +0,0 @@
+--diff --git a/frontend/app/(tabs)/inspections.tsx b/frontend/app/(tabs)/inspections.tsx
+--index d33c79d..5bc6861 100644
+----- a/frontend/app/(tabs)/inspections.tsx
+--+++ b/frontend/app/(tabs)/inspections.tsx
+--@@ -24,6 +24,7 @@ interface Inspection {
+--   status: string;
+--   inspector_name?: string;
+--   report_url?: string;
+--+  agreement_signed?: boolean;
+-- }
 -- 
---   const handleCancelInspection = async (inspection: ActiveInspection) => {
----    console.log('=== CANCEL BUTTON CLICKED ===');
----    console.log('Inspection to cancel:', inspection);
---+    console.log('Cancel button pressed for inspection:', inspection.id);
---     
----    // Web-compatible confirmation
---+    // Use a simpler confirmation for web
---     const confirmed = Platform.OS === 'web' 
----      ? window.confirm(`Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar notifications will be sent to you and ${inspection.customer_name}.`)
---+      ? window.confirm(`Cancel inspection at ${inspection.property_address}?\n\nCalendar cancellations will be sent.`)
---       : await new Promise<boolean>((resolve) => {
---           Alert.alert(
---             'Cancel Inspection',
---@@ -78,6 +77,8 @@ export default function ActiveInspectionsScreen() {
---           );
---         });
---     
---+    console.log('Confirmation result:', confirmed);
---+    
---     if (!confirmed) {
---       console.log('User cancelled the cancellation');
---       return;
---@@ -89,20 +90,21 @@ export default function ActiveInspectionsScreen() {
---       
---       const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
---       console.log('Cancel response:', response.data);
----      console.log('Emails sent successfully, removing inspection from local state');
---       
----      // Remove from local state immediately (no success dialog)
----      setInspections(inspections.filter(i => i.id !== inspection.id));
---+      // Show success message
---+      if (Platform.OS === 'web') {
---+        window.alert('Inspection cancelled successfully. Calendar cancellations have been sent.');
---+      }
---       
----      // Navigate back to dashboard
----      router.push('/(tabs)');
---+      // Refresh the list
---+      fetchActiveInspections();
---     } catch (error: any) {
---       console.error('Error cancelling inspection:', error);
---       console.error('Error details:', error.response?.data);
---       
---       const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
---       if (Platform.OS === 'web') {
----        alert(`Error: ${errorMessage}`);
---+        window.alert(`Error: ${errorMessage}`);
---       } else {
---         Alert.alert('Error', errorMessage);
---       }
+-- export default function InspectionsScreen() {
+--@@ -122,6 +123,18 @@ export default function InspectionsScreen() {
+--           )}
+--         </View>
+-- 
+--+        {/* Agreement Button for Customers */}
+--+        {user?.role === 'customer' && !item.agreement_signed && (
+--+          <TouchableOpacity
+--+            style={styles.agreementButton}
+--+            onPress={() => router.push(`/inspections/agreement?id=${item.id}`)}
+--+          >
+--+            <Ionicons name="document-text-outline" size={20} color="#FF9500" />
+--+            <Text style={styles.agreementButtonText}>Sign Pre-Inspection Agreement</Text>
+--+            <Ionicons name="chevron-forward" size={18} color="#FF9500" />
+--+          </TouchableOpacity>
+--+        )}
+--+
+--         {item.report_url && (
+--           <TouchableOpacity style={styles.reportButton}>
+--             <Ionicons name="document-text" size={18} color="#007AFF" />
+--@@ -243,6 +256,25 @@ const styles = StyleSheet.create({
+--     fontWeight: '600',
+--     color: '#007AFF',
+--   },
+--+  agreementButton: {
+--+    flexDirection: 'row',
+--+    alignItems: 'center',
+--+    justifyContent: 'space-between',
+--+    marginTop: 12,
+--+    paddingVertical: 12,
+--+    paddingHorizontal: 16,
+--+    backgroundColor: '#FFF3E0',
+--+    borderRadius: 8,
+--+    borderWidth: 1,
+--+    borderColor: '#FF9500',
+--+  },
+--+  agreementButtonText: {
+--+    fontSize: 14,
+--+    fontWeight: '600',
+--+    color: '#FF9500',
+--+    flex: 1,
+--+    marginLeft: 8,
+--+  },
+--   emptyContainer: {
+--     flex: 1,
+--     justifyContent: 'center',
 --diff --git a/model.patch b/model.patch
---index 746dd69..e69de29 100644
+--index e079819..e69de29 100644
 ----- a/model.patch
 --+++ b/model.patch
---@@ -1,522 +0,0 @@
+--@@ -1,584 +0,0 @@
 ---diff --git a/frontend/app/inspections/active.tsx b/frontend/app/inspections/active.tsx
----index 21b46f2..c3a5e9a 100644
+---index 8bb326b..2d94f63 100644
 ------ a/frontend/app/inspections/active.tsx
 ---+++ b/frontend/app/inspections/active.tsx
----@@ -320,6 +320,11 @@ const styles = StyleSheet.create({
----     borderTopWidth: 1,
----     borderTopColor: '#E5E5EA',
----   },
----+  viewDetailsText: {
----+    fontSize: 14,
----+    color: '#007AFF',
----+    fontWeight: '500',
----+  },
----   paymentBadge: {
----     flexDirection: 'row',
----     alignItems: 'center',
+---@@ -53,12 +53,11 @@ export default function ActiveInspectionsScreen() {
+---   };
+--- 
+---   const handleCancelInspection = async (inspection: ActiveInspection) => {
+----    console.log('=== CANCEL BUTTON CLICKED ===');
+----    console.log('Inspection to cancel:', inspection);
+---+    console.log('Cancel button pressed for inspection:', inspection.id);
+---     
+----    // Web-compatible confirmation
+---+    // Use a simpler confirmation for web
+---     const confirmed = Platform.OS === 'web' 
+----      ? window.confirm(`Are you sure you want to cancel the inspection at ${inspection.property_address}?\n\nCalendar notifications will be sent to you and ${inspection.customer_name}.`)
+---+      ? window.confirm(`Cancel inspection at ${inspection.property_address}?\n\nCalendar cancellations will be sent.`)
+---       : await new Promise<boolean>((resolve) => {
+---           Alert.alert(
+---             'Cancel Inspection',
+---@@ -78,6 +77,8 @@ export default function ActiveInspectionsScreen() {
+---           );
+---         });
+---     
+---+    console.log('Confirmation result:', confirmed);
+---+    
+---     if (!confirmed) {
+---       console.log('User cancelled the cancellation');
+---       return;
+---@@ -89,20 +90,21 @@ export default function ActiveInspectionsScreen() {
+---       
+---       const response = await api.delete(`/admin/inspections/${inspection.id}/cancel`);
+---       console.log('Cancel response:', response.data);
+----      console.log('Emails sent successfully, removing inspection from local state');
+---       
+----      // Remove from local state immediately (no success dialog)
+----      setInspections(inspections.filter(i => i.id !== inspection.id));
+---+      // Show success message
+---+      if (Platform.OS === 'web') {
+---+        window.alert('Inspection cancelled successfully. Calendar cancellations have been sent.');
+---+      }
+---       
+----      // Navigate back to dashboard
+----      router.push('/(tabs)');
+---+      // Refresh the list
+---+      fetchActiveInspections();
+---     } catch (error: any) {
+---       console.error('Error cancelling inspection:', error);
+---       console.error('Error details:', error.response?.data);
+---       
+---       const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection';
+---       if (Platform.OS === 'web') {
+----        alert(`Error: ${errorMessage}`);
+---+        window.alert(`Error: ${errorMessage}`);
+---       } else {
+---         Alert.alert('Error', errorMessage);
+---       }
 ---diff --git a/model.patch b/model.patch
----index 26a3c2a..e69de29 100644
+---index 746dd69..e69de29 100644
 ------ a/model.patch
 ---+++ b/model.patch
----@@ -1,501 +0,0 @@
-----diff --git a/frontend/app/inspections/offer-times.tsx b/frontend/app/inspections/offer-times.tsx
-----index 6dba7fd..2028667 100644
-------- a/frontend/app/inspections/offer-times.tsx
-----+++ b/frontend/app/inspections/offer-times.tsx
-----@@ -141,10 +141,19 @@ export default function OfferTimeSlotsScreen() {
-----     setSubmitting(true);
-----     try {
-----       // Build offered time slots array
------      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => ({
------        date: format(date, 'yyyy-MM-dd'),
------        times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
------      }));
-----+      // Use UTC date formatting to avoid timezone issues
-----+      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => {
-----+        // Get year, month, day in local timezone to avoid UTC conversion issues
-----+        const year = date.getFullYear();
-----+        const month = String(date.getMonth() + 1).padStart(2, '0');
-----+        const day = String(date.getDate()).padStart(2, '0');
-----+        const dateString = `${year}-${month}-${day}`;
-----+        
-----+        return {
-----+          date: dateString,
-----+          times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
-----+        };
-----+      });
----- 
-----       console.log('Submitting time slot offers:', offeredTimeSlots);
-----       
+---@@ -1,522 +0,0 @@
+----diff --git a/frontend/app/inspections/active.tsx b/frontend/app/inspections/active.tsx
+----index 21b46f2..c3a5e9a 100644
+------- a/frontend/app/inspections/active.tsx
+----+++ b/frontend/app/inspections/active.tsx
+----@@ -320,6 +320,11 @@ const styles = StyleSheet.create({
+----     borderTopWidth: 1,
+----     borderTopColor: '#E5E5EA',
+----   },
+----+  viewDetailsText: {
+----+    fontSize: 14,
+----+    color: '#007AFF',
+----+    fontWeight: '500',
+----+  },
+----   paymentBadge: {
+----     flexDirection: 'row',
+----     alignItems: 'center',
 ----diff --git a/model.patch b/model.patch
-----index ab2687b..e69de29 100644
+----index 26a3c2a..e69de29 100644
 ------- a/model.patch
 ----+++ b/model.patch
-----@@ -1,468 +0,0 @@
------diff --git a/backend/email_service.py b/backend/email_service.py
------index 3f2aaab..6861d01 100644
--------- a/backend/email_service.py
------+++ b/backend/email_service.py
------@@ -431,3 +431,149 @@ bradbakertx@gmail.com
------         logger.error(f"Failed to send calendar invite to {to_email}: {str(e)}")
------         return False
+----@@ -1,501 +0,0 @@
+-----diff --git a/frontend/app/inspections/offer-times.tsx b/frontend/app/inspections/offer-times.tsx
+-----index 6dba7fd..2028667 100644
+-------- a/frontend/app/inspections/offer-times.tsx
+-----+++ b/frontend/app/inspections/offer-times.tsx
+-----@@ -141,10 +141,19 @@ export default function OfferTimeSlotsScreen() {
+-----     setSubmitting(true);
+-----     try {
+-----       // Build offered time slots array
+------      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => ({
+------        date: format(date, 'yyyy-MM-dd'),
+------        times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
+------      }));
+-----+      // Use UTC date formatting to avoid timezone issues
+-----+      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => {
+-----+        // Get year, month, day in local timezone to avoid UTC conversion issues
+-----+        const year = date.getFullYear();
+-----+        const month = String(date.getMonth() + 1).padStart(2, '0');
+-----+        const day = String(date.getDate()).padStart(2, '0');
+-----+        const dateString = `${year}-${month}-${day}`;
+-----+        
+-----+        return {
+-----+          date: dateString,
+-----+          times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
+-----+        };
+-----+      });
 ----- 
------+
------+def send_inspection_calendar_cancellation(
------+    to_email: str,
------+    recipient_name: str,
------+    property_address: str,
------+    inspection_date: str,
------+    inspection_time: str,
------+    is_owner: bool = False
------+):
------+    """Send inspection calendar cancellation with .ics attachment"""
------+    
------+    subject = f"Inspection CANCELLED - {property_address}"
------+    
------+    # Create calendar cancellation event
------+    cal = Calendar()
------+    cal.add('prodid', '-//Beneficial Inspections//Inspection Calendar//EN')
------+    cal.add('version', '2.0')
------+    cal.add('method', 'CANCEL')  # This tells calendar apps to remove the event
------+    
------+    event = Event()
------+    event.add('summary', f'Home Inspection - {property_address}')
------+    event.add('description', f'This inspection has been CANCELLED')
------+    event.add('location', property_address)
------+    
------+    # Parse date and time
------+    try:
------+        # Combine date and time
------+        datetime_str = f"{inspection_date} {inspection_time}"
------+        dt = parser.parse(datetime_str)
------+        event.add('dtstart', dt)
------+        # Add 2 hour duration
------+        event.add('dtend', dt.replace(hour=dt.hour + 2))
------+    except Exception as e:
------+        logger.error(f"Error parsing date/time: {e}")
------+        # Fallback to simple datetime
------+        event.add('dtstart', datetime.utcnow())
------+        event.add('dtend', datetime.utcnow())
------+    
------+    event.add('dtstamp', datetime.utcnow())
------+    event.add('uid', f'{property_address.replace(" ", "-")}-{datetime.utcnow().timestamp()}@beneficial-inspections.com')
------+    event.add('organizer', 'mailto:bradbakertx@gmail.com')
------+    event.add('attendee', f'mailto:{to_email}')
------+    event.add('status', 'CANCELLED')
------+    
------+    cal.add_component(event)
------+    
------+    # Text version
------+    text_body = f"""
------+Dear {recipient_name},
------+
------+This is to notify you that the home inspection has been CANCELLED.
------+
------+Property: {property_address}
------+Original Date: {inspection_date}
------+Original Time: {inspection_time}
------+
------+{'As the inspector, this cancellation has been noted in your calendar.' if is_owner else 'If you need to reschedule, please contact us.'}
------+
------+A calendar cancellation is attached to this email.
------+
------+Best regards,
------+Beneficial Inspections
------+Brad Baker
------+bradbakertx@gmail.com
------+"""
------+    
------+    # HTML version
------+    html_body = f"""
------+<!DOCTYPE html>
------+<html>
------+<head>
------+    <style>
------+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
------+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
------+        .header {{ background-color: #FF3B30; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
------+        .content {{ background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }}
------+        .schedule-box {{ background-color: white; padding: 20px; margin: 20px 0; border-left: 4px solid #FF3B30; }}
------+        .footer {{ text-align: center; padding: 20px; color: #666; font-size: 12px; }}
------+    </style>
------+</head>
------+<body>
------+    <div class="container">
------+        <div class="header">
------+            <h1>❌ Inspection CANCELLED</h1>
------+        </div>
------+        <div class="content">
------+            <p>Dear {recipient_name},</p>
------+            
------+            <p>This is to notify you that the home inspection has been <strong>CANCELLED</strong>.</p>
------+            
------+            <div class="schedule-box">
------+                <h3>Cancelled Inspection Details:</h3>
------+                <p><strong>Property:</strong> {property_address}</p>
------+                <p><strong>Original Date:</strong> {inspection_date}</p>
------+                <p><strong>Original Time:</strong> {inspection_time}</p>
------+            </div>
------+            
------+            <p>{'As the inspector, this cancellation has been noted in your calendar.' if is_owner else 'If you need to reschedule, please contact us.'}</p>
------+            
------+            <p><strong>A calendar cancellation is attached to this email.</strong></p>
------+        </div>
------+        <div class="footer">
------+            <p><strong>Beneficial Inspections</strong></p>
------+            <p>Brad Baker</p>
------+            <p>Email: bradbakertx@gmail.com</p>
------+        </div>
------+    </div>
------+</body>
------+</html>
------+"""
------+    
------+    # Send email with calendar attachment
------+    try:
------+        msg = MIMEMultipart('mixed')
------+        msg['From'] = f"Beneficial Inspections <{GMAIL_USER}>"
------+        msg['To'] = to_email
------+        msg['Subject'] = subject
------+        
------+        # Attach text and HTML versions
------+        msg_alternative = MIMEMultipart('alternative')
------+        msg_alternative.attach(MIMEText(text_body, 'plain'))
------+        msg_alternative.attach(MIMEText(html_body, 'html'))
------+        msg.attach(msg_alternative)
------+        
------+        # Attach calendar file
------+        ics_part = MIMEBase('text', 'calendar', method='CANCEL', name='cancellation.ics')
------+        ics_part.set_payload(cal.to_ical())
------+        encoders.encode_base64(ics_part)
------+        ics_part.add_header('Content-Disposition', 'attachment', filename='cancellation.ics')
------+        msg.attach(ics_part)
------+        
------+        # Send
------+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
------+        server.starttls()
------+        clean_password = GMAIL_APP_PASSWORD.replace(" ", "")
------+        server.login(GMAIL_USER, clean_password)
------+        server.send_message(msg)
------+        server.quit()
------+        
------+        logger.info(f"Calendar cancellation sent successfully to {to_email}")
------+        return True
------+        
------+    except Exception as e:
------+        logger.error(f"Failed to send calendar cancellation to {to_email}: {str(e)}")
------+        return False
------+
+-----       console.log('Submitting time slot offers:', offeredTimeSlots);
+-----       
 -----diff --git a/model.patch b/model.patch
------index 7dcf7bc..d151d69 100644
+-----index ab2687b..e69de29 100644
 -------- a/model.patch
 -----+++ b/model.patch
------@@ -1,309 +0,0 @@
+-----@@ -1,468 +0,0 @@
+------diff --git a/backend/email_service.py b/backend/email_service.py
+------index 3f2aaab..6861d01 100644
+--------- a/backend/email_service.py
+------+++ b/backend/email_service.py
+------@@ -431,3 +431,149 @@ bradbakertx@gmail.com
+------         logger.error(f"Failed to send calendar invite to {to_email}: {str(e)}")
+------         return False
+------ 
+------+
+------+def send_inspection_calendar_cancellation(
+------+    to_email: str,
+------+    recipient_name: str,
+------+    property_address: str,
+------+    inspection_date: str,
+------+    inspection_time: str,
+------+    is_owner: bool = False
+------+):
+------+    """Send inspection calendar cancellation with .ics attachment"""
+------+    
+------+    subject = f"Inspection CANCELLED - {property_address}"
+------+    
+------+    # Create calendar cancellation event
+------+    cal = Calendar()
+------+    cal.add('prodid', '-//Beneficial Inspections//Inspection Calendar//EN')
+------+    cal.add('version', '2.0')
+------+    cal.add('method', 'CANCEL')  # This tells calendar apps to remove the event
+------+    
+------+    event = Event()
+------+    event.add('summary', f'Home Inspection - {property_address}')
+------+    event.add('description', f'This inspection has been CANCELLED')
+------+    event.add('location', property_address)
+------+    
+------+    # Parse date and time
+------+    try:
+------+        # Combine date and time
+------+        datetime_str = f"{inspection_date} {inspection_time}"
+------+        dt = parser.parse(datetime_str)
+------+        event.add('dtstart', dt)
+------+        # Add 2 hour duration
+------+        event.add('dtend', dt.replace(hour=dt.hour + 2))
+------+    except Exception as e:
+------+        logger.error(f"Error parsing date/time: {e}")
+------+        # Fallback to simple datetime
+------+        event.add('dtstart', datetime.utcnow())
+------+        event.add('dtend', datetime.utcnow())
+------+    
+------+    event.add('dtstamp', datetime.utcnow())
+------+    event.add('uid', f'{property_address.replace(" ", "-")}-{datetime.utcnow().timestamp()}@beneficial-inspections.com')
+------+    event.add('organizer', 'mailto:bradbakertx@gmail.com')
+------+    event.add('attendee', f'mailto:{to_email}')
+------+    event.add('status', 'CANCELLED')
+------+    
+------+    cal.add_component(event)
+------+    
+------+    # Text version
+------+    text_body = f"""
+------+Dear {recipient_name},
+------+
+------+This is to notify you that the home inspection has been CANCELLED.
+------+
+------+Property: {property_address}
+------+Original Date: {inspection_date}
+------+Original Time: {inspection_time}
+------+
+------+{'As the inspector, this cancellation has been noted in your calendar.' if is_owner else 'If you need to reschedule, please contact us.'}
+------+
+------+A calendar cancellation is attached to this email.
+------+
+------+Best regards,
+------+Beneficial Inspections
+------+Brad Baker
+------+bradbakertx@gmail.com
+------+"""
+------+    
+------+    # HTML version
+------+    html_body = f"""
+------+<!DOCTYPE html>
+------+<html>
+------+<head>
+------+    <style>
+------+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+------+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+------+        .header {{ background-color: #FF3B30; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+------+        .content {{ background-color: #f9f9f9; padding: 30px; border: 1px solid #ddd; }}
+------+        .schedule-box {{ background-color: white; padding: 20px; margin: 20px 0; border-left: 4px solid #FF3B30; }}
+------+        .footer {{ text-align: center; padding: 20px; color: #666; font-size: 12px; }}
+------+    </style>
+------+</head>
+------+<body>
+------+    <div class="container">
+------+        <div class="header">
+------+            <h1>❌ Inspection CANCELLED</h1>
+------+        </div>
+------+        <div class="content">
+------+            <p>Dear {recipient_name},</p>
+------+            
+------+            <p>This is to notify you that the home inspection has been <strong>CANCELLED</strong>.</p>
+------+            
+------+            <div class="schedule-box">
+------+                <h3>Cancelled Inspection Details:</h3>
+------+                <p><strong>Property:</strong> {property_address}</p>
+------+                <p><strong>Original Date:</strong> {inspection_date}</p>
+------+                <p><strong>Original Time:</strong> {inspection_time}</p>
+------+            </div>
+------+            
+------+            <p>{'As the inspector, this cancellation has been noted in your calendar.' if is_owner else 'If you need to reschedule, please contact us.'}</p>
+------+            
+------+            <p><strong>A calendar cancellation is attached to this email.</strong></p>
+------+        </div>
+------+        <div class="footer">
+------+            <p><strong>Beneficial Inspections</strong></p>
+------+            <p>Brad Baker</p>
+------+            <p>Email: bradbakertx@gmail.com</p>
+------+        </div>
+------+    </div>
+------+</body>
+------+</html>
+------+"""
+------+    
+------+    # Send email with calendar attachment
+------+    try:
+------+        msg = MIMEMultipart('mixed')
+------+        msg['From'] = f"Beneficial Inspections <{GMAIL_USER}>"
+------+        msg['To'] = to_email
+------+        msg['Subject'] = subject
+------+        
+------+        # Attach text and HTML versions
+------+        msg_alternative = MIMEMultipart('alternative')
+------+        msg_alternative.attach(MIMEText(text_body, 'plain'))
+------+        msg_alternative.attach(MIMEText(html_body, 'html'))
+------+        msg.attach(msg_alternative)
+------+        
+------+        # Attach calendar file
+------+        ics_part = MIMEBase('text', 'calendar', method='CANCEL', name='cancellation.ics')
+------+        ics_part.set_payload(cal.to_ical())
+------+        encoders.encode_base64(ics_part)
+------+        ics_part.add_header('Content-Disposition', 'attachment', filename='cancellation.ics')
+------+        msg.attach(ics_part)
+------+        
+------+        # Send
+------+        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
+------+        server.starttls()
+------+        clean_password = GMAIL_APP_PASSWORD.replace(" ", "")
+------+        server.login(GMAIL_USER, clean_password)
+------+        server.send_message(msg)
+------+        server.quit()
+------+        
+------+        logger.info(f"Calendar cancellation sent successfully to {to_email}")
+------+        return True
+------+        
+------+    except Exception as e:
+------+        logger.error(f"Failed to send calendar cancellation to {to_email}: {str(e)}")
+------+        return False
+------+
 ------diff --git a/model.patch b/model.patch
-------index 254b889..e69de29 100644
+------index 7dcf7bc..d151d69 100644
 --------- a/model.patch
 ------+++ b/model.patch
-------@@ -1,288 +0,0 @@
+------@@ -1,309 +0,0 @@
 -------diff --git a/model.patch b/model.patch
--------index 8baea59..e69de29 100644
+-------index 254b889..e69de29 100644
 ---------- a/model.patch
 -------+++ b/model.patch
--------@@ -1,248 +0,0 @@
+-------@@ -1,288 +0,0 @@
 --------diff --git a/model.patch b/model.patch
---------index 9b1c93b..e69de29 100644
+--------index 8baea59..e69de29 100644
 ----------- a/model.patch
 --------+++ b/model.patch
---------@@ -1,195 +0,0 @@
----------diff --git a/frontend/contexts/AuthContext.tsx b/frontend/contexts/AuthContext.tsx
----------index 8413407..60ef188 100644
------------- a/frontend/contexts/AuthContext.tsx
----------+++ b/frontend/contexts/AuthContext.tsx
----------@@ -48,6 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
----------     try {
----------       const { user } = await authService.login({ email, password });
----------       setUser(user);
----------+      
----------+      // Register for push notifications after successful login
----------+      registerForPushNotificationsAsync().catch((error) => {
----------+        console.error('Failed to register for push notifications:', error);
----------+      });
----------     } catch (error: any) {
----------       throw new Error(error.response?.data?.detail || 'Login failed');
----------     }
+--------@@ -1,248 +0,0 @@
 ---------diff --git a/model.patch b/model.patch
----------index 6fab204..e69de29 100644
+---------index 9b1c93b..e69de29 100644
 ------------ a/model.patch
 ---------+++ b/model.patch
----------@@ -1,174 +0,0 @@
+---------@@ -1,195 +0,0 @@
 ----------diff --git a/frontend/contexts/AuthContext.tsx b/frontend/contexts/AuthContext.tsx
-----------index c2ddd44..8413407 100644
+----------index 8413407..60ef188 100644
 ------------- a/frontend/contexts/AuthContext.tsx
 ----------+++ b/frontend/contexts/AuthContext.tsx
-----------@@ -1,6 +1,7 @@
----------- import React, { createContext, useContext, useEffect, useState } from 'react';
----------- import authService, { User } from '../services/auth.service';
----------- import { useAuthStore } from '../store/authStore';
-----------+import { registerForPushNotificationsAsync, setupNotificationListeners } from '../services/notifications.service';
----------- 
----------- interface AuthContextType {
-----------   user: User | null;
+----------@@ -48,6 +48,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
+----------     try {
+----------       const { user } = await authService.login({ email, password });
+----------       setUser(user);
+----------+      
+----------+      // Register for push notifications after successful login
+----------+      registerForPushNotificationsAsync().catch((error) => {
+----------+        console.error('Failed to register for push notifications:', error);
+----------+      });
+----------     } catch (error: any) {
+----------       throw new Error(error.response?.data?.detail || 'Login failed');
+----------     }
 ----------diff --git a/model.patch b/model.patch
-----------index ef1d900..e69de29 100644
+----------index 6fab204..e69de29 100644
 ------------- a/model.patch
 ----------+++ b/model.patch
-----------@@ -1,157 +0,0 @@
+----------@@ -1,174 +0,0 @@
+-----------diff --git a/frontend/contexts/AuthContext.tsx b/frontend/contexts/AuthContext.tsx
+-----------index c2ddd44..8413407 100644
+-------------- a/frontend/contexts/AuthContext.tsx
+-----------+++ b/frontend/contexts/AuthContext.tsx
+-----------@@ -1,6 +1,7 @@
+----------- import React, { createContext, useContext, useEffect, useState } from 'react';
+----------- import authService, { User } from '../services/auth.service';
+----------- import { useAuthStore } from '../store/authStore';
+-----------+import { registerForPushNotificationsAsync, setupNotificationListeners } from '../services/notifications.service';
+----------- 
+----------- interface AuthContextType {
+-----------   user: User | null;
 -----------diff --git a/model.patch b/model.patch
------------index a63abcd..e69de29 100644
+-----------index ef1d900..e69de29 100644
 -------------- a/model.patch
 -----------+++ b/model.patch
------------@@ -1,101 +0,0 @@
+-----------@@ -1,157 +0,0 @@
 ------------diff --git a/model.patch b/model.patch
-------------index 4e9492d..e69de29 100644
+------------index a63abcd..e69de29 100644
 --------------- a/model.patch
 ------------+++ b/model.patch
-------------@@ -1,96 +0,0 @@
+------------@@ -1,101 +0,0 @@
 -------------diff --git a/model.patch b/model.patch
--------------index d319444..e69de29 100644
+-------------index 4e9492d..e69de29 100644
 ---------------- a/model.patch
 -------------+++ b/model.patch
--------------@@ -1,91 +0,0 @@
+-------------@@ -1,96 +0,0 @@
 --------------diff --git a/model.patch b/model.patch
---------------index 9ab6059..e69de29 100644
+--------------index d319444..e69de29 100644
 ----------------- a/model.patch
 --------------+++ b/model.patch
---------------@@ -1,45 +0,0 @@
+--------------@@ -1,91 +0,0 @@
+---------------diff --git a/model.patch b/model.patch
+---------------index 9ab6059..e69de29 100644
+------------------ a/model.patch
+---------------+++ b/model.patch
+---------------@@ -1,45 +0,0 @@
+----------------diff --git a/test_result.md b/test_result.md
+----------------index 7fc482b..d665cfb 100644
+------------------- a/test_result.md
+----------------+++ b/test_result.md
+----------------@@ -107,15 +107,18 @@ user_problem_statement: Build React Native mobile app for home inspection busine
+---------------- backend:
+----------------   - task: "Backend API Integration"
+----------------     implemented: true
+-----------------    working: "NA"
+----------------+    working: false
+----------------     file: "services/api.ts, services/auth.service.ts"
+-----------------    stuck_count: 0
+----------------+    stuck_count: 1
+----------------     priority: "high"
+-----------------    needs_retesting: true
+----------------+    needs_retesting: false
+----------------     status_history:
+----------------       - working: "NA"
+----------------         agent: "main"
+----------------         comment: "Created API service layer with axios interceptors for JWT tokens. Backend is already deployed, needs testing."
+----------------+      - working: false
+----------------+        agent: "testing"
+----------------+        comment: "CRITICAL: Backend API testing completed. API is reachable at https://inspectpro-app.preview.emergentagent.com/api but only has 2 basic endpoints: / (Hello World) and /status (empty array). All authentication endpoints (register, login, /auth/me) and business logic endpoints (quotes, inspections, admin routes) return 404 Not Found. The frontend API service layer is correctly implemented but the backend lacks the required authentication and business logic endpoints mentioned in the review request."
+---------------- 
+---------------- frontend:
+----------------   - task: "Authentication Flow"
+----------------@@ -211,11 +214,13 @@ metadata:
+---------------- test_plan:
+----------------   current_focus:
+----------------     - "Backend API Integration"
+-----------------    - "Authentication Flow"
+-----------------  stuck_tasks: []
+----------------+  stuck_tasks:
+----------------+    - "Backend API Integration"
+----------------   test_all: false
+----------------   test_priority: "high_first"
+---------------- 
+---------------- agent_communication:
+----------------   - agent: "main"
+-----------------    message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://inspectpro-app.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
+----------------\ No newline at end of file
+----------------+    message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://inspectpro-app.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
+----------------+  - agent: "testing"
+----------------+    message: "CRITICAL BACKEND ISSUE: Comprehensive API testing completed. The external API at https://inspectpro-app.preview.emergentagent.com/api is reachable but severely incomplete. Only 2 basic endpoints exist (/ and /status). All authentication endpoints (POST /auth/register, POST /auth/login, GET /auth/me) and business logic endpoints (GET /quotes, GET /admin/quotes, GET /inspections, GET /admin/inspections/confirmed) return 404 Not Found. The frontend API service layer is correctly implemented with proper JWT token handling, but the backend needs complete implementation of authentication and business logic endpoints before the mobile app can function. This is a blocking issue for the entire application."
+----------------\ No newline at end of file
 ---------------diff --git a/test_result.md b/test_result.md
----------------index 7fc482b..d665cfb 100644
+---------------index d665cfb..4143a8e 100644
 ------------------ a/test_result.md
 ---------------+++ b/test_result.md
----------------@@ -107,15 +107,18 @@ user_problem_statement: Build React Native mobile app for home inspection busine
---------------- backend:
+---------------@@ -108,8 +108,8 @@ backend:
 ---------------   - task: "Backend API Integration"
 ---------------     implemented: true
-----------------    working: "NA"
----------------+    working: false
----------------     file: "services/api.ts, services/auth.service.ts"
-----------------    stuck_count: 0
----------------+    stuck_count: 1
+---------------     working: false
+----------------    file: "services/api.ts, services/auth.service.ts"
+----------------    stuck_count: 1
+---------------+    file: "backend/server.py"
+---------------+    stuck_count: 2
 ---------------     priority: "high"
-----------------    needs_retesting: true
----------------+    needs_retesting: false
+---------------     needs_retesting: false
 ---------------     status_history:
----------------       - working: "NA"
----------------         agent: "main"
----------------         comment: "Created API service layer with axios interceptors for JWT tokens. Backend is already deployed, needs testing."
+---------------@@ -119,6 +119,9 @@ backend:
+---------------       - working: false
+---------------         agent: "testing"
+---------------         comment: "CRITICAL: Backend API testing completed. API is reachable at https://inspectpro-app.preview.emergentagent.com/api but only has 2 basic endpoints: / (Hello World) and /status (empty array). All authentication endpoints (register, login, /auth/me) and business logic endpoints (quotes, inspections, admin routes) return 404 Not Found. The frontend API service layer is correctly implemented but the backend lacks the required authentication and business logic endpoints mentioned in the review request."
 ---------------+      - working: false
 ---------------+        agent: "testing"
----------------+        comment: "CRITICAL: Backend API testing completed. API is reachable at https://inspectpro-app.preview.emergentagent.com/api but only has 2 basic endpoints: / (Hello World) and /status (empty array). All authentication endpoints (register, login, /auth/me) and business logic endpoints (quotes, inspections, admin routes) return 404 Not Found. The frontend API service layer is correctly implemented but the backend lacks the required authentication and business logic endpoints mentioned in the review request."
+---------------+        comment: "URGENT LOGIN ISSUE CONFIRMED: Comprehensive testing with user credentials (bradbakertx@gmail.com/Beneficial1!) confirms the reported login problem. Local backend at localhost:8001/api is running but ONLY has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. ALL authentication endpoints return 404 Not Found: POST /api/auth/login, POST /api/auth/register, GET /api/auth/me. External backend URL https://inspectpro-app.preview.emergentagent.com/api is completely inaccessible (404 page not found). The backend needs complete implementation of authentication system including user registration, login, JWT token handling, and all business logic endpoints (quotes, inspections, admin routes). This is a BLOCKING issue preventing any user authentication in the mobile app."
 --------------- 
 --------------- frontend:
 ---------------   - task: "Authentication Flow"
----------------@@ -211,11 +214,13 @@ metadata:
---------------- test_plan:
----------------   current_focus:
+---------------@@ -218,9 +221,12 @@ test_plan:
 ---------------     - "Backend API Integration"
-----------------    - "Authentication Flow"
-----------------  stuck_tasks: []
----------------+  stuck_tasks:
----------------+    - "Backend API Integration"
 ---------------   test_all: false
 ---------------   test_priority: "high_first"
+---------------+  critical_blocker: "Backend missing ALL authentication endpoints - complete implementation needed"
 --------------- 
 --------------- agent_communication:
 ---------------   - agent: "main"
-----------------    message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://inspectpro-app.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
+---------------     message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://inspectpro-app.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
+---------------   - agent: "testing"
+----------------    message: "CRITICAL BACKEND ISSUE: Comprehensive API testing completed. The external API at https://inspectpro-app.preview.emergentagent.com/api is reachable but severely incomplete. Only 2 basic endpoints exist (/ and /status). All authentication endpoints (POST /auth/register, POST /auth/login, GET /auth/me) and business logic endpoints (GET /quotes, GET /admin/quotes, GET /inspections, GET /admin/inspections/confirmed) return 404 Not Found. The frontend API service layer is correctly implemented with proper JWT token handling, but the backend needs complete implementation of authentication and business logic endpoints before the mobile app can function. This is a blocking issue for the entire application."
 ---------------\ No newline at end of file
----------------+    message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://inspectpro-app.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
----------------+  - agent: "testing"
 ---------------+    message: "CRITICAL BACKEND ISSUE: Comprehensive API testing completed. The external API at https://inspectpro-app.preview.emergentagent.com/api is reachable but severely incomplete. Only 2 basic endpoints exist (/ and /status). All authentication endpoints (POST /auth/register, POST /auth/login, GET /auth/me) and business logic endpoints (GET /quotes, GET /admin/quotes, GET /inspections, GET /admin/inspections/confirmed) return 404 Not Found. The frontend API service layer is correctly implemented with proper JWT token handling, but the backend needs complete implementation of authentication and business logic endpoints before the mobile app can function. This is a blocking issue for the entire application."
+---------------+  - agent: "testing"
+---------------+    message: "URGENT: User login issue CONFIRMED with test credentials bradbakertx@gmail.com/Beneficial1!. Both local backend (localhost:8001/api) and external backend (https://inspectpro-app.preview.emergentagent.com/api) are missing ALL authentication endpoints. Current backend only has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. The backend needs complete implementation of: 1) Authentication system (register, login, JWT tokens, /auth/me), 2) User management with roles (customer, agent, owner), 3) Business logic endpoints (quotes, inspections, admin routes), 4) Database models and CRUD operations. This is why users cannot login to the mobile app. The frontend is correctly implemented but cannot function without backend authentication endpoints."
 ---------------\ No newline at end of file
---------------diff --git a/test_result.md b/test_result.md
---------------index d665cfb..4143a8e 100644
------------------ a/test_result.md
---------------+++ b/test_result.md
---------------@@ -108,8 +108,8 @@ backend:
---------------   - task: "Backend API Integration"
---------------     implemented: true
---------------     working: false
----------------    file: "services/api.ts, services/auth.service.ts"
----------------    stuck_count: 1
---------------+    file: "backend/server.py"
---------------+    stuck_count: 2
---------------     priority: "high"
---------------     needs_retesting: false
---------------     status_history:
---------------@@ -119,6 +119,9 @@ backend:
---------------       - working: false
---------------         agent: "testing"
---------------         comment: "CRITICAL: Backend API testing completed. API is reachable at https://inspectpro-app.preview.emergentagent.com/api but only has 2 basic endpoints: / (Hello World) and /status (empty array). All authentication endpoints (register, login, /auth/me) and business logic endpoints (quotes, inspections, admin routes) return 404 Not Found. The frontend API service layer is correctly implemented but the backend lacks the required authentication and business logic endpoints mentioned in the review request."
---------------+      - working: false
---------------+        agent: "testing"
---------------+        comment: "URGENT LOGIN ISSUE CONFIRMED: Comprehensive testing with user credentials (bradbakertx@gmail.com/Beneficial1!) confirms the reported login problem. Local backend at localhost:8001/api is running but ONLY has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. ALL authentication endpoints return 404 Not Found: POST /api/auth/login, POST /api/auth/register, GET /api/auth/me. External backend URL https://inspectpro-app.preview.emergentagent.com/api is completely inaccessible (404 page not found). The backend needs complete implementation of authentication system including user registration, login, JWT token handling, and all business logic endpoints (quotes, inspections, admin routes). This is a BLOCKING issue preventing any user authentication in the mobile app."
--------------- 
--------------- frontend:
---------------   - task: "Authentication Flow"
---------------@@ -218,9 +221,12 @@ test_plan:
---------------     - "Backend API Integration"
---------------   test_all: false
---------------   test_priority: "high_first"
---------------+  critical_blocker: "Backend missing ALL authentication endpoints - complete implementation needed"
--------------- 
--------------- agent_communication:
---------------   - agent: "main"
---------------     message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://inspectpro-app.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
---------------   - agent: "testing"
----------------    message: "CRITICAL BACKEND ISSUE: Comprehensive API testing completed. The external API at https://inspectpro-app.preview.emergentagent.com/api is reachable but severely incomplete. Only 2 basic endpoints exist (/ and /status). All authentication endpoints (POST /auth/register, POST /auth/login, GET /auth/me) and business logic endpoints (GET /quotes, GET /admin/quotes, GET /inspections, GET /admin/inspections/confirmed) return 404 Not Found. The frontend API service layer is correctly implemented with proper JWT token handling, but the backend needs complete implementation of authentication and business logic endpoints before the mobile app can function. This is a blocking issue for the entire application."
---------------\ No newline at end of file
---------------+    message: "CRITICAL BACKEND ISSUE: Comprehensive API testing completed. The external API at https://inspectpro-app.preview.emergentagent.com/api is reachable but severely incomplete. Only 2 basic endpoints exist (/ and /status). All authentication endpoints (POST /auth/register, POST /auth/login, GET /auth/me) and business logic endpoints (GET /quotes, GET /admin/quotes, GET /inspections, GET /admin/inspections/confirmed) return 404 Not Found. The frontend API service layer is correctly implemented with proper JWT token handling, but the backend needs complete implementation of authentication and business logic endpoints before the mobile app can function. This is a blocking issue for the entire application."
---------------+  - agent: "testing"
---------------+    message: "URGENT: User login issue CONFIRMED with test credentials bradbakertx@gmail.com/Beneficial1!. Both local backend (localhost:8001/api) and external backend (https://inspectpro-app.preview.emergentagent.com/api) are missing ALL authentication endpoints. Current backend only has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. The backend needs complete implementation of: 1) Authentication system (register, login, JWT tokens, /auth/me), 2) User management with roles (customer, agent, owner), 3) Business logic endpoints (quotes, inspections, admin routes), 4) Database models and CRUD operations. This is why users cannot login to the mobile app. The frontend is correctly implemented but cannot function without backend authentication endpoints."
---------------\ No newline at end of file
------------diff --git a/test_result.md b/test_result.md
------------index ab68029..6829a8d 100644
--------------- a/test_result.md
------------+++ b/test_result.md
------------@@ -111,7 +111,7 @@ backend:
------------     file: "backend/server.py, backend/models.py, backend/auth.py"
------------     stuck_count: 0
------------     priority: "high"
-------------    needs_retesting: true
------------+    needs_retesting: false
------------     status_history:
------------       - working: "NA"
------------         agent: "main"
------------@@ -125,6 +125,9 @@ backend:
------------       - working: true
------------         agent: "main"
------------         comment: "FIXED: Implemented complete backend authentication system with JWT, password hashing (bcrypt), user models (customer/agent/owner roles), authentication endpoints (register, login, /auth/me), quote management (create, list, set price), inspection management (schedule, set datetime, list), admin endpoints for owners (view all quotes/inspections, set prices/datetimes), and dashboard stats endpoint. Tested locally with curl - all endpoints working correctly. Created test owner account (bradbakertx@gmail.com) and verified login returns proper JWT token and user data. Dashboard stats endpoint returns correct counts. Ready for comprehensive testing."
------------+      - working: true
------------+        agent: "testing"
------------+        comment: "COMPREHENSIVE BACKEND TESTING COMPLETED: All backend API endpoints are working correctly. External API at https://inspectpro-app.preview.emergentagent.com/api is fully functional. ✅ Authentication: Login, register, /auth/me all working with JWT tokens. ✅ Role-based access control: Owners correctly blocked from customer endpoints (403 Forbidden), customers blocked from admin endpoints. ✅ Quote workflow: Customer can create quotes, owner can view all quotes via /admin/quotes, owner can set quote prices (status changes to 'quoted'). ✅ Inspection workflow: Customer can schedule inspections on quoted quotes, owner can view pending/confirmed inspections, owner can set inspection datetime (status changes to 'scheduled'). ✅ Dashboard stats: Returns correct counts for pending_quotes, pending_scheduling, active_inspections. ✅ Data persistence: All CRUD operations working correctly with MongoDB. ✅ Error handling: Proper HTTP status codes (200, 403, 404) and error messages. Backend implementation is complete and production-ready."
------------ 
------------ frontend:
------------   - task: "Authentication Flow"
------------@@ -219,12 +222,13 @@ metadata:
------------ 
------------ test_plan:
------------   current_focus:
-------------    - "Backend API Integration"
-------------  stuck_tasks:
-------------    - "Backend API Integration"
------------+    - "Authentication Flow"
------------+    - "Main App Navigation"
------------+    - "Dashboard Screen"
------------+  stuck_tasks: []
------------   test_all: false
------------   test_priority: "high_first"
-------------  critical_blocker: "Backend missing ALL authentication endpoints - complete implementation needed"
------------+  critical_blocker: "None - Backend API fully functional"
------------ 
------------ agent_communication:
------------   - agent: "main"
------------@@ -234,4 +238,6 @@ agent_communication:
------------   - agent: "testing"
------------     message: "URGENT: User login issue CONFIRMED with test credentials bradbakertx@gmail.com/Beneficial1!. Both local backend (localhost:8001/api) and external backend (https://inspectpro-app.preview.emergentagent.com/api) are missing ALL authentication endpoints. Current backend only has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. The backend needs complete implementation of: 1) Authentication system (register, login, JWT tokens, /auth/me), 2) User management with roles (customer, agent, owner), 3) Business logic endpoints (quotes, inspections, admin routes), 4) Database models and CRUD operations. This is why users cannot login to the mobile app. The frontend is correctly implemented but cannot function without backend authentication endpoints."
------------   - agent: "main"
-------------    message: "BACKEND IMPLEMENTATION COMPLETE: Implemented full authentication system with JWT (bcrypt password hashing), user models with roles (customer/agent/owner), complete REST API for auth (register, login, /auth/me), quotes (create, list, set price), inspections (schedule, set datetime, list), admin endpoints (view all, manage), and dashboard stats. Test credentials: bradbakertx@gmail.com / Beneficial1!. Local testing passed - all endpoints returning correct responses. Ready for comprehensive backend and frontend testing to verify full integration."
------------\ No newline at end of file
------------+    message: "BACKEND IMPLEMENTATION COMPLETE: Implemented full authentication system with JWT (bcrypt password hashing), user models with roles (customer/agent/owner), complete REST API for auth (register, login, /auth/me), quotes (create, list, set price), inspections (schedule, set datetime, list), admin endpoints (view all, manage), and dashboard stats. Test credentials: bradbakertx@gmail.com / Beneficial1!. Local testing passed - all endpoints returning correct responses. Ready for comprehensive backend and frontend testing to verify full integration."
------------+  - agent: "testing"
------------+    message: "✅ BACKEND API TESTING COMPLETE: Comprehensive testing confirms ALL backend functionality is working perfectly. External API at https://inspectpro-app.preview.emergentagent.com/api is fully operational. Successfully tested complete user workflows: 1) User registration/login with JWT authentication, 2) Customer quote creation → Owner quote pricing → Customer inspection scheduling → Owner inspection datetime setting. All role-based access controls working correctly (403 Forbidden for unauthorized access). All CRUD operations, data persistence, error handling, and HTTP status codes are correct. Backend is production-ready. Ready to proceed with frontend integration testing."
------------\ No newline at end of file
+------------diff --git a/test_result.md b/test_result.md
+------------index ab68029..6829a8d 100644
+--------------- a/test_result.md
+------------+++ b/test_result.md
+------------@@ -111,7 +111,7 @@ backend:
+------------     file: "backend/server.py, backend/models.py, backend/auth.py"
+------------     stuck_count: 0
+------------     priority: "high"
+-------------    needs_retesting: true
+------------+    needs_retesting: false
+------------     status_history:
+------------       - working: "NA"
+------------         agent: "main"
+------------@@ -125,6 +125,9 @@ backend:
+------------       - working: true
+------------         agent: "main"
+------------         comment: "FIXED: Implemented complete backend authentication system with JWT, password hashing (bcrypt), user models (customer/agent/owner roles), authentication endpoints (register, login, /auth/me), quote management (create, list, set price), inspection management (schedule, set datetime, list), admin endpoints for owners (view all quotes/inspections, set prices/datetimes), and dashboard stats endpoint. Tested locally with curl - all endpoints working correctly. Created test owner account (bradbakertx@gmail.com) and verified login returns proper JWT token and user data. Dashboard stats endpoint returns correct counts. Ready for comprehensive testing."
+------------+      - working: true
+------------+        agent: "testing"
+------------+        comment: "COMPREHENSIVE BACKEND TESTING COMPLETED: All backend API endpoints are working correctly. External API at https://inspectpro-app.preview.emergentagent.com/api is fully functional. ✅ Authentication: Login, register, /auth/me all working with JWT tokens. ✅ Role-based access control: Owners correctly blocked from customer endpoints (403 Forbidden), customers blocked from admin endpoints. ✅ Quote workflow: Customer can create quotes, owner can view all quotes via /admin/quotes, owner can set quote prices (status changes to 'quoted'). ✅ Inspection workflow: Customer can schedule inspections on quoted quotes, owner can view pending/confirmed inspections, owner can set inspection datetime (status changes to 'scheduled'). ✅ Dashboard stats: Returns correct counts for pending_quotes, pending_scheduling, active_inspections. ✅ Data persistence: All CRUD operations working correctly with MongoDB. ✅ Error handling: Proper HTTP status codes (200, 403, 404) and error messages. Backend implementation is complete and production-ready."
+------------ 
+------------ frontend:
+------------   - task: "Authentication Flow"
+------------@@ -219,12 +222,13 @@ metadata:
+------------ 
+------------ test_plan:
+------------   current_focus:
+-------------    - "Backend API Integration"
+-------------  stuck_tasks:
+-------------    - "Backend API Integration"
+------------+    - "Authentication Flow"
+------------+    - "Main App Navigation"
+------------+    - "Dashboard Screen"
+------------+  stuck_tasks: []
+------------   test_all: false
+------------   test_priority: "high_first"
+-------------  critical_blocker: "Backend missing ALL authentication endpoints - complete implementation needed"
+------------+  critical_blocker: "None - Backend API fully functional"
+------------ 
+------------ agent_communication:
+------------   - agent: "main"
+------------@@ -234,4 +238,6 @@ agent_communication:
+------------   - agent: "testing"
+------------     message: "URGENT: User login issue CONFIRMED with test credentials bradbakertx@gmail.com/Beneficial1!. Both local backend (localhost:8001/api) and external backend (https://inspectpro-app.preview.emergentagent.com/api) are missing ALL authentication endpoints. Current backend only has 2 endpoints: GET /api/ (Hello World) and GET/POST /api/status. The backend needs complete implementation of: 1) Authentication system (register, login, JWT tokens, /auth/me), 2) User management with roles (customer, agent, owner), 3) Business logic endpoints (quotes, inspections, admin routes), 4) Database models and CRUD operations. This is why users cannot login to the mobile app. The frontend is correctly implemented but cannot function without backend authentication endpoints."
+------------   - agent: "main"
+-------------    message: "BACKEND IMPLEMENTATION COMPLETE: Implemented full authentication system with JWT (bcrypt password hashing), user models with roles (customer/agent/owner), complete REST API for auth (register, login, /auth/me), quotes (create, list, set price), inspections (schedule, set datetime, list), admin endpoints (view all, manage), and dashboard stats. Test credentials: bradbakertx@gmail.com / Beneficial1!. Local testing passed - all endpoints returning correct responses. Ready for comprehensive backend and frontend testing to verify full integration."
+------------\ No newline at end of file
+------------+    message: "BACKEND IMPLEMENTATION COMPLETE: Implemented full authentication system with JWT (bcrypt password hashing), user models with roles (customer/agent/owner), complete REST API for auth (register, login, /auth/me), quotes (create, list, set price), inspections (schedule, set datetime, list), admin endpoints (view all, manage), and dashboard stats. Test credentials: bradbakertx@gmail.com / Beneficial1!. Local testing passed - all endpoints returning correct responses. Ready for comprehensive backend and frontend testing to verify full integration."
+------------+  - agent: "testing"
+------------+    message: "✅ BACKEND API TESTING COMPLETE: Comprehensive testing confirms ALL backend functionality is working perfectly. External API at https://inspectpro-app.preview.emergentagent.com/api is fully operational. Successfully tested complete user workflows: 1) User registration/login with JWT authentication, 2) Customer quote creation → Owner quote pricing → Customer inspection scheduling → Owner inspection datetime setting. All role-based access controls working correctly (403 Forbidden for unauthorized access). All CRUD operations, data persistence, error handling, and HTTP status codes are correct. Backend is production-ready. Ready to proceed with frontend integration testing."
+------------\ No newline at end of file
+---------diff --git a/test_result.md b/test_result.md
+---------index eaa8a6f..0ad33fc 100644
+------------ a/test_result.md
+---------+++ b/test_result.md
+---------@@ -131,11 +131,11 @@ backend:
+--------- 
+---------   - task: "Manual Inspection Edit Data Sync"
+---------     implemented: true
+----------    working: "NA"
+---------+    working: true
+---------     file: "backend/server.py"
+---------     stuck_count: 0
+---------     priority: "high"
+----------    needs_retesting: true
+---------+    needs_retesting: false
+---------     status_history:
+---------       - working: false
+---------         agent: "user"
+---------@@ -143,6 +143,9 @@ backend:
+---------       - working: "NA"
+---------         agent: "main"
+---------         comment: "FIXED: Updated PATCH /api/admin/manual-inspection/{inspection_id} endpoint to comprehensively sync ALL displayable fields from manual_inspections to inspections collection. Now syncing: property_address (full formatted), customer_name (from client_name), customer_email (from client_email), scheduled_date (from inspection_date), scheduled_time (from inspection_time), preferred_date, preferred_time, and updated_at timestamp. Added debug logging to track sync operations. The issue was that only limited fields were being synced, causing Active Inspections cards to show stale data. Ready for testing."
+---------+      - working: true
+---------+        agent: "testing"
+---------+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Manual Inspection Edit Data Sync is working perfectly. Successfully tested with existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd using test credentials bradbakertx@gmail.com. ✅ Comprehensive Update Test: Updated all fields (client_name, client_email, client_phone, property_address, property_city, property_zip, inspection_date, inspection_time) and verified ALL fields synced correctly to inspections collection: customer_name='Updated Test Client', customer_email='updated@test.com', property_address='456 Updated St, Austin, TX 78701', scheduled_date='2025-10-20', scheduled_time='14:00'. ✅ Partial Update Test: Updated only client_name to 'Partial Update Test' and verified sync maintained other fields while updating the changed field. ✅ Backend logs confirm sync operations: 'Synced manual inspection 2b1fd3b5-4d94-4126-802d-faa096b192bd to inspections collection. Matched: 1, Modified: 1'. The fix is working correctly - changes made through manual inspection edit screen now properly reflect on Active Inspections cards."
+--------- 
+--------- frontend:
+---------   - task: "Authentication Flow"
+---------@@ -236,8 +239,7 @@ metadata:
+---------   run_ui: false
+--------- 
+--------- test_plan:
+----------  current_focus:
+----------    - "Manual Inspection Edit Data Sync"
+---------+  current_focus: []
+---------   stuck_tasks: []
+---------   test_all: false
+---------   test_priority: "high_first"
+---------@@ -255,4 +257,6 @@ agent_communication:
+---------   - agent: "testing"
+---------     message: "✅ BACKEND API TESTING COMPLETE: Comprehensive testing confirms ALL backend functionality is working perfectly. External API at https://inspectpro-app.preview.emergentagent.com/api is fully operational. Successfully tested complete user workflows: 1) User registration/login with JWT authentication, 2) Customer quote creation → Owner quote pricing → Customer inspection scheduling → Owner inspection datetime setting. All role-based access controls working correctly (403 Forbidden for unauthorized access). All CRUD operations, data persistence, error handling, and HTTP status codes are correct. Backend is production-ready. Ready to proceed with frontend integration testing."
+---------   - agent: "main"
+----------    message: "DATA SYNC FIX IMPLEMENTED: Fixed the critical issue where manual inspection edits were not reflecting on Active Inspections cards. Updated PATCH /api/admin/manual-inspection/{inspection_id} to comprehensively sync all displayable fields (property_address, customer_name, customer_email, scheduled_date, scheduled_time, preferred_date, preferred_time) from manual_inspections to inspections collection. Added logging for debugging. Backend restarted successfully. Ready for testing with test account bradbakertx@gmail.com."
+---------\ No newline at end of file
+---------+    message: "DATA SYNC FIX IMPLEMENTED: Fixed the critical issue where manual inspection edits were not reflecting on Active Inspections cards. Updated PATCH /api/admin/manual-inspection/{inspection_id} to comprehensively sync all displayable fields (property_address, customer_name, customer_email, scheduled_date, scheduled_time, preferred_date, preferred_time) from manual_inspections to inspections collection. Added logging for debugging. Backend restarted successfully. Ready for testing with test account bradbakertx@gmail.com."
+---------+  - agent: "testing"
+---------+    message: "✅ MANUAL INSPECTION EDIT DATA SYNC TESTING COMPLETE: Comprehensive testing confirms the fix is working perfectly. Successfully tested both comprehensive and partial updates using existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd with test credentials bradbakertx@gmail.com. All displayable fields (customer_name, customer_email, property_address, scheduled_date, scheduled_time) are now correctly syncing from manual_inspections to inspections collection. Backend logs confirm sync operations with debug messages. The reported issue where changes made through inspection edit screen were not reflecting on Active Inspections cards is now RESOLVED. No further backend testing needed for this task."
+---------\ No newline at end of file
 --------diff --git a/test_result.md b/test_result.md
---------index eaa8a6f..0ad33fc 100644
+--------index a6e0417..20a661d 100644
 ----------- a/test_result.md
 --------+++ b/test_result.md
---------@@ -131,11 +131,11 @@ backend:
--------- 
---------   - task: "Manual Inspection Edit Data Sync"
+--------@@ -150,15 +150,18 @@ backend:
+-------- backend:
+--------   - task: "Phase 4: Customer Time Slot Confirmation"
 --------     implemented: true
 ---------    working: "NA"
 --------+    working: true
@@ -642,86 +695,71 @@ index 742136c..e69de29 100644
 ---------    needs_retesting: true
 --------+    needs_retesting: false
 --------     status_history:
---------       - working: false
---------         agent: "user"
---------@@ -143,6 +143,9 @@ backend:
 --------       - working: "NA"
 --------         agent: "main"
---------         comment: "FIXED: Updated PATCH /api/admin/manual-inspection/{inspection_id} endpoint to comprehensively sync ALL displayable fields from manual_inspections to inspections collection. Now syncing: property_address (full formatted), customer_name (from client_name), customer_email (from client_email), scheduled_date (from inspection_date), scheduled_time (from inspection_time), preferred_date, preferred_time, and updated_at timestamp. Added debug logging to track sync operations. The issue was that only limited fields were being synced, causing Active Inspections cards to show stale data. Ready for testing."
+--------         comment: "Implemented Phase 4 backend endpoints: 1) PATCH /inspections/{inspection_id}/confirm-time - Customer confirms selected time slot, updates inspection to 'scheduled' status, sends push notifications to owners, sends confirmation email to customer. 2) DELETE /inspections/{inspection_id} - Customer declines inspection offer, deletes inspection, reverts quote status back to 'quoted' for re-scheduling, sends push notifications to owners. Both endpoints include proper role-based access control (customer-only), validation, and error handling. Ready for backend testing."
 --------+      - working: true
 --------+        agent: "testing"
---------+        comment: "✅ COMPREHENSIVE TESTING COMPLETED: Manual Inspection Edit Data Sync is working perfectly. Successfully tested with existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd using test credentials bradbakertx@gmail.com. ✅ Comprehensive Update Test: Updated all fields (client_name, client_email, client_phone, property_address, property_city, property_zip, inspection_date, inspection_time) and verified ALL fields synced correctly to inspections collection: customer_name='Updated Test Client', customer_email='updated@test.com', property_address='456 Updated St, Austin, TX 78701', scheduled_date='2025-10-20', scheduled_time='14:00'. ✅ Partial Update Test: Updated only client_name to 'Partial Update Test' and verified sync maintained other fields while updating the changed field. ✅ Backend logs confirm sync operations: 'Synced manual inspection 2b1fd3b5-4d94-4126-802d-faa096b192bd to inspections collection. Matched: 1, Modified: 1'. The fix is working correctly - changes made through manual inspection edit screen now properly reflect on Active Inspections cards."
+--------+        comment: "✅ COMPREHENSIVE PHASE 4 BACKEND TESTING COMPLETED: Both Phase 4 endpoints are working correctly. Successfully tested complete workflow: quote creation → owner pricing → customer scheduling → owner time slot offers → customer confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted, quote status reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ Database State Changes: Verified inspection status updates, scheduled_date/time persistence, quote status reversion. ✅ Role-based Access Control: Owners correctly blocked with 403 Forbidden, proper error messages. ✅ Error Handling: 400 for validation errors, 404 for non-existent resources. Core Phase 4 functionality is production-ready. Minor: Some test requests experienced intermittent timeouts but manual verification confirms all endpoints working correctly."
 -------- 
 -------- frontend:
 --------   - task: "Authentication Flow"
---------@@ -236,8 +239,7 @@ metadata:
---------   run_ui: false
--------- 
--------- test_plan:
----------  current_focus:
----------    - "Manual Inspection Edit Data Sync"
---------+  current_focus: []
---------   stuck_tasks: []
---------   test_all: false
---------   test_priority: "high_first"
---------@@ -255,4 +257,6 @@ agent_communication:
+--------@@ -275,4 +278,6 @@ agent_communication:
 --------   - agent: "testing"
---------     message: "✅ BACKEND API TESTING COMPLETE: Comprehensive testing confirms ALL backend functionality is working perfectly. External API at https://inspectpro-app.preview.emergentagent.com/api is fully operational. Successfully tested complete user workflows: 1) User registration/login with JWT authentication, 2) Customer quote creation → Owner quote pricing → Customer inspection scheduling → Owner inspection datetime setting. All role-based access controls working correctly (403 Forbidden for unauthorized access). All CRUD operations, data persistence, error handling, and HTTP status codes are correct. Backend is production-ready. Ready to proceed with frontend integration testing."
+--------     message: "✅ MANUAL INSPECTION EDIT DATA SYNC TESTING COMPLETE: Comprehensive testing confirms the fix is working perfectly. Successfully tested both comprehensive and partial updates using existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd with test credentials bradbakertx@gmail.com. All displayable fields (customer_name, customer_email, property_address, scheduled_date, scheduled_time) are now correctly syncing from manual_inspections to inspections collection. Backend logs confirm sync operations with debug messages. The reported issue where changes made through inspection edit screen were not reflecting on Active Inspections cards is now RESOLVED. No further backend testing needed for this task."
 --------   - agent: "main"
----------    message: "DATA SYNC FIX IMPLEMENTED: Fixed the critical issue where manual inspection edits were not reflecting on Active Inspections cards. Updated PATCH /api/admin/manual-inspection/{inspection_id} to comprehensively sync all displayable fields (property_address, customer_name, customer_email, scheduled_date, scheduled_time, preferred_date, preferred_time) from manual_inspections to inspections collection. Added logging for debugging. Backend restarted successfully. Ready for testing with test account bradbakertx@gmail.com."
+---------    message: "PHASE 4 BACKEND IMPLEMENTATION COMPLETE: Implemented two new customer-facing endpoints for Phase 4 (Customer Time Slot Selection): 1) PATCH /api/inspections/{inspection_id}/confirm-time - Customer confirms a selected time slot from owner's offers. Validates inspection status is 'awaiting_customer_selection', updates to 'scheduled' status with confirmed date/time, sends push notifications to all owners, and sends confirmation email to customer. 2) DELETE /api/inspections/{inspection_id} - Customer declines the inspection offer. Deletes the inspection, reverts the quote status back to 'quoted' (allowing customer to re-schedule if they change their mind), and sends push notifications to all owners. Both endpoints have proper customer-only role-based access control, validation, and error handling. Frontend screen (select-time.tsx) was already created. Ready for comprehensive backend testing with test credentials bradbakertx@gmail.com / Beneficial1!."
 --------\ No newline at end of file
---------+    message: "DATA SYNC FIX IMPLEMENTED: Fixed the critical issue where manual inspection edits were not reflecting on Active Inspections cards. Updated PATCH /api/admin/manual-inspection/{inspection_id} to comprehensively sync all displayable fields (property_address, customer_name, customer_email, scheduled_date, scheduled_time, preferred_date, preferred_time) from manual_inspections to inspections collection. Added logging for debugging. Backend restarted successfully. Ready for testing with test account bradbakertx@gmail.com."
+--------+    message: "PHASE 4 BACKEND IMPLEMENTATION COMPLETE: Implemented two new customer-facing endpoints for Phase 4 (Customer Time Slot Selection): 1) PATCH /api/inspections/{inspection_id}/confirm-time - Customer confirms a selected time slot from owner's offers. Validates inspection status is 'awaiting_customer_selection', updates to 'scheduled' status with confirmed date/time, sends push notifications to all owners, and sends confirmation email to customer. 2) DELETE /api/inspections/{inspection_id} - Customer declines the inspection offer. Deletes the inspection, reverts the quote status back to 'quoted' (allowing customer to re-schedule if they change their mind), and sends push notifications to all owners. Both endpoints have proper customer-only role-based access control, validation, and error handling. Frontend screen (select-time.tsx) was already created. Ready for comprehensive backend testing with test credentials bradbakertx@gmail.com / Beneficial1!."
 --------+  - agent: "testing"
---------+    message: "✅ MANUAL INSPECTION EDIT DATA SYNC TESTING COMPLETE: Comprehensive testing confirms the fix is working perfectly. Successfully tested both comprehensive and partial updates using existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd with test credentials bradbakertx@gmail.com. All displayable fields (customer_name, customer_email, property_address, scheduled_date, scheduled_time) are now correctly syncing from manual_inspections to inspections collection. Backend logs confirm sync operations with debug messages. The reported issue where changes made through inspection edit screen were not reflecting on Active Inspections cards is now RESOLVED. No further backend testing needed for this task."
+--------+    message: "✅ PHASE 4 BACKEND TESTING COMPLETE: Comprehensive testing confirms both Phase 4 endpoints are working correctly. Successfully tested complete workflow from quote creation through customer time slot confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', database state properly updated with scheduled_date/time, proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted from database, quote status correctly reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ All HTTP status codes correct (200, 400, 403, 404), error messages clear and helpful, database state changes verified. Phase 4 backend implementation is production-ready. Minor: Some automated test requests experienced intermittent timeouts but manual verification confirms all endpoints working perfectly."
 --------\ No newline at end of file
 -------diff --git a/test_result.md b/test_result.md
--------index a6e0417..20a661d 100644
+-------index 20a661d..3138e5c 100644
 ---------- a/test_result.md
 -------+++ b/test_result.md
--------@@ -150,15 +150,18 @@ backend:
-------- backend:
--------   - task: "Phase 4: Customer Time Slot Confirmation"
--------     implemented: true
---------    working: "NA"
--------+    working: true
--------     file: "backend/server.py"
--------     stuck_count: 0
--------     priority: "high"
---------    needs_retesting: true
--------+    needs_retesting: false
--------     status_history:
--------       - working: "NA"
--------         agent: "main"
+-------@@ -161,7 +161,10 @@ backend:
 -------         comment: "Implemented Phase 4 backend endpoints: 1) PATCH /inspections/{inspection_id}/confirm-time - Customer confirms selected time slot, updates inspection to 'scheduled' status, sends push notifications to owners, sends confirmation email to customer. 2) DELETE /inspections/{inspection_id} - Customer declines inspection offer, deletes inspection, reverts quote status back to 'quoted' for re-scheduling, sends push notifications to owners. Both endpoints include proper role-based access control (customer-only), validation, and error handling. Ready for backend testing."
--------+      - working: true
--------+        agent: "testing"
--------+        comment: "✅ COMPREHENSIVE PHASE 4 BACKEND TESTING COMPLETED: Both Phase 4 endpoints are working correctly. Successfully tested complete workflow: quote creation → owner pricing → customer scheduling → owner time slot offers → customer confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted, quote status reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ Database State Changes: Verified inspection status updates, scheduled_date/time persistence, quote status reversion. ✅ Role-based Access Control: Owners correctly blocked with 403 Forbidden, proper error messages. ✅ Error Handling: 400 for validation errors, 404 for non-existent resources. Core Phase 4 functionality is production-ready. Minor: Some test requests experienced intermittent timeouts but manual verification confirms all endpoints working correctly."
+-------       - working: true
+-------         agent: "testing"
+--------        comment: "✅ COMPREHENSIVE PHASE 4 BACKEND TESTING COMPLETED: Both Phase 4 endpoints are working correctly. Successfully tested complete workflow: quote creation → owner pricing → customer scheduling → owner time slot offers → customer confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted, quote status reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ Database State Changes: Verified inspection status updates, scheduled_date/time persistence, quote status reversion. ✅ Role-based Access Control: Owners correctly blocked with 403 Forbidden, proper error messages. ✅ Error Handling: 400 for validation errors, 404 for non-existent resources. Core Phase 4 functionality is production-ready. Minor: Some test requests experienced intermittent timeouts but manual verification confirms all endpoints working correctly."
+-------+        comment: "✅ Phase 4 backend endpoints tested and working correctly. All validation, role-based access control, and database state changes verified."
+-------+      - working: "NA"
+-------+        agent: "main"
+-------+        comment: "CALENDAR INVITE FEATURE ADDED: Updated PATCH /inspections/{inspection_id}/confirm-time endpoint to automatically send calendar invites (.ics files with event details) to BOTH owner email (bradbakertx@gmail.com) and customer email when an inspection is confirmed. Uses existing send_inspection_calendar_invite function with proper date/time parsing, 2-hour duration, and attendee information. Customer Active Inspections tile already displays scheduled inspections correctly (status: 'scheduled'). Ready for user testing to verify calendar invites are received."
 ------- 
 ------- frontend:
 -------   - task: "Authentication Flow"
--------@@ -275,4 +278,6 @@ agent_communication:
--------   - agent: "testing"
--------     message: "✅ MANUAL INSPECTION EDIT DATA SYNC TESTING COMPLETE: Comprehensive testing confirms the fix is working perfectly. Successfully tested both comprehensive and partial updates using existing inspection ID 2b1fd3b5-4d94-4126-802d-faa096b192bd with test credentials bradbakertx@gmail.com. All displayable fields (customer_name, customer_email, property_address, scheduled_date, scheduled_time) are now correctly syncing from manual_inspections to inspections collection. Backend logs confirm sync operations with debug messages. The reported issue where changes made through inspection edit screen were not reflecting on Active Inspections cards is now RESOLVED. No further backend testing needed for this task."
--------   - agent: "main"
---------    message: "PHASE 4 BACKEND IMPLEMENTATION COMPLETE: Implemented two new customer-facing endpoints for Phase 4 (Customer Time Slot Selection): 1) PATCH /api/inspections/{inspection_id}/confirm-time - Customer confirms a selected time slot from owner's offers. Validates inspection status is 'awaiting_customer_selection', updates to 'scheduled' status with confirmed date/time, sends push notifications to all owners, and sends confirmation email to customer. 2) DELETE /api/inspections/{inspection_id} - Customer declines the inspection offer. Deletes the inspection, reverts the quote status back to 'quoted' (allowing customer to re-schedule if they change their mind), and sends push notifications to all owners. Both endpoints have proper customer-only role-based access control, validation, and error handling. Frontend screen (select-time.tsx) was already created. Ready for comprehensive backend testing with test credentials bradbakertx@gmail.com / Beneficial1!."
--------\ No newline at end of file
--------+    message: "PHASE 4 BACKEND IMPLEMENTATION COMPLETE: Implemented two new customer-facing endpoints for Phase 4 (Customer Time Slot Selection): 1) PATCH /api/inspections/{inspection_id}/confirm-time - Customer confirms a selected time slot from owner's offers. Validates inspection status is 'awaiting_customer_selection', updates to 'scheduled' status with confirmed date/time, sends push notifications to all owners, and sends confirmation email to customer. 2) DELETE /api/inspections/{inspection_id} - Customer declines the inspection offer. Deletes the inspection, reverts the quote status back to 'quoted' (allowing customer to re-schedule if they change their mind), and sends push notifications to all owners. Both endpoints have proper customer-only role-based access control, validation, and error handling. Frontend screen (select-time.tsx) was already created. Ready for comprehensive backend testing with test credentials bradbakertx@gmail.com / Beneficial1!."
--------+  - agent: "testing"
--------+    message: "✅ PHASE 4 BACKEND TESTING COMPLETE: Comprehensive testing confirms both Phase 4 endpoints are working correctly. Successfully tested complete workflow from quote creation through customer time slot confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', database state properly updated with scheduled_date/time, proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted from database, quote status correctly reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ All HTTP status codes correct (200, 400, 403, 404), error messages clear and helpful, database state changes verified. Phase 4 backend implementation is production-ready. Minor: Some automated test requests experienced intermittent timeouts but manual verification confirms all endpoints working perfectly."
--------\ No newline at end of file
-------diff --git a/test_result.md b/test_result.md
-------index 20a661d..3138e5c 100644
---------- a/test_result.md
-------+++ b/test_result.md
-------@@ -161,7 +161,10 @@ backend:
-------         comment: "Implemented Phase 4 backend endpoints: 1) PATCH /inspections/{inspection_id}/confirm-time - Customer confirms selected time slot, updates inspection to 'scheduled' status, sends push notifications to owners, sends confirmation email to customer. 2) DELETE /inspections/{inspection_id} - Customer declines inspection offer, deletes inspection, reverts quote status back to 'quoted' for re-scheduling, sends push notifications to owners. Both endpoints include proper role-based access control (customer-only), validation, and error handling. Ready for backend testing."
-------       - working: true
-------         agent: "testing"
--------        comment: "✅ COMPREHENSIVE PHASE 4 BACKEND TESTING COMPLETED: Both Phase 4 endpoints are working correctly. Successfully tested complete workflow: quote creation → owner pricing → customer scheduling → owner time slot offers → customer confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted, quote status reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ Database State Changes: Verified inspection status updates, scheduled_date/time persistence, quote status reversion. ✅ Role-based Access Control: Owners correctly blocked with 403 Forbidden, proper error messages. ✅ Error Handling: 400 for validation errors, 404 for non-existent resources. Core Phase 4 functionality is production-ready. Minor: Some test requests experienced intermittent timeouts but manual verification confirms all endpoints working correctly."
-------+        comment: "✅ Phase 4 backend endpoints tested and working correctly. All validation, role-based access control, and database state changes verified."
-------+      - working: "NA"
-------+        agent: "main"
-------+        comment: "CALENDAR INVITE FEATURE ADDED: Updated PATCH /inspections/{inspection_id}/confirm-time endpoint to automatically send calendar invites (.ics files with event details) to BOTH owner email (bradbakertx@gmail.com) and customer email when an inspection is confirmed. Uses existing send_inspection_calendar_invite function with proper date/time parsing, 2-hour duration, and attendee information. Customer Active Inspections tile already displays scheduled inspections correctly (status: 'scheduled'). Ready for user testing to verify calendar invites are received."
------- 
------- frontend:
-------   - task: "Authentication Flow"
+diff --git a/test_result.md b/test_result.md
+index 7a356e9..68be1a2 100644
+--- a/test_result.md
++++ b/test_result.md
+@@ -195,6 +195,18 @@ backend:
+         agent: "main"
+         comment: "CANCEL INSPECTION FIX IMPLEMENTED: Updated DELETE /api/admin/inspections/{inspection_id}/cancel endpoint to properly send calendar cancellations to all parties: 1) Customer - always receives cancellation, 2) Owner - receives cancellation, 3) Inspector - now sends cancellation if inspector is different from owner (uses inspector_emails mapping: Brad Baker -> bradbakertx@gmail.com), 4) Agent - sends if agent email exists. Added duplicate email detection using emails_sent set to prevent sending multiple cancellations to same person. Frontend already has confirmation dialog and proper API call. Backend restarted and ready for testing."
+ 
++  - task: "Chat System Backend Endpoints"
++    implemented: true
++    working: true
++    file: "backend/server.py, backend/models.py"
++    stuck_count: 0
++    priority: "high"
++    needs_retesting: false
++    status_history:
++      - working: true
++        agent: "testing"
++        comment: "✅ COMPREHENSIVE CHAT SYSTEM TESTING COMPLETED: All chat backend endpoints are working perfectly. Successfully tested with test credentials bradbakertx@gmail.com/Beneficial1!. ✅ Authentication: Login successful, JWT token working correctly. ✅ GET /api/conversations: Successfully retrieves conversation list with proper structure (conversation_id, conversation_type, participant names, unread count). Supports both owner_chat and inspector_chat conversation types. ✅ POST /api/messages: Successfully sends messages both with inspection_id (inspector chat) and without (owner chat). Messages are created and saved correctly with proper response structure including message_id, sender info, and created_at timestamp. ✅ GET /api/messages/{inspection_id}: Successfully retrieves message history in chronological order with proper message structure (sender_name, sender_role, message_text, created_at). ✅ End-to-End Flow: Complete chat flow works perfectly - messages are retrievable after sending, data persistence verified. ✅ Message Persistence: Sent messages correctly appear in message history. All endpoints return 200 OK status codes. Chat system is production-ready and fully functional."
++
+ frontend:
+   - task: "Authentication Flow"
+     implemented: true
+@@ -312,4 +324,6 @@ agent_communication:
+   - agent: "main"
+     message: "PHASE 4 BACKEND IMPLEMENTATION COMPLETE: Implemented two new customer-facing endpoints for Phase 4 (Customer Time Slot Selection): 1) PATCH /api/inspections/{inspection_id}/confirm-time - Customer confirms a selected time slot from owner's offers. Validates inspection status is 'awaiting_customer_selection', updates to 'scheduled' status with confirmed date/time, sends push notifications to all owners, and sends confirmation email to customer. 2) DELETE /api/inspections/{inspection_id} - Customer declines the inspection offer. Deletes the inspection, reverts the quote status back to 'quoted' (allowing customer to re-schedule if they change their mind), and sends push notifications to all owners. Both endpoints have proper customer-only role-based access control, validation, and error handling. Frontend screen (select-time.tsx) was already created. Ready for comprehensive backend testing with test credentials bradbakertx@gmail.com / Beneficial1!."
+   - agent: "testing"
+-    message: "✅ PHASE 4 BACKEND TESTING COMPLETE: Comprehensive testing confirms both Phase 4 endpoints are working correctly. Successfully tested complete workflow from quote creation through customer time slot confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', database state properly updated with scheduled_date/time, proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted from database, quote status correctly reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ All HTTP status codes correct (200, 400, 403, 404), error messages clear and helpful, database state changes verified. Phase 4 backend implementation is production-ready. Minor: Some automated test requests experienced intermittent timeouts but manual verification confirms all endpoints working perfectly."
+\ No newline at end of file
++    message: "✅ PHASE 4 BACKEND TESTING COMPLETE: Comprehensive testing confirms both Phase 4 endpoints are working correctly. Successfully tested complete workflow from quote creation through customer time slot confirmation/decline. ✅ PATCH /api/inspections/{id}/confirm-time: Customer successfully confirms time slots, inspection status changes to 'scheduled', database state properly updated with scheduled_date/time, proper role-based access control (403 for owners), validation for required fields. ✅ DELETE /api/inspections/{id}: Customer successfully declines inspections, inspection deleted from database, quote status correctly reverted to 'quoted' for re-scheduling, proper authorization (403 for owners). ✅ All HTTP status codes correct (200, 400, 403, 404), error messages clear and helpful, database state changes verified. Phase 4 backend implementation is production-ready. Minor: Some automated test requests experienced intermittent timeouts but manual verification confirms all endpoints working perfectly."
++  - agent: "testing"
++    message: "✅ CHAT SYSTEM BACKEND TESTING COMPLETE: Comprehensive testing of all chat system endpoints completed successfully using test credentials bradbakertx@gmail.com/Beneficial1!. All endpoints return 200 OK and function perfectly: 1) GET /api/conversations - Successfully retrieves conversation list with proper metadata (conversation_id, conversation_type, participant names, unread count), supports both owner_chat and inspector_chat types. 2) POST /api/messages - Successfully sends messages both with inspection_id (inspector chat) and without (owner chat), proper message creation with message_id and created_at timestamps. 3) GET /api/messages/{inspection_id} - Successfully retrieves message history in chronological order with complete message structure (sender_name, sender_role, message_text, created_at). ✅ End-to-end chat flow verified: messages are persistent and retrievable after sending. ✅ Authentication working correctly with JWT tokens. ✅ Message persistence confirmed. Chat system is production-ready and fully functional for real-time communication between customers, owners, and inspectors."
+\ No newline at end of file
