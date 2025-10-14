@@ -312,7 +312,35 @@ test_plan:
   test_priority: "high_first"
   critical_blocker: "None"
 
+backend:
+  - task: "Inspector Selection Feature"
+    implemented: false
+    working: "NA"
+    file: "backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implementing inspector selection for Edit Inspection screen. Adding GET /api/users/inspectors endpoint to fetch all inspectors. Updating PATCH /api/inspections/{inspection_id} to handle inspector_email and inspector_id updates. Adding push notification to new inspector when assigned. Inspector field will be mandatory."
+
+frontend:
+  - task: "Inspector Dropdown in Edit Screen"
+    implemented: false
+    working: "NA"
+    file: "frontend/app/inspections/edit.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Adding Inspector picker dropdown to Edit Inspection screen. Will fetch list of inspectors on load, display dropdown with current inspector pre-selected, and save inspector_email and inspector_id on update. Inspector field is mandatory."
+
 agent_communication:
+  - agent: "main"
+    message: "Starting implementation of Inspector Selection feature. Backend: Adding GET /api/users/inspectors endpoint and updating PATCH endpoint for inspector assignment with push notifications. Frontend: Adding Inspector dropdown to edit screen with mandatory validation."
   - agent: "main"
     message: "Phase 1 complete: Core authentication, navigation, and basic screens implemented. Ready for backend API integration testing. Backend URL: https://beneinspect.preview.emergentagent.com/api with JWT authentication. Test login, register, and data fetching endpoints."
   - agent: "testing"
