@@ -83,28 +83,34 @@ export default function ActiveInspectionsScreen() {
 
   const handleUploadReport = async (inspection: ActiveInspection) => {
     try {
-      // Pick a PDF document
+      // Pick multiple PDF documents
       const result = await DocumentPicker.getDocumentAsync({
         type: 'application/pdf',
         copyToCacheDirectory: true,
+        multiple: true, // Allow multiple file selection
       });
 
       if (result.canceled) {
         return;
       }
 
-      const file = result.assets[0];
+      const files = result.assets;
       
-      // Validate it's a PDF
-      if (!file.name.toLowerCase().endsWith('.pdf')) {
-        Alert.alert('Invalid File', 'Please select a PDF file');
+      // Validate all files are PDFs
+      const invalidFiles = files.filter(f => !f.name.toLowerCase().endsWith('.pdf'));
+      if (invalidFiles.length > 0) {
+        Alert.alert('Invalid Files', 'Please select only PDF files');
         return;
       }
 
-      // Show confirmation
+      // Show confirmation with file count
+      const fileNames = files.map(f => f.name).join(', ');
+      const fileCount = files.length;
+      const fileWord = fileCount === 1 ? 'file' : 'files';
+      
       Alert.alert(
-        'Upload Report',
-        `Upload ${file.name} for ${inspection.property_address}?`,
+        'Upload Reports',
+        `Upload ${fileCount} ${fileWord} for ${inspection.property_address}?\n\n${fileNames}`,
         [
           { text: 'Cancel', style: 'cancel' },
           {
@@ -114,14 +120,15 @@ export default function ActiveInspectionsScreen() {
                 // Create FormData
                 const formData = new FormData();
                 
-                // For React Native
-                const fileToUpload: any = {
-                  uri: file.uri,
-                  type: 'application/pdf',
-                  name: file.name,
-                };
-                
-                formData.append('file', fileToUpload);
+                // Add all files to FormData
+                files.forEach((file) => {
+                  const fileToUpload: any = {
+                    uri: file.uri,
+                    type: 'application/pdf',
+                    name: file.name,
+                  };
+                  formData.append('files', fileToUpload);
+                });
 
                 // Upload to backend
                 const response = await api.post(
@@ -136,12 +143,12 @@ export default function ActiveInspectionsScreen() {
 
                 Alert.alert(
                   'Success',
-                  'Report uploaded successfully! Customer and agent will be notified.',
+                  `${fileCount} report ${fileWord} uploaded successfully! Customer and agent will be notified.`,
                   [{ text: 'OK', onPress: () => fetchActiveInspections() }]
                 );
               } catch (error: any) {
                 console.error('Upload error:', error);
-                const errorMessage = error.response?.data?.detail || 'Failed to upload report';
+                const errorMessage = error.response?.data?.detail || 'Failed to upload reports';
                 Alert.alert('Upload Failed', errorMessage);
               }
             },
@@ -150,7 +157,7 @@ export default function ActiveInspectionsScreen() {
       );
     } catch (error) {
       console.error('Document picker error:', error);
-      Alert.alert('Error', 'Failed to select file');
+      Alert.alert('Error', 'Failed to select files');
     }
   };
 
