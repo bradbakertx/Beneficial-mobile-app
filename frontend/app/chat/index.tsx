@@ -49,19 +49,11 @@ export default function ChatScreen() {
 
   const fetchMessages = async () => {
     try {
-      // For owner chat (no inspection), fetch messages by conversation
+      // For owner chat (no inspection), fetch messages directly
       if (!inspectionId) {
-        const response = await api.get('/conversations');
-        console.log('Conversations response:', response.data);
-        
-        // Find owner chat conversation
-        const ownerConversation = response.data.find((conv: any) => conv.conversation_type === 'owner_chat');
-        
-        if (ownerConversation && ownerConversation.inspection_id) {
-          // Fetch messages for this conversation
-          const messagesResponse = await api.get(`/messages/${ownerConversation.inspection_id}`);
-          setMessages(messagesResponse.data);
-        }
+        const response = await api.get('/messages/owner/chat');
+        console.log('Owner chat messages response:', response.data);
+        setMessages(response.data);
       } else {
         // Inspector chat - fetch by inspection ID
         const response = await api.get(`/messages/${inspectionId}`);
