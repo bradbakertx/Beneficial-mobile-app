@@ -294,15 +294,23 @@ class ChatHistoryVisibilityTester:
         # Step 5: Get list of available inspectors
         print(f"\n👥 STEP 5: Get Available Inspectors")
         inspectors = self.get_inspectors()
+        
+        # Always create a fresh test inspector for this test to ensure we have proper credentials
+        print("🔧 Creating fresh test inspector for this test...")
+        test_inspector = self.create_test_inspector_account()
+        if test_inspector:
+            # Add the new inspector to our list
+            inspectors.append({
+                "id": test_inspector["id"],
+                "name": test_inspector["name"], 
+                "email": test_inspector["email"],
+                "role": "inspector"
+            })
+            print(f"✅ Fresh test inspector added: {test_inspector['name']} ({test_inspector['email']})")
+        
         if len(inspectors) < 2:
-            print("❌ CRITICAL: Need at least 2 inspectors for testing. Creating test inspector...")
-            test_inspector = self.create_test_inspector_account()
-            if not test_inspector:
-                print("❌ CRITICAL: Cannot create test inspector. Test cannot continue.")
-                return False
-            
-            # Refresh inspectors list
-            inspectors = self.get_inspectors()
+            print("❌ CRITICAL: Need at least 2 inspectors for testing.")
+            return False
         
         # Step 6: Select a different inspector
         print(f"\n🔄 STEP 6: Select Different Inspector")
