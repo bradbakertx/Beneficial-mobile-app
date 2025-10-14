@@ -97,20 +97,21 @@ def get_agreement_download_url(s3_key: str, expiration: int = 3600) -> str:
         raise Exception(f"Failed to generate download URL: {str(e)}")
 
 
-def upload_report_to_s3(inspection_id: str, pdf_bytes: bytes) -> dict:
+def upload_report_to_s3(inspection_id: str, pdf_bytes: bytes, suffix: str = "") -> dict:
     """
     Upload an inspection report PDF to S3
     
     Args:
         inspection_id: Unique inspection ID
         pdf_bytes: PDF file content as bytes
+        suffix: Optional suffix for filename (e.g., "-1", "-2" for multiple files)
     
     Returns:
         dict with 's3_key' and 's3_url' if successful, raises exception otherwise
     """
     try:
         # Create S3 key (path) for the report
-        s3_key = f"reports/inspection-{inspection_id}-report.pdf"
+        s3_key = f"reports/inspection-{inspection_id}-report{suffix}.pdf"
         
         # Upload to S3
         s3_client.put_object(
