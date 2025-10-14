@@ -1924,8 +1924,10 @@ async def get_conversations(
             if conv_data["conversation_type"] == "owner_chat":
                 # For owner chats, always get the current active owner (not the deleted one)
                 current_owner = await db.users.find_one({"role": UserRole.owner.value})
+                print(f"DEBUG: Looking up owner for customer view. Found: {current_owner.get('name') if current_owner else 'None'}")
                 if current_owner:
                     recipient_name = current_owner["name"]
+                print(f"DEBUG: recipient_name set to: {recipient_name}")
             elif conv_data["recipient_id"]:
                 # For inspector chats, use the specific recipient
                 recipient = await db.users.find_one({"id": conv_data["recipient_id"]})
