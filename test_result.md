@@ -315,9 +315,9 @@ test_plan:
 backend:
   - task: "Inspector Selection Feature"
     implemented: true
-    working: true
+    working: false
     file: "backend/server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -329,7 +329,7 @@ backend:
         comment: "IMPLEMENTED: Added GET /api/users/inspectors endpoint that fetches all users with inspector or owner role (owners can also be inspectors). Updated PATCH /api/admin/inspections/{inspection_id}/update endpoint to handle inspector assignment. When inspector is changed, the endpoint now: 1) Fetches inspector_name from user record, 2) Sends push notification to new inspector with inspection details (property address, date, time), 3) Logs notification send. Backend restarted successfully."
       - working: "NA"
         agent: "main"
-        comment: "CALENDAR INVITE FEATURE ADDED: Enhanced PATCH /api/admin/inspections/{inspection_id}/update to send calendar invites/cancellations when inspector changes: 1) Sends calendar CANCELLATION (.ics) to OLD inspector to remove inspection from their calendar, 2) Sends calendar INVITE (.ics) to NEW inspector to add inspection to their calendar with full details (property address, date, time, customer info), 3) Includes push notification to new inspector. Backend restarted successfully. Ready for testing."
+        comment: "CALENDAR INVITE FEATURE ADDED: Enhanced PATCH /api/admin/inspections/{inspection_id}/update to send calendar invites/cancellations when inspector changes: 1) Sends calendar CANCELLATION (.ics) to OLD inspector to remove inspection from their calendar, 2) Sends calendar INVITE (.ics) to NEW inspector to add invitation to their calendar with full details (property address, date, time, customer info), 3) Includes push notification to new inspector. Backend restarted successfully. Ready for testing."
       - working: "NA"
         agent: "main"
         comment: "CHAT HISTORY VISIBILITY FEATURE ADDED: Enhanced GET /api/conversations endpoint to show chat history for newly assigned inspectors. When inspector changes, the new inspector will now see the full chat card with all previous messages in their Unread Messages. Logic: Inspectors now see messages for ANY inspection they are currently assigned to (via inspector_id), not just messages directly sent to them. This ensures chat continuity when inspectors are reassigned. If inspector is Brad Baker (owner), chat appears in Owner profile automatically. Backend restarted successfully. Ready for testing."
@@ -339,6 +339,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "✅ CALENDAR INVITE/CANCELLATION FEATURE TESTING COMPLETED: Successfully tested the calendar invite/cancellation functionality when inspector is changed in Edit Inspection screen. Test scenario: 1) Logged in as owner (bradbakertx@gmail.com), 2) Found existing inspection with scheduled date/time (737c416d-d0ae-4e4d-b6b7-c328d339eb72), 3) Retrieved current inspector details (Brad Baker - bradbakertx@gmail.com), 4) Got list of inspectors from GET /api/users/inspectors (found 2 inspectors), 5) Selected different inspector (Test Inspector - test.inspector@example.com), 6) Updated inspection using PATCH /api/admin/inspections/{inspection_id}/update, 7) Verified update successful with all inspector fields correctly updated. ✅ BACKEND LOGS CONFIRMED: Calendar cancellation sent to old inspector bradbakertx@gmail.com, Calendar invite sent to new inspector test.inspector@example.com. ✅ The calendar invite/cancellation feature is working correctly - when inspector is changed on an inspection with scheduled date/time, the system properly sends calendar cancellation to old inspector and calendar invite to new inspector. Feature is production-ready."
+      - working: false
+        agent: "testing"
+        comment: "❌ CRITICAL ISSUE FOUND: Chat History Visibility Feature NOT WORKING. Comprehensive testing reveals that when an inspector is changed on an inspection, the NEW inspector CANNOT see the conversation in their conversations list (GET /api/conversations), despite being able to access messages directly (GET /api/messages/{inspection_id}). ✅ WORKING: Inspector assignment, calendar invites/cancellations, message access. ❌ FAILING: Conversation visibility in inspector's conversation list. The GET /api/conversations endpoint logic for inspectors (lines 2015-2036 in server.py) should show conversations for inspections they are assigned to, but this is not working. Test Results: 1) New inspector can access 8 messages directly via /api/messages/{inspection_id} ✅, 2) New inspector sees 0 conversations in /api/conversations ❌, 3) Conversation should appear with conversation_type='inspector_chat' and inspection_id='737c416d-d0ae-4e4d-b6b7-c328d339eb72' but does not. This breaks chat continuity when inspectors are reassigned. REQUIRES IMMEDIATE FIX."
 
 frontend:
   - task: "Inspector Dropdown in Edit Screen"
