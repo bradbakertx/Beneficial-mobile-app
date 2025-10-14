@@ -196,11 +196,14 @@ class ChatHistoryVisibilityTester:
     
     def create_test_inspector_account(self) -> Optional[Dict]:
         """Create a test inspector account for testing"""
+        import time
         try:
+            # Use timestamp to ensure unique email
+            timestamp = str(int(time.time()))
             test_inspector_data = {
-                "email": "test.inspector.chat@example.com",
+                "email": f"test.inspector.{timestamp}@example.com",
                 "password": "TestPassword123!",
-                "name": "Test Inspector Chat",
+                "name": f"Test Inspector {timestamp}",
                 "role": "inspector"
             }
             
