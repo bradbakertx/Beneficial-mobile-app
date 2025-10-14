@@ -124,8 +124,6 @@ export default function EditInspectionScreen() {
         agent_phone: agentPhone.trim() || null,
         agent_email: agentEmail.trim() || null,
         property_address: propertyAddress.trim() || null,
-        property_city: propertyCity.trim() || null,
-        property_zip: propertyZip.trim() || null,
         square_feet: squareFeet.trim() ? parseInt(squareFeet) : null,
         year_built: yearBuilt.trim() ? parseInt(yearBuilt) : null,
         foundation_type: foundationType,
@@ -138,8 +136,15 @@ export default function EditInspectionScreen() {
       };
 
       console.log('Updating inspection with payload:', payload);
-      const response = await api.patch(`/admin/manual-inspection/${id}`, payload);
-      console.log('Update successful:', response.data);
+      
+      // Use different endpoints based on inspection type
+      if (isManual === 'true') {
+        const response = await api.patch(`/admin/manual-inspection/${id}`, payload);
+        console.log('Manual inspection update successful:', response.data);
+      } else {
+        const response = await api.patch(`/admin/inspections/${id}/update`, payload);
+        console.log('Regular inspection update successful:', response.data);
+      }
 
       // Navigate immediately without alert on web
       if (Platform.OS === 'web') {
