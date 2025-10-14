@@ -1276,26 +1276,73 @@ async def update_regular_inspection(
         
         logging.info(f"Regular inspection {inspection_id} updated with fields: {list(mapped_updates.keys())}")
     
-    # Send push notification to new inspector if inspector was changed
+    # Send calendar invites/cancellations and push notification if inspector was changed
     if inspector_changed and new_inspector_email:
-        # Find the new inspector by email
+        from email_service import send_inspection_calendar_invite, send_inspection_calendar_cancellation
+        
+        property_address = inspection.get("property_address", "Unknown address")
+        scheduled_date = inspection.get("scheduled_date")
+        scheduled_time = inspection.get("scheduled_time")
+        customer_name = inspection.get("customer_name")
+        customer_email = inspection.get("customer_email")
+        customer_phone = inspection.get("customer_phone")
+        
+        # Get old inspector info for cancellation
+        old_inspector_email = inspection.get("inspector_email")
+        old_inspector_name = inspection.get("inspector_name", "Inspector")
+        
+        # Send calendar cancellation to OLD inspector (if exists)
+        if old_inspector_email and scheduled_date and scheduled_time:
+            try:
+                send_inspection_calendar_cancellation(
+                    to_email=old_inspector_email,
+                    recipient_name=old_inspector_name,
+                    property_address=property_address,
+                    inspection_date=scheduled_date,
+                    inspection_time=scheduled_time,
+                    is_owner=True
+                )
+                logging.info(f"Calendar cancellation sent to old inspector {old_inspector_email}")
+            except Exception as e:
+                logging.error(f"Failed to send calendar cancellation to old inspector: {e}")
+        
+        # Find the new inspector by email for invite and push notification
         inspector_user = await db.users.find_one({"email": new_inspector_email})
-        if inspector_user and inspector_user.get("push_token"):
-            property_address = inspection.get("property_address", "Unknown address")
-            scheduled_date = inspection.get("scheduled_date", "TBD")
-            scheduled_time = inspection.get("scheduled_time", "TBD")
+        if inspector_user:
+            new_inspector_name = inspector_user.get("name", "Inspector")
             
-            send_push_notification(
-                push_token=inspector_user["push_token"],
-                title="New Inspection Assigned",
-                body=f"You've been assigned an inspection at {property_address} on {scheduled_date} at {scheduled_time}",
-                data={
-                    "type": "inspector_assigned",
-                    "inspection_id": inspection_id,
-                    "property_address": property_address
-                }
-            )
-            logging.info(f"Push notification sent to inspector {new_inspector_email} for inspection {inspection_id}")
+            # Send calendar invite to NEW inspector
+            if scheduled_date and scheduled_time:
+                try:
+                    send_inspection_calendar_invite(
+                        to_email=new_inspector_email,
+                        recipient_name=new_inspector_name,
+                        property_address=property_address,
+                        inspection_date=scheduled_date,
+                        inspection_time=scheduled_time,
+                        is_owner=True,
+                        customer_name=customer_name,
+                        customer_email=customer_email,
+                        customer_phone=customer_phone,
+                        inspector_name=new_inspector_name
+                    )
+                    logging.info(f"Calendar invite sent to new inspector {new_inspector_email}")
+                except Exception as e:
+                    logging.error(f"Failed to send calendar invite to new inspector: {e}")
+            
+            # Send push notification to new inspector
+            if inspector_user.get("push_token"):
+                send_push_notification(
+                    push_token=inspector_user["push_token"],
+                    title="New Inspection Assigned",
+                    body=f"You've been assigned an inspection at {property_address} on {scheduled_date} at {scheduled_time}",
+                    data={
+                        "type": "inspector_assigned",
+                        "inspection_id": inspection_id,
+                        "property_address": property_address
+                    }
+                )
+                logging.info(f"Push notification sent to new inspector {new_inspector_email}")
     
     updated_inspection = await db.inspections.find_one({"id": inspection_id})
     return InspectionResponse(**updated_inspection)
