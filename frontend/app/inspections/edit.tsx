@@ -261,33 +261,10 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Address</Text>
           <TextInput
             style={styles.input}
-            placeholder="123 Main St"
+            placeholder="123 Main St, Austin, TX 78701"
             value={propertyAddress}
             onChangeText={setPropertyAddress}
           />
-
-          <View style={styles.row}>
-            <View style={styles.halfWidth}>
-              <Text style={styles.label}>City</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Austin"
-                value={propertyCity}
-                onChangeText={setPropertyCity}
-              />
-            </View>
-
-            <View style={styles.halfWidth}>
-              <Text style={styles.label}>Zip Code</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="78701"
-                value={propertyZip}
-                onChangeText={setPropertyZip}
-                keyboardType="numeric"
-              />
-            </View>
-          </View>
 
           <View style={styles.row}>
             <View style={styles.halfWidth}>
