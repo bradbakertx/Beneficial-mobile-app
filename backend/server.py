@@ -2876,19 +2876,25 @@ async def google_login(
 async def google_callback(code: str, state: str):
     """Handle Google OAuth callback"""
     try:
+        logging.info(f"Google OAuth callback received for user state: {state}")
+        
         # Exchange code for tokens
         credentials = exchange_code_for_token(code)
         
+        logging.info(f"Credentials received: access_token present: {bool(credentials.get('access_token'))}, refresh_token present: {bool(credentials.get('refresh_token'))}")
+        
         # Store credentials in database for this user
-        await db.users.update_one(
+        result = await db.users.update_one(
             {"id": state},
             {"$set": {"google_calendar_credentials": credentials}}
         )
         
+        logging.info(f"Database update result: matched={result.matched_count}, modified={result.modified_count}")
+        
         # Redirect to frontend
         return RedirectResponse(url="https://inspectapp-2.preview.emergentagent.com/(tabs)")
     except Exception as e:
-        print(f"Google callback error: {e}")
+        logging.error(f"Google callback error: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to authenticate with Google: {str(e)}")
 
 
