@@ -2348,6 +2348,94 @@ www.beneficialinspects.com"""
         raise HTTPException(status_code=500, detail=f"Failed to finalize inspection: {str(e)}")
 
 
+@api_router.post("/inspections/{inspection_id}/mark-paid")
+async def mark_inspection_paid(
+    inspection_id: str,
+    payment_method: str = Query(..., description="Payment method: Cash, Check, Card/Mobile Tap"),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Mark inspection as paid (Owner only)"""
+    from push_notification_service import send_push_notification
+    
+    # Only owners can mark as paid
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can mark inspections as paid")
+    
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check if already paid
+    if inspection.get("is_paid"):
+        raise HTTPException(status_code=400, detail="Inspection already marked as paid")
+    
+    # Validate payment method
+    valid_methods = ["Cash", "Check", "Card/Mobile Tap"]
+    if payment_method not in valid_methods:
+        raise HTTPException(status_code=400, detail=f"Invalid payment method. Must be one of: {', '.join(valid_methods)}")
+    
+    try:
+        # Update inspection as paid
+        await db.inspections.update_one(
+            {"id": inspection_id},
+            {
+                "$set": {
+                    "is_paid": True,
+                    "payment_completed": True,
+                    "payment_method": payment_method,
+                    "payment_date": datetime.utcnow(),
+                    "payment_amount": inspection.get("fee_amount"),
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        logging.info(f"Inspection {inspection_id} marked as paid via {payment_method}")
+        
+        # Send push notification to customer
+        customer_id = inspection.get("customer_id")
+        if customer_id:
+            customer = await db.users.find_one({"id": customer_id})
+            if customer and customer.get("push_token"):
+                send_push_notification(
+                    push_token=customer["push_token"],
+                    title="Payment Confirmed!",
+                    body=f"Your payment for {inspection.get('property_address')} has been confirmed. Reports are now unlocked!",
+                    data={
+                        "type": "payment_confirmed",
+                        "inspection_id": inspection_id
+                    }
+                )
+                logging.info(f"Payment confirmation notification sent to customer")
+        
+        # Send push notification to agent if exists
+        agent_email = inspection.get("agent_email")
+        if agent_email:
+            agent = await db.users.find_one({"email": agent_email})
+            if agent and agent.get("push_token"):
+                send_push_notification(
+                    push_token=agent["push_token"],
+                    title="Payment Confirmed",
+                    body=f"Payment for {inspection.get('property_address')} confirmed. Reports unlocked!",
+                    data={
+                        "type": "payment_confirmed",
+                        "inspection_id": inspection_id
+                    }
+                )
+                logging.info(f"Payment confirmation notification sent to agent")
+        
+        return {
+            "success": True,
+            "message": f"Inspection marked as paid via {payment_method}",
+            "payment_method": payment_method
+        }
+        
+    except Exception as e:
+        logging.error(f"Failed to mark inspection as paid: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to mark as paid: {str(e)}")
+
+
 # ============= CHAT/MESSAGE ENDPOINTS =============
 
 @api_router.post("/messages", response_model=MessageResponse)
