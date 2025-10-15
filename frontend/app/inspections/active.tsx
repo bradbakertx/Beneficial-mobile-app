@@ -626,6 +626,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#34C759',
   },
+  finalizeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F2F2F7',
+    backgroundColor: '#FFF',
+  },
+  finalizeButtonText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#007AFF',
+  },
   uploadOverlay: {
     position: 'absolute',
     top: 0,
