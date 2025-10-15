@@ -85,14 +85,16 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(({ onEnd, on
 
   // For native: handle signature from react-native-signature-canvas
   const handleNativeOK = (signature: string) => {
-    console.log('Native signature captured');
+    console.log('Native signature captured:', signature.substring(0, 50) + '...');
     setNativeSignature(signature);
+    onEnd(signature); // Immediately call onEnd when signature is captured
   };
 
   const handleNativeEnd = () => {
-    console.log('Native signature end, signature:', nativeSignature);
-    if (nativeSignature) {
-      onEnd(nativeSignature);
+    console.log('Native signature end - requesting signature from canvas');
+    // Request signature from the canvas
+    if (nativeSignatureRef.current) {
+      nativeSignatureRef.current.readSignature();
     }
   };
 
