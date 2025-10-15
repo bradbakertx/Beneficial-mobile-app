@@ -46,7 +46,17 @@ export default function ChatTabScreen() {
     try {
       const response = await api.get('/conversations');
       console.log('Conversations:', response.data);
-      setConversations(response.data);
+      
+      // Filter out finalized inspection chats (red cards)
+      const filteredConversations = response.data.filter((conv: Conversation) => {
+        if (conv.conversation_type === 'inspection' && conv.finalized) {
+          console.log(`Filtering out finalized inspection chat: ${conv.inspection_id}`);
+          return false;
+        }
+        return true;
+      });
+      
+      setConversations(filteredConversations);
     } catch (error: any) {
       console.error('Error fetching conversations:', error);
     } finally {
