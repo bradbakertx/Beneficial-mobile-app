@@ -18,36 +18,36 @@ BACKEND_URL = "https://inspectapp-3.preview.emergentagent.com/api"
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
 
-class ChatHistoryVisibilityTester:
+class BackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.owner_token = None
-        self.owner_user_id = None
+        self.test_customers = []
+        self.test_messages = []
         
-    def login_as_owner(self) -> bool:
+    def log(self, message):
+        """Log test messages with timestamp"""
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        print(f"[{timestamp}] {message}")
+        
+    def login_owner(self):
         """Login as owner and get JWT token"""
-        try:
-            response = self.session.post(f"{BASE_URL}/auth/login", json={
-                "email": OWNER_EMAIL,
-                "password": OWNER_PASSWORD
-            })
+        self.log("🔐 Logging in as owner...")
+        
+        response = self.session.post(f"{BACKEND_URL}/auth/login", json={
+            "email": OWNER_EMAIL,
+            "password": OWNER_PASSWORD
+        })
+        
+        if response.status_code != 200:
+            raise Exception(f"Owner login failed: {response.status_code} - {response.text}")
             
-            if response.status_code == 200:
-                data = response.json()
-                self.owner_token = data["session_token"]
-                self.owner_user_id = data["user"]["id"]
-                self.session.headers.update({
-                    "Authorization": f"Bearer {self.owner_token}"
-                })
-                print(f"✅ Owner login successful: {data['user']['name']} ({data['user']['email']})")
-                return True
-            else:
-                print(f"❌ Owner login failed: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Owner login error: {e}")
-            return False
+        data = response.json()
+        self.owner_token = data["session_token"]
+        self.session.headers.update({"Authorization": f"Bearer {self.owner_token}"})
+        
+        self.log(f"✅ Owner login successful. User: {data['user']['name']} ({data['user']['role']})")
+        return data["user"]
     
     def get_inspections(self) -> List[Dict]:
         """Get list of confirmed inspections"""
