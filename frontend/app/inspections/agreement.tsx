@@ -85,7 +85,7 @@ export default function PreInspectionAgreementScreen() {
 
     setSubmitting(true);
     try {
-      await api.post(`/inspections/${id}/sign-agreement`, {
+      await api.post(`/inspections/${inspectionId.current}/sign-agreement`, {
         signature: signature
       });
 
@@ -93,8 +93,8 @@ export default function PreInspectionAgreementScreen() {
         window.alert('Agreement signed successfully! PDFs have been emailed to you and the inspector.');
       }
 
-      // Navigate to agent info screen
-      router.replace(`/inspections/agent-info?inspectionId=${id}`);
+      // Navigate to agent info screen using router.push instead of replace
+      router.push(`/inspections/agent-info?inspectionId=${inspectionId.current}`);
     } catch (error: any) {
       console.error('Error signing agreement:', error);
       if (Platform.OS === 'web') {
