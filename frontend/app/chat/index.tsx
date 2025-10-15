@@ -84,6 +84,7 @@ export default function ChatScreen() {
     console.log('=== handleSend called ===');
     console.log('Message:', message);
     console.log('InspectionId:', inspectionId);
+    console.log('CustomerId:', customerId);
     
     if (!message.trim()) {
       Alert.alert('Error', 'Please enter a message');
@@ -108,13 +109,29 @@ export default function ChatScreen() {
     setSending(true);
     try {
       console.log('Sending message to API...');
-      const response = await api.post('/messages', {
-        inspection_id: inspectionId || null,
-        recipient_id: null, // Auto-determined by backend
-        message_text: messageText,
-      });
       
-      console.log('Message sent successfully:', response.data);
+      // Send to owner chat if no inspection, otherwise to inspector chat
+      if (customerId && !inspectionId) {
+        // Send message to specific customer in owner chat
+        const response = await api.post('/messages/owner/chat', {
+          message_text: messageText,
+          recipient_id: customerId, // Specify the recipient
+        });
+        console.log('Message sent to owner chat with customer:', response.data);
+      } else if (!inspectionId) {
+        // Fallback: send to general owner chat
+        const response = await api.post('/messages/owner/chat', {
+          message_text: messageText,
+        });
+        console.log('Message sent to general owner chat:', response.data);
+      } else {
+        // Inspector chat - send to inspection group
+        const response = await api.post('/messages', {
+          inspection_id: inspectionId,
+          message_text: messageText,
+        });
+        console.log('Message sent to inspection chat:', response.data);
+      }
 
       // Refresh messages to get server version with correct IDs
       await fetchMessages();
