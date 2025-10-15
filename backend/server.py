@@ -2915,13 +2915,21 @@ async def get_calendar(
         start = datetime.fromisoformat(start_date.replace('Z', '')) if start_date else None
         end = datetime.fromisoformat(end_date.replace('Z', '')) if end_date else None
         
-        # Fetch events
-        events = get_calendar_events(credentials, start, end)
+        # Fetch events (this will auto-refresh token if needed)
+        result = get_calendar_events(credentials, start, end)
         
-        return {"events": events}
+        # Update credentials in database if they were refreshed
+        if result.get('credentials'):
+            await db.users.update_one(
+                {"id": current_user.id},
+                {"$set": {"google_calendar_credentials": result['credentials']}}
+            )
+            logging.info(f"Updated refreshed Google Calendar credentials for user {current_user.id}")
+        
+        return {"events": result['events']}
     except Exception as e:
         # Log error but return empty events for graceful degradation
-        print(f"Error fetching calendar events: {e}")
+        logging.error(f"Error fetching calendar events: {e}")
         return {"events": [], "message": "Calendar sync temporarily unavailable"}
 
 
