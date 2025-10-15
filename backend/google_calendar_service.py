@@ -65,17 +65,28 @@ def exchange_code_for_token(code: str):
 def get_calendar_events(credentials_dict: dict, start_date: datetime = None, end_date: datetime = None):
     """Fetch calendar events from Google Calendar"""
     try:
-        # Create credentials object
+        # Validate that all required fields are present
+        required_fields = ['access_token', 'refresh_token', 'token_uri', 'client_id', 'client_secret']
+        missing_fields = [field for field in required_fields if not credentials_dict.get(field)]
+        
+        if missing_fields:
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Missing required credential fields: {', '.join(missing_fields)}. Please reconnect Google Calendar."
+            )
+        
+        # Create credentials object with all required fields
         credentials = Credentials(
             token=credentials_dict.get("access_token"),
             refresh_token=credentials_dict.get("refresh_token"),
             token_uri=credentials_dict.get("token_uri"),
             client_id=credentials_dict.get("client_id"),
             client_secret=credentials_dict.get("client_secret"),
-            scopes=credentials_dict.get("scopes")
+            scopes=credentials_dict.get("scopes", SCOPES)
         )
         
         # Build the Calendar API service
+        # The service will automatically refresh the token if needed
         service = build('calendar', 'v3', credentials=credentials)
         
         # Set default date range if not provided (current week)
@@ -119,7 +130,18 @@ def get_calendar_events(credentials_dict: dict, start_date: datetime = None, end
                 'all_day': 'date' in event['start']
             })
         
-        return formatted_events
+        # Return both events and updated credentials (in case token was refreshed)
+        return {
+            'events': formatted_events,
+            'credentials': {
+                'access_token': credentials.token,
+                'refresh_token': credentials.refresh_token,
+                'token_uri': credentials.token_uri,
+                'client_id': credentials.client_id,
+                'client_secret': credentials.client_secret,
+                'scopes': credentials.scopes
+            } if credentials.token != credentials_dict.get("access_token") else None
+        }
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching calendar events: {str(e)}")
