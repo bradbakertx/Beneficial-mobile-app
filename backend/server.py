@@ -2489,10 +2489,19 @@ async def send_message(
                 recipient_role = UserRole.owner
     else:
         # General owner chat (no inspection)
-        owner = await db.users.find_one({"role": UserRole.owner.value})
-        if owner:
-            recipient_id = owner["id"]
-            recipient_role = UserRole.owner
+        # If recipient_id is already provided (owner sending to customer/agent), preserve it
+        if message_data.recipient_id:
+            recipient_id = message_data.recipient_id
+            # Determine recipient role by looking up the user
+            recipient_user = await db.users.find_one({"id": recipient_id})
+            if recipient_user:
+                recipient_role = UserRole(recipient_user["role"])
+        else:
+            # If no recipient_id provided (customer/agent sending to owner), default to owner
+            owner = await db.users.find_one({"role": UserRole.owner.value})
+            if owner:
+                recipient_id = owner["id"]
+                recipient_role = UserRole.owner
         expires_at = datetime.utcnow() + timedelta(days=30)  # General chats last longer
     
     message_id = str(uuid.uuid4())
