@@ -307,6 +307,33 @@ export default function InspectionsScreen() {
   });
 
   const renderFinalizedItem = (inspection: Inspection) => {
+    const paymentCompleted = (inspection as any).payment_completed;
+    const isUnlocked = paymentCompleted;
+    
+    const handleViewReports = () => {
+      if (isUnlocked) {
+        // Reports unlocked - will implement viewer in next phase
+        Alert.alert('Reports Available', 'Report viewer will be implemented in the next phase.');
+      } else {
+        // Reports locked - redirect to payment
+        Alert.alert(
+          'Payment Required',
+          'Please complete payment to unlock and view your reports.',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Pay Now',
+              onPress: () => {
+                if ((inspection as any).fee_amount) {
+                  router.push(`/inspections/payment?id=${inspection.id}&amount=${(inspection as any).fee_amount}&address=${encodeURIComponent(inspection.property_address)}`);
+                }
+              }
+            }
+          ]
+        );
+      }
+    };
+    
     return (
       <View style={styles.card}>
         <View style={styles.cardHeader}>
@@ -325,11 +352,23 @@ export default function InspectionsScreen() {
         )}
         
         <TouchableOpacity 
-          style={styles.viewReportsButton}
-          onPress={() => Alert.alert('Coming Soon', 'Report viewing will be available after payment integration.')}
+          style={[
+            styles.viewReportsButton,
+            isUnlocked && styles.viewReportsButtonUnlocked
+          ]}
+          onPress={handleViewReports}
         >
-          <Ionicons name="lock-closed-outline" size={20} color="#FFD700" />
-          <Text style={styles.viewReportsButtonText}>View/Download Reports</Text>
+          <Ionicons 
+            name={isUnlocked ? "lock-open-outline" : "lock-closed-outline"} 
+            size={20} 
+            color={isUnlocked ? "#FFF" : "#000"} 
+          />
+          <Text style={[
+            styles.viewReportsButtonText,
+            isUnlocked && styles.viewReportsButtonTextUnlocked
+          ]}>
+            View/Download Reports
+          </Text>
         </TouchableOpacity>
       </View>
     );
