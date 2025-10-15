@@ -10,7 +10,7 @@ import sys
 from typing import Dict, List, Optional
 
 # Backend API Configuration
-BASE_URL = "https://inspectapp-2.preview.emergentagent.com/api"
+BASE_URL = "https://inspectapp-3.preview.emergentagent.com/api"
 
 # Test Credentials
 OWNER_EMAIL = "bradbakertx@gmail.com"
