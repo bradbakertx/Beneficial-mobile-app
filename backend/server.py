@@ -462,6 +462,12 @@ async def schedule_inspection(
     if quote.get("property_city"):
         property_address = f"{property_address}, {quote['property_city']}, TX {quote.get('property_zip', '')}"
     
+    # Copy fee amount from quote to inspection
+    fee_amount = None
+    if quote.get("quote_amount"):
+        fee_amount = float(quote["quote_amount"])
+        logging.info(f"Copying fee_amount {fee_amount} from quote {scheduling_data.quote_id} to new inspection")
+    
     inspection = InspectionInDB(
         id=inspection_id,
         quote_id=scheduling_data.quote_id,
@@ -476,6 +482,7 @@ async def schedule_inspection(
         property_type=quote.get("property_type"),
         num_buildings=quote.get("num_buildings"),
         num_units=quote.get("num_units"),
+        fee_amount=fee_amount,  # Store fee amount on inspection
         preferred_date=None,
         preferred_time=None,
         option_period_end_date=scheduling_data.option_period_end_date,
