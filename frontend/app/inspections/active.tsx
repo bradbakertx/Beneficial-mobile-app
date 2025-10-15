@@ -161,7 +161,7 @@ export default function ActiveInspectionsScreen() {
 
                   Alert.alert(
                     'Success',
-                    `${fileCount} report ${fileWord} uploaded successfully! Customer and agent will be notified.`,
+                    `${fileCount} report ${fileWord} uploaded successfully!`,
                     [{ text: 'OK', onPress: () => fetchActiveInspections() }]
                   );
                 } catch (error: any) {
