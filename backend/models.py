@@ -166,6 +166,7 @@ class InspectionInDB(InspectionBase):
     payment_date: Optional[datetime] = None  # When payment was completed
     payment_transaction_id: Optional[str] = None  # Square transaction ID
     payment_amount: Optional[float] = None  # Amount paid
+    payment_method: Optional[str] = None  # Payment method: Cash, Check, Card/Mobile Tap, Square
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
