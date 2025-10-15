@@ -181,4 +181,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  nativeContainer: {
+    width: '100%',
+    height: 250,
+    borderWidth: 2,
+    borderColor: '#E5E5EA',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  signatureCanvas: {
+    flex: 1,
+    backgroundColor: '#FFF',
+  },
 });
