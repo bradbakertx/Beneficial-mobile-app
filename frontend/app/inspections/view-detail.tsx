@@ -30,6 +30,7 @@ interface InspectionInfo {
   agent_phone?: string;
   status: string;
   quote_id?: string;
+  fee_amount?: number;
   created_at: string;
 }
 
