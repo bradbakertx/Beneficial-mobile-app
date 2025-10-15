@@ -172,6 +172,7 @@ export default function InspectionDetailScreen() {
         <InfoRow label="Property Address" value={inspection!.property_address} />
         {inspection!.scheduled_date && <InfoRow label="Scheduled Date" value={inspection!.scheduled_date} />}
         {inspection!.scheduled_time && <InfoRow label="Scheduled Time" value={inspection!.scheduled_time} />}
+        {inspection!.fee_amount && <InfoRow label="Inspection Fee" value={`$${inspection!.fee_amount.toFixed(2)}`} />}
         <InfoRow label="Status" value={inspection!.status} />
       </View>
 
