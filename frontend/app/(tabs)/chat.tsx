@@ -76,6 +76,42 @@ export default function ChatTabScreen() {
     router.push(`/chat?inspectionId=${conv.inspection_id || ''}&recipientName=${conv.conversation_type === 'owner_chat' ? 'Owner' : 'Inspector'}&propertyAddress=${encodeURIComponent(conv.property_address || '')}&customerName=${encodeURIComponent(conv.customer_name || '')}`);
   };
 
+  const handleDeleteConversation = (conv: Conversation) => {
+    Alert.alert(
+      'Delete Chat',
+      `Delete chat with ${conv.customer_name}? This cannot be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.delete(`/conversations/${conv.id}`);
+              // Remove from local state
+              setConversations(conversations.filter(c => c.id !== conv.id));
+            } catch (error) {
+              console.error('Error deleting conversation:', error);
+              Alert.alert('Error', 'Failed to delete chat');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const renderRightActions = (conv: Conversation) => {
+    return (
+      <TouchableOpacity
+        style={styles.deleteButton}
+        onPress={() => handleDeleteConversation(conv)}
+      >
+        <Ionicons name="trash" size={24} color="#FFF" />
+        <Text style={styles.deleteButtonText}>Delete</Text>
+      </TouchableOpacity>
+    );
+  };
+
   const renderConversationCard = ({ item }: { item: Conversation }) => {
     const isOwnerChat = item.conversation_type === 'owner_chat';
     const cardStyle = isOwnerChat ? styles.ownerChatCard : styles.inspectorChatCard;
