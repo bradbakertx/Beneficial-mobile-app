@@ -33,6 +33,9 @@ interface InspectionInfo {
   status: string;
   quote_id?: string;
   fee_amount?: number;
+  is_paid?: boolean;
+  payment_completed?: boolean;
+  payment_method?: string;
   created_at: string;
 }
 
