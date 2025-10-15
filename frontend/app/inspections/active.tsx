@@ -270,6 +270,27 @@ export default function ActiveInspectionsScreen() {
     fetchActiveInspections();
   };
 
+  const handleMarkAsPaid = async (paymentMethod: string) => {
+    if (!paymentInspection) return;
+    
+    setMarking(true);
+    try {
+      await api.post(`/inspections/${paymentInspection.id}/mark-paid?payment_method=${encodeURIComponent(paymentMethod)}`);
+      
+      Alert.alert('Success', `Inspection marked as paid via ${paymentMethod}`);
+      setShowPaymentModal(false);
+      setPaymentInspection(null);
+      
+      // Refresh list
+      fetchActiveInspections();
+    } catch (error: any) {
+      console.error('Error marking as paid:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to mark as paid');
+    } finally {
+      setMarking(false);
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'scheduled':
