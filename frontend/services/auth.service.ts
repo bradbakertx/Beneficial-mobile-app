@@ -23,12 +23,16 @@ export interface User {
 }
 
 class AuthService {
-  async login(data: LoginData): Promise<{ token: string; user: User }> {
+  async login(data: LoginData, stayLoggedIn: boolean = true): Promise<{ token: string; user: User }> {
     const response = await api.post('/auth/login', data);
     const { session_token, user } = response.data;
     
+    // Always store the token and user data
     await AsyncStorage.setItem('session_token', session_token);
     await AsyncStorage.setItem('user_data', JSON.stringify(user));
+    
+    // Store the preference for staying logged in
+    await AsyncStorage.setItem('stay_logged_in', JSON.stringify(stayLoggedIn));
     
     return { token: session_token, user };
   }
