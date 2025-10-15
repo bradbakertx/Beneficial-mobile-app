@@ -99,6 +99,18 @@ export default function LoginScreen() {
             </View>
 
             <TouchableOpacity
+              style={styles.checkboxContainer}
+              onPress={() => setStayLoggedIn(!stayLoggedIn)}
+            >
+              <View style={[styles.checkbox, stayLoggedIn && styles.checkboxChecked]}>
+                {stayLoggedIn && (
+                  <Ionicons name="checkmark" size={16} color="#fff" />
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>Stay logged in</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
               style={[styles.button, loading && styles.buttonDisabled]}
               onPress={handleLogin}
               disabled={loading}
