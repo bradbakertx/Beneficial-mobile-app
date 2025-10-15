@@ -173,8 +173,17 @@ def generate_agreement_pdf(
         logo_response = requests.get(logo_url)
         logo_bytes = io.BytesIO(logo_response.content)
         
-        # Add logo with appropriate sizing (3 inches wide, maintain aspect ratio)
-        logo_img = RLImage(logo_bytes, width=3*inch, height=1*inch)
+        # Get image dimensions to maintain aspect ratio
+        pil_img = PILImage.open(io.BytesIO(logo_response.content))
+        img_width, img_height = pil_img.size
+        aspect_ratio = img_height / img_width
+        
+        # Set width to 3 inches and calculate height to maintain aspect ratio
+        logo_width = 3 * inch
+        logo_height = logo_width * aspect_ratio
+        
+        # Add logo with proper aspect ratio
+        logo_img = RLImage(logo_bytes, width=logo_width, height=logo_height)
         
         # Center the logo using a table
         logo_table = Table([[logo_img]], colWidths=[letter[0] - 1.5*inch])
@@ -183,7 +192,7 @@ def generate_agreement_pdf(
             ('VALIGN', (0, 0), (0, 0), 'MIDDLE'),
         ]))
         story.append(logo_table)
-        story.append(Spacer(1, 0.1*inch))
+        story.append(Spacer(1, 0.05*inch))  # Reduced from 0.1*inch
     except Exception as e:
         logger.error(f"Error adding logo to PDF: {e}")
         # Fallback to text if logo fails
