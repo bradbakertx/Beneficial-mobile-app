@@ -227,6 +227,17 @@ export default function InspectionDetailScreen() {
           {inspection!.agent_phone && <InfoRow label="Phone" value={inspection!.agent_phone} />}
         </View>
       )}
+
+      {/* Mark as Paid Button - Owner Only, if not already paid */}
+      {user?.role === 'owner' && !inspection!.is_paid && inspection!.fee_amount && (
+        <TouchableOpacity
+          style={styles.markPaidButton}
+          onPress={() => setShowPaymentModal(true)}
+        >
+          <Ionicons name="cash" size={20} color="#FFF" />
+          <Text style={styles.markPaidButtonText}>Mark as Paid</Text>
+        </TouchableOpacity>
+      )}
     </ScrollView>
   );
 
