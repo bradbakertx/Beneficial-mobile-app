@@ -22,6 +22,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [stayLoggedIn, setStayLoggedIn] = useState(true); // Default to true for convenience
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      await login(email.toLowerCase().trim(), password);
+      await login(email.toLowerCase().trim(), password, stayLoggedIn);
       router.replace('/(tabs)');
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
