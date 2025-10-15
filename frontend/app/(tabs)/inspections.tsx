@@ -279,22 +279,72 @@ export default function InspectionsScreen() {
     );
   }
 
+  const renderFinalizedItem = (inspection: Inspection) => {
+    return (
+      <View style={styles.card}>
+        <View style={styles.cardHeader}>
+          <Ionicons name="checkmark-circle" size={24} color="#34C759" />
+          <View style={styles.cardHeaderText}>
+            <Text style={styles.cardTitle}>{inspection.property_address}</Text>
+            <Text style={styles.cardSubtitle}>
+              {inspection.scheduled_date && format(new Date(inspection.scheduled_date), 'MMM d, yyyy')}
+            </Text>
+          </View>
+        </View>
+        
+        {inspection.inspector_name && (
+          <Text style={styles.inspectorText}>Inspector: {inspection.inspector_name}</Text>
+        )}
+        
+        <TouchableOpacity 
+          style={styles.viewReportsButton}
+          onPress={() => Alert.alert('Coming Soon', 'Report viewing will be available after payment integration.')}
+        >
+          <Ionicons name="lock-closed-outline" size={20} color="#FFD700" />
+          <Text style={styles.viewReportsButtonText}>View/Download Reports</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <FlatList
-        data={inspections}
-        renderItem={renderInspectionItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContent}
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Ionicons name="clipboard-outline" size={64} color="#C7C7CC" />
-            <Text style={styles.emptyText}>No inspections scheduled</Text>
-            <Text style={styles.emptySubtext}>Schedule an inspection to get started</Text>
-          </View>
-        }
-      />
+      >
+        {/* Active Inspections Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Active Inspections</Text>
+          {activeInspections.length === 0 ? (
+            <View style={styles.emptySection}>
+              <Text style={styles.emptySectionText}>No active inspections</Text>
+            </View>
+          ) : (
+            activeInspections.map((inspection) => (
+              <View key={inspection.id}>
+                {renderInspectionItem({ item: inspection })}
+              </View>
+            ))
+          )}
+        </View>
+
+        {/* My Reports Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>My Reports</Text>
+          {finalizedInspections.length === 0 ? (
+            <View style={styles.emptySection}>
+              <Text style={styles.emptySectionText}>No finalized inspections yet</Text>
+            </View>
+          ) : (
+            finalizedInspections.map((inspection) => (
+              <View key={inspection.id}>
+                {renderFinalizedItem(inspection)}
+              </View>
+            ))
+          )}
+        </View>
+      </ScrollView>
 
       {/* Customer Reschedule Request Modal */}
       <Modal
