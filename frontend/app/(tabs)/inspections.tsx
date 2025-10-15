@@ -282,6 +282,17 @@ export default function InspectionsScreen() {
     );
   }
 
+  // Filter finalized inspections based on search query
+  const filteredFinalizedInspections = finalizedInspections.filter((inspection) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const address = inspection.property_address?.toLowerCase() || '';
+    const customerName = inspection.customer_name?.toLowerCase() || '';
+    
+    return address.includes(query) || customerName.includes(query);
+  });
+
   const renderFinalizedItem = (inspection: Inspection) => {
     return (
       <View style={styles.card}>
