@@ -2855,6 +2855,49 @@ async def get_unread_count(
     return {"unread_count": unread_count}
 
 
+@api_router.delete("/conversations/{conversation_id}")
+async def delete_conversation(
+    conversation_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Delete a conversation and all its messages (Owner only, owner_chat type only)"""
+    # Only owners can delete conversations
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can delete conversations")
+    
+    try:
+        # Find messages for this conversation
+        # For owner chats: conversation_id matches the message conversation_type field
+        messages = await db.messages.find({
+            "conversation_type": "owner_chat",
+            "customer_id": conversation_id  # conversation_id is actually the customer_id for owner chats
+        }).to_list(None)
+        
+        if not messages:
+            # Try alternate query - check if conversation_id is in inspection_id field
+            messages = await db.messages.find({
+                "inspection_id": conversation_id
+            }).to_list(None)
+        
+        # Delete all messages in this conversation
+        if messages:
+            message_ids = [msg["id"] for msg in messages]
+            delete_result = await db.messages.delete_many({
+                "id": {"$in": message_ids}
+            })
+            logging.info(f"Deleted {delete_result.deleted_count} messages for conversation {conversation_id}")
+        
+        return {
+            "success": True,
+            "message": "Conversation deleted successfully",
+            "deleted_messages": len(messages) if messages else 0
+        }
+        
+    except Exception as e:
+        logging.error(f"Error deleting conversation: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete conversation: {str(e)}")
+
+
 # ============= GOOGLE CALENDAR ENDPOINTS =============
 
 from google_calendar_service import get_google_auth_url, exchange_code_for_token, get_calendar_events
