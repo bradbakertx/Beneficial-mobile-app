@@ -20,7 +20,9 @@ const { height } = Dimensions.get('window');
 export default function PreInspectionAgreementScreen() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const inspectionId = useRef<string>(Array.isArray(params.id) ? params.id[0] : params.id || '');
+  const id = inspectionId.current;
+  
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [agreementData, setAgreementData] = useState<any>(null);
