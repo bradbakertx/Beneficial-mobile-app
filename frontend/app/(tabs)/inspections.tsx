@@ -54,10 +54,21 @@ export default function InspectionsScreen() {
       }
       const response = await api.get(endpoint);
       
+      console.log('=== FETCHED INSPECTIONS ===');
+      console.log('Endpoint:', endpoint);
+      console.log('Total inspections:', response.data.length);
+      console.log('First inspection sample:', JSON.stringify(response.data[0], null, 2));
+      
       // Separate active and finalized inspections
       const allInspections = response.data;
       const active = allInspections.filter((i: any) => i.status === 'scheduled' && !i.finalized);
       const finalized = allInspections.filter((i: any) => i.status === 'finalized' || i.finalized);
+      
+      console.log('Active inspections:', active.length);
+      console.log('Finalized inspections:', finalized.length);
+      if (active.length > 0) {
+        console.log('Active inspection sample:', JSON.stringify(active[0], null, 2));
+      }
       
       // Sort finalized by date (newest first)
       finalized.sort((a: any, b: any) => {
