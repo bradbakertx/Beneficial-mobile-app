@@ -43,6 +43,7 @@ export default function InspectionsScreen() {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [selectedInspection, setSelectedInspection] = useState<Inspection | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const fetchInspections = async () => {
     try {
