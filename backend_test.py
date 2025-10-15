@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """
-Backend API Testing for Chat History Visibility Feature
-Tests the newly added Chat History Visibility feature when inspector is changed.
+Backend Test Suite for Owner Chat Grouping Fix
+Tests the critical bug fix where all owner chat messages from different customers/agents 
+were appearing in one undifferentiated feed.
 """
 
 import requests
 import json
-import sys
-from typing import Dict, List, Optional
+import uuid
+from datetime import datetime
+import time
 
-# Backend API Configuration
-BASE_URL = "https://inspectapp-3.preview.emergentagent.com/api"
+# Configuration
+BACKEND_URL = "https://inspectapp-3.preview.emergentagent.com/api"
 
-# Test Credentials
+# Test credentials
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
 
