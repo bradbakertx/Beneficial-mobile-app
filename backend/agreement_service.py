@@ -201,12 +201,12 @@ def generate_agreement_pdf(
     story.append(Paragraph("24114 Alpine Lodge", body_style))
     story.append(Paragraph("San Antonio, TX 78258", body_style))
     story.append(Paragraph("(210) 562-0673", body_style))
-    story.append(Spacer(1, 0.2*inch))
+    story.append(Spacer(1, 0.15*inch))  # Reduced from 0.2*inch
     
     # Client info
     story.append(Paragraph(f"<b>Prepared For:</b> {client_name}", body_style))
     story.append(Paragraph(f"<b>Inspection Address:</b> {inspection_address}", body_style))
-    story.append(Spacer(1, 0.2*inch))
+    story.append(Spacer(1, 0.15*inch))  # Reduced from 0.2*inch
     
     # Split agreement text into paragraphs
     agreement_text = get_agreement_text(client_name, inspection_address, fee_amount, 
