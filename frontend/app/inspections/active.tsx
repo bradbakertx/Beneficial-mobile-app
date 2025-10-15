@@ -396,6 +396,20 @@ export default function ActiveInspectionsScreen() {
           <Text style={styles.finalizeButtonText}>Finalize Inspection</Text>
         </TouchableOpacity>
       )}
+      
+      {/* Mark as Paid button - Owner only, if not paid */}
+      {(user?.role === 'owner' || user?.role === 'admin') && !item.is_paid && !item.payment_completed && item.fee_amount && (
+        <TouchableOpacity 
+          style={styles.markPaidButton}
+          onPress={() => {
+            setPaymentInspection(item);
+            setShowPaymentModal(true);
+          }}
+        >
+          <Ionicons name="cash" size={20} color="#FFF" />
+          <Text style={styles.markPaidButtonText}>Mark as Paid</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
