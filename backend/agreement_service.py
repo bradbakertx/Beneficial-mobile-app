@@ -137,8 +137,8 @@ def generate_agreement_pdf(
         parent=styles['BodyText'],
         fontSize=10,
         textColor='black',
-        spaceAfter=8,
-        leading=14,
+        spaceAfter=6,  # Reduced from 8
+        leading=12,    # Reduced from 14
         alignment=TA_LEFT,
         fontName='Times-Roman'
     )
