@@ -24,6 +24,7 @@ class InspectionStatus(str, Enum):
     scheduled = "scheduled"
     completed = "completed"
     cancelled = "cancelled"
+    finalized = "finalized"
 
 
 # User Models
