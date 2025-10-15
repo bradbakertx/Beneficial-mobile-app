@@ -110,8 +110,13 @@ export default function SelectTimeSlotScreen() {
       console.error('Error message:', error.message);
       setSubmitting(false);
       
+      // Show error on both web and mobile
+      const errorMessage = error.response?.data?.detail || 'Failed to confirm time slot. Please try again.';
+      
       if (Platform.OS === 'web') {
-        window.alert(error.response?.data?.detail || 'Failed to confirm time slot. Please try again.');
+        window.alert(errorMessage);
+      } else {
+        Alert.alert('Error', errorMessage);
       }
     }
   };
