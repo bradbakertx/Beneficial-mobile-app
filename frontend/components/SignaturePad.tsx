@@ -83,10 +83,31 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(({ onEnd, on
     }
   };
 
+  // For native: handle signature from react-native-signature-canvas
+  const handleNativeOK = (signature: string) => {
+    console.log('Native signature captured');
+    setNativeSignature(signature);
+  };
+
+  const handleNativeEnd = () => {
+    console.log('Native signature end, signature:', nativeSignature);
+    if (nativeSignature) {
+      onEnd(nativeSignature);
+    }
+  };
+
+  const clearNativeSignature = () => {
+    if (nativeSignatureRef.current) {
+      nativeSignatureRef.current.clearSignature();
+      setNativeSignature(null);
+      if (onClear) onClear();
+    }
+  };
+
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
-    getSignature,
-    clearSignature
+    getSignature: Platform.OS === 'web' ? getSignature : handleNativeEnd,
+    clearSignature: Platform.OS === 'web' ? clearSignature : clearNativeSignature
   }));
 
   if (Platform.OS === 'web') {
@@ -121,9 +142,33 @@ const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(({ onEnd, on
     );
   }
 
-  // For native platforms, we'd use react-native-signature-canvas
-  // For now, return null on native (implement later if needed)
-  return null;
+  // For native platforms (Android/iOS), use react-native-signature-canvas
+  return (
+    <View style={styles.nativeContainer}>
+      <SignatureCanvas
+        ref={nativeSignatureRef}
+        onOK={handleNativeOK}
+        onEmpty={() => console.log('Native signature is empty')}
+        descriptionText="Sign above"
+        clearText="Clear"
+        confirmText="Done"
+        webStyle={`
+          .m-signature-pad {
+            box-shadow: none;
+            border: 2px solid #E5E5EA;
+            border-radius: 8px;
+          }
+          .m-signature-pad--body {
+            border: none;
+          }
+          .m-signature-pad--footer {
+            display: none;
+          }
+        `}
+        style={styles.signatureCanvas}
+      />
+    </View>
+  );
 });
 
 SignaturePad.displayName = 'SignaturePad';
