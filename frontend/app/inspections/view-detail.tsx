@@ -254,6 +254,65 @@ export default function InspectionDetailScreen() {
       </View>
 
       {isManual ? renderManualInspection() : renderRegularInspection()}
+
+      {/* Payment Method Modal */}
+      <Modal
+        visible={showPaymentModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => !marking && setShowPaymentModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Select Payment Method</Text>
+            <Text style={styles.modalSubtitle}>
+              How did the customer pay for this inspection?
+            </Text>
+
+            {/* Payment Method Options */}
+            <TouchableOpacity
+              style={styles.paymentOption}
+              onPress={() => handleMarkAsPaid('Cash')}
+              disabled={marking}
+            >
+              <Ionicons name="cash-outline" size={24} color="#34C759" />
+              <Text style={styles.paymentOptionText}>Cash</Text>
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.paymentOption}
+              onPress={() => handleMarkAsPaid('Check')}
+              disabled={marking}
+            >
+              <Ionicons name="document-text-outline" size={24} color="#007AFF" />
+              <Text style={styles.paymentOptionText}>Check</Text>
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.paymentOption}
+              onPress={() => handleMarkAsPaid('Card/Mobile Tap')}
+              disabled={marking}
+            >
+              <Ionicons name="card-outline" size={24} color="#FF9500" />
+              <Text style={styles.paymentOptionText}>Card/Mobile Tap</Text>
+              <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+            </TouchableOpacity>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowPaymentModal(false)}
+              disabled={marking}
+            >
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+
+            {marking && <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 16 }} />}
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
