@@ -19,10 +19,7 @@ const { height } = Dimensions.get('window');
 
 export default function PreInspectionAgreementScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams();
-  const inspectionId = useRef<string>(Array.isArray(params.id) ? params.id[0] : params.id || '');
-  const id = inspectionId.current;
-  
+  const [id, setId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [agreementData, setAgreementData] = useState<any>(null);
@@ -30,8 +27,19 @@ export default function PreInspectionAgreementScreen() {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const signatureRef = useRef<SignaturePadRef>(null);
 
+  // Extract params once on mount
   useEffect(() => {
-    fetchAgreement();
+    const params = useLocalSearchParams();
+    const extractedId = Array.isArray(params.id) ? params.id[0] : params.id;
+    if (extractedId) {
+      setId(extractedId);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (id) {
+      fetchAgreement();
+    }
   }, [id]);
 
   const fetchAgreement = async () => {
