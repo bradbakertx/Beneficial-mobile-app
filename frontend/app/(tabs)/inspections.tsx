@@ -946,4 +946,22 @@ const styles = StyleSheet.create({
     color: '#FFF',
     letterSpacing: 0.3,
   },
+  paidBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#E8F5E9',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#34C759',
+  },
+  paidText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#34C759',
+    letterSpacing: 0.3,
+  },
 });
