@@ -44,12 +44,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, stayLoggedIn: boolean = true) => {
     try {
-      const { user } = await authService.login({ email, password });
+      const { user } = await authService.login({ email, password }, stayLoggedIn);
       setUser(user);
       
       // Register for push notifications after successful login
+      // Note: Push notifications work via device tokens and persist even when logged out
       registerForPushNotificationsAsync().catch((error) => {
         console.error('Failed to register for push notifications:', error);
       });
