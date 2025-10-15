@@ -61,13 +61,28 @@ export default function InspectionsScreen() {
       
       // Separate active and finalized inspections
       const allInspections = response.data;
-      const active = allInspections.filter((i: any) => i.status === 'scheduled' && !i.finalized);
-      const finalized = allInspections.filter((i: any) => i.status === 'finalized' || i.finalized);
+      
+      // For Owner/Admin: Active = not finalized, My Reports = finalized
+      // For Customer: Active = scheduled and not finalized, My Reports = finalized
+      let active, finalized;
+      
+      if (user?.role === 'owner' || user?.role === 'admin') {
+        // Owner sees all non-finalized inspections in Active (scheduled, pending, etc.)
+        active = allInspections.filter((i: any) => !i.finalized && i.status !== 'finalized');
+        finalized = allInspections.filter((i: any) => i.finalized || i.status === 'finalized');
+      } else {
+        // Customer/Agent only sees 'scheduled' status in Active
+        active = allInspections.filter((i: any) => i.status === 'scheduled' && !i.finalized);
+        finalized = allInspections.filter((i: any) => i.finalized || i.status === 'finalized');
+      }
       
       console.log('Active inspections:', active.length);
       console.log('Finalized inspections:', finalized.length);
       if (active.length > 0) {
         console.log('Active inspection sample:', JSON.stringify(active[0], null, 2));
+      }
+      if (finalized.length > 0) {
+        console.log('Finalized inspection sample:', JSON.stringify(finalized[0], null, 2));
       }
       
       // Sort finalized by date (newest first)
