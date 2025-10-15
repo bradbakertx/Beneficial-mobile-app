@@ -749,4 +749,16 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#000',
   },
+  cardTitleBold: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    marginBottom: 4,
+  },
+  cardCustomerName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#3C3C43',
+    marginBottom: 4,
+  },
 });
