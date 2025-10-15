@@ -225,15 +225,26 @@ export default function InspectionsScreen() {
               <Text style={styles.statusText}>{item.status}</Text>
             </View>
             
-            {/* Pay Now button - only show if not paid for customers */}
-            {user?.role === 'customer' && !(item as any).payment_completed && (item as any).fee_amount && (
-              <TouchableOpacity 
-                style={styles.payNowButtonNew}
-                onPress={() => router.push(`/inspections/payment?id=${item.id}&amount=${(item as any).fee_amount}&address=${encodeURIComponent(item.property_address)}`)}
-              >
-                <Ionicons name="card" size={18} color="#FFF" />
-                <Text style={styles.payNowTextNew}>Pay Now ${(item as any).fee_amount}</Text>
-              </TouchableOpacity>
+            {/* Payment Status - Customer Only */}
+            {user?.role === 'customer' && (item as any).fee_amount && (
+              <>
+                {(item as any).payment_completed || (item as any).is_paid ? (
+                  {/* PAID Badge */}
+                  <View style={styles.paidBadge}>
+                    <Ionicons name="checkmark-circle" size={18} color="#34C759" />
+                    <Text style={styles.paidText}>PAID ${(item as any).fee_amount}</Text>
+                  </View>
+                ) : (
+                  {/* Pay Now Button */}
+                  <TouchableOpacity 
+                    style={styles.payNowButtonNew}
+                    onPress={() => router.push(`/inspections/payment?id=${item.id}&amount=${(item as any).fee_amount}&address=${encodeURIComponent(item.property_address)}`)}
+                  >
+                    <Ionicons name="card" size={18} color="#FFF" />
+                    <Text style={styles.payNowTextNew}>Pay Now ${(item as any).fee_amount}</Text>
+                  </TouchableOpacity>
+                )}
+              </>
             )}
           </View>
         </View>
