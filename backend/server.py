@@ -527,6 +527,13 @@ async def get_my_inspections(
     else:
         raise HTTPException(status_code=403, detail="Only customers and agents can view their inspections")
     
+    # Add fee_amount from linked quote
+    for inspection in inspections:
+        if inspection.get("quote_id"):
+            quote = await db.quotes.find_one({"id": inspection["quote_id"]})
+            if quote and quote.get("quote_amount"):
+                inspection["fee_amount"] = float(quote["quote_amount"])
+    
     return [InspectionResponse(**inspection) for inspection in inspections]
 
 
