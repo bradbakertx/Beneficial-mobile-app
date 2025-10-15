@@ -32,6 +32,7 @@ interface ActiveInspection {
   scheduled_time: string | null;
   preferred_date: string | null;
   preferred_time: string | null;
+  fee_amount?: number;
   created_at: string;
   updated_at: string;
 }
