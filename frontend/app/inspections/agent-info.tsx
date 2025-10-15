@@ -28,8 +28,11 @@ export default function AgentInfoScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
+    console.log('handleSubmit called, workingWithAgent:', workingWithAgent);
+    
     // If not working with agent, just proceed
     if (workingWithAgent === false) {
+      console.log('Not working with agent, navigating to tabs');
       router.replace('/(tabs)');
       return;
     }
@@ -49,12 +52,14 @@ export default function AgentInfoScreen() {
 
     setLoading(true);
     try {
+      console.log('Saving agent info for inspection:', inspectionId);
       await api.patch(`/inspections/${inspectionId}/agent-info`, {
         agent_name: agentName,
         agent_email: agentEmail,
         agent_phone: agentPhone,
       });
 
+      console.log('Agent info saved successfully');
       Alert.alert(
         'Success',
         'Agent information saved successfully!',
@@ -62,6 +67,7 @@ export default function AgentInfoScreen() {
       );
     } catch (error: any) {
       console.error('Error saving agent info:', error);
+      console.error('Error response:', error.response?.data);
       Alert.alert(
         'Error',
         error.response?.data?.detail || 'Failed to save agent information'
