@@ -28,6 +28,7 @@ interface Conversation {
   unread_count: number;
   inspection_date?: string;
   inspection_time?: string;
+  finalized?: boolean;
 }
 
 export default function ChatTabScreen() {
