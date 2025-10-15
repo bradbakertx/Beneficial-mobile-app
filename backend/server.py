@@ -980,6 +980,14 @@ async def get_confirmed_inspections(
     inspections = await db.inspections.find(
         {"status": {"$in": [InspectionStatus.scheduled.value, "finalized"]}}
     ).to_list(1000)
+    
+    # Add fee_amount from linked quote for backward compatibility with existing data
+    for inspection in inspections:
+        if not inspection.get("fee_amount") and inspection.get("quote_id"):
+            quote = await db.quotes.find_one({"id": inspection["quote_id"]})
+            if quote and quote.get("quote_amount"):
+                inspection["fee_amount"] = float(quote["quote_amount"])
+    
     return [InspectionResponse(**inspection) for inspection in inspections]
 
 
