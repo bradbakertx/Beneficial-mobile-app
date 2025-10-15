@@ -86,8 +86,14 @@ const handleNativeOK = (signature: string) => {
 - This preserves the navigation stack and prevents context loss
 
 ## Files Modified
-- `/app/frontend/app/inspections/agreement.tsx` - Parameter handling, state batching
+- `/app/frontend/app/inspections/agreement.tsx` - Parameter handling, state batching, Image component fix
 - `/app/frontend/components/SignaturePad.tsx` - Duplicate callback prevention
+
+## Additional Fix Applied
+- **HTML to React Native Component**: Replaced HTML `<img>` tag with React Native `<Image>` component to fix mobile preview crash
+  - Changed `<img src={signature} alt="Signature" style={{...}} />` 
+  - To `<Image source={{ uri: signature }} style={{...}} resizeMode="contain" />`
+  - This was causing "Something went wrong" error on mobile preview
 
 ## Testing Notes
 - Backend successfully receives and saves signatures (confirmed in previous testing)
