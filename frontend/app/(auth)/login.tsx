@@ -208,6 +208,29 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 4,
   },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    marginBottom: 4,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  checkboxChecked: {
+    backgroundColor: '#007AFF',
+  },
+  checkboxLabel: {
+    fontSize: 15,
+    color: '#1a1a1a',
+  },
   button: {
     backgroundColor: '#007AFF',
     borderRadius: 12,
