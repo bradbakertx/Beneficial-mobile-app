@@ -396,21 +396,31 @@ export default function ActiveInspectionsScreen() {
           <Text style={styles.finalizeButtonText}>Finalize Inspection</Text>
         </TouchableOpacity>
       )}
-      
-      {/* Mark as Paid button - Owner only, if not paid */}
-      {(user?.role === 'owner' || user?.role === 'admin') && !item.is_paid && !item.payment_completed && item.fee_amount && (
-        <TouchableOpacity 
-          style={styles.markPaidButton}
-          onPress={() => {
-            setPaymentInspection(item);
-            setShowPaymentModal(true);
-          }}
-        >
-          <Ionicons name="cash" size={20} color="#FFF" />
-          <Text style={styles.markPaidButtonText}>Mark as Paid</Text>
-        </TouchableOpacity>
-      )}
     </View>
+
+    {/* Payment Status Section - At bottom of card */}
+    {(user?.role === 'owner' || user?.role === 'admin') && item.fee_amount && (
+      <View style={styles.paymentSection}>
+        {item.is_paid || item.payment_completed ? (
+          <View style={styles.paidBadgeCard}>
+            <Ionicons name="checkmark-circle" size={20} color="#34C759" />
+            <Text style={styles.paidBadgeText}>PAID</Text>
+          </View>
+        ) : (
+          <TouchableOpacity 
+            style={styles.markPaidButtonCard}
+            onPress={() => {
+              setPaymentInspection(item);
+              setShowPaymentModal(true);
+            }}
+          >
+            <Ionicons name="cash" size={20} color="#FFF" />
+            <Text style={styles.markPaidButtonText}>Mark as Paid</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    )}
+  </View>
   );
 
   if (loading) {
