@@ -160,6 +160,11 @@ class InspectionInDB(InspectionBase):
     # Finalization fields
     finalized: bool = False  # True when owner finalizes the inspection
     finalized_at: Optional[datetime] = None  # When inspection was finalized
+    # Payment information
+    payment_completed: bool = False  # True when payment is received
+    payment_date: Optional[datetime] = None  # When payment was completed
+    payment_transaction_id: Optional[str] = None  # Square transaction ID
+    payment_amount: Optional[float] = None  # Amount paid
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
