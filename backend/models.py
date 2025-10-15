@@ -157,6 +157,7 @@ class InspectionInDB(InspectionBase):
     report_files: Optional[List[dict]] = None  # List of report files: [{"s3_key": "...", "s3_url": "...", "filename": "...", "uploaded_at": "..."}]
     report_uploaded_at: Optional[datetime] = None  # When report was last uploaded
     quote_id: Optional[str] = None  # Link to quote for fee amount
+    fee_amount: Optional[float] = None  # Inspection fee from accepted quote
     # Finalization fields
     finalized: bool = False  # True when owner finalizes the inspection
     finalized_at: Optional[datetime] = None  # When inspection was finalized
