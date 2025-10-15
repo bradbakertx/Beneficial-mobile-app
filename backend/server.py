@@ -529,10 +529,16 @@ async def get_my_inspections(
     
     # Add fee_amount from linked quote
     for inspection in inspections:
-        if inspection.get("quote_id"):
-            quote = await db.quotes.find_one({"id": inspection["quote_id"]})
+        quote_id = inspection.get("quote_id")
+        logging.info(f"Processing inspection {inspection.get('id')}, quote_id: {quote_id}")
+        if quote_id:
+            quote = await db.quotes.find_one({"id": quote_id})
+            logging.info(f"Quote found: {quote is not None}, quote_amount: {quote.get('quote_amount') if quote else 'N/A'}")
             if quote and quote.get("quote_amount"):
                 inspection["fee_amount"] = float(quote["quote_amount"])
+                logging.info(f"Added fee_amount: {inspection['fee_amount']}")
+        else:
+            logging.info(f"Inspection {inspection.get('id')} has no quote_id")
     
     return [InspectionResponse(**inspection) for inspection in inspections]
 
