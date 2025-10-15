@@ -67,9 +67,9 @@ export default function CalendarWeekView() {
       const response = await api.get('/auth/google/login');
       const authUrl = response.data.auth_url;
       
-      // Open Google OAuth in new window/tab (works on web)
+      // For web: redirect the entire page to avoid iframe blocking
       if (Platform.OS === 'web') {
-        window.open(authUrl, '_blank');
+        window.location.href = authUrl;
       } else {
         // For native mobile, use Linking
         const canOpen = await Linking.canOpenURL(authUrl);
