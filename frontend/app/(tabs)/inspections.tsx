@@ -186,7 +186,7 @@ export default function InspectionsScreen() {
               <Text style={styles.inspectorName}>Inspector: {item.inspector_name}</Text>
             )}
           </View>
-          <View style={styles.statusAndPayment}>
+          <View style={styles.statusContainer}>
             <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
               <Text style={styles.statusText}>{item.status}</Text>
             </View>
@@ -194,11 +194,11 @@ export default function InspectionsScreen() {
             {/* Pay Now button - only show if not paid for customers */}
             {user?.role === 'customer' && !(item as any).payment_completed && (item as any).fee_amount && (
               <TouchableOpacity 
-                style={styles.payNowButton}
+                style={styles.payNowButtonNew}
                 onPress={() => router.push(`/inspections/payment?id=${item.id}&amount=${(item as any).fee_amount}&address=${encodeURIComponent(item.property_address)}`)}
               >
-                <Ionicons name="card-outline" size={16} color="#FFF" />
-                <Text style={styles.payNowText}>Pay Now</Text>
+                <Ionicons name="card" size={18} color="#FFF" />
+                <Text style={styles.payNowTextNew}>Pay Now ${(item as any).fee_amount}</Text>
               </TouchableOpacity>
             )}
           </View>
