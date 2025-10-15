@@ -33,6 +33,8 @@ interface ActiveInspection {
   preferred_date: string | null;
   preferred_time: string | null;
   fee_amount?: number;
+  is_paid?: boolean;
+  payment_completed?: boolean;
   created_at: string;
   updated_at: string;
 }
