@@ -50,6 +50,9 @@ export default function ActiveInspectionsScreen() {
   const [cancelling, setCancelling] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentInspection, setPaymentInspection] = useState<ActiveInspection | null>(null);
+  const [marking, setMarking] = useState(false);
 
   const fetchActiveInspections = async () => {
     try {
