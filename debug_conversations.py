@@ -7,7 +7,7 @@ import requests
 import json
 
 # Configuration
-BACKEND_URL = "https://beneinspect.preview.emergentagent.com/api"
+BACKEND_URL = "https://inspectapp-2.preview.emergentagent.com/api"
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
 TARGET_INSPECTION_ID = "737c416d-d0ae-4e4d-b6b7-c328d339eb72"
