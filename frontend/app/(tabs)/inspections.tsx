@@ -82,9 +82,9 @@ export default function InspectionsScreen() {
 
   // Auto-navigate to agreement if there's an unsigned scheduled inspection (customer only)
   useEffect(() => {
-    if (user?.role === 'customer' && inspections.length > 0 && !loading) {
+    if (user?.role === 'customer' && activeInspections.length > 0 && !loading) {
       // Find first scheduled inspection without agreement signed
-      const unsignedInspection = inspections.find(
+      const unsignedInspection = activeInspections.find(
         (insp) => insp.status === 'scheduled' && !insp.agreement_signed
       );
       
@@ -94,7 +94,7 @@ export default function InspectionsScreen() {
         router.push(`/inspections/agreement?id=${unsignedInspection.id}`);
       }
     }
-  }, [inspections, loading, user?.role]);
+  }, [activeInspections, loading, user?.role]);
 
   const onRefresh = () => {
     setRefreshing(true);
