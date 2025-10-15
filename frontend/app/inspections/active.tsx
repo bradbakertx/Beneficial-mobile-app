@@ -315,14 +315,25 @@ export default function ActiveInspectionsScreen() {
         <Text style={styles.rescheduleButtonText}>Reschedule</Text>
       </TouchableOpacity>
       
-      {/* Upload Report button - Owner only */}
-      {(user?.role === 'owner' || user?.role === 'admin') && (
+      {/* Upload Report button - Owner/Inspector only */}
+      {(user?.role === 'owner' || user?.role === 'admin' || user?.role === 'inspector') && (
         <TouchableOpacity 
           style={styles.uploadButton}
           onPress={() => handleUploadReport(item)}
         >
           <Ionicons name="cloud-upload-outline" size={20} color="#34C759" />
           <Text style={styles.uploadButtonText}>Upload Report</Text>
+        </TouchableOpacity>
+      )}
+      
+      {/* Finalize Inspection button - Owner/Inspector only */}
+      {(user?.role === 'owner' || user?.role === 'admin' || user?.role === 'inspector') && (
+        <TouchableOpacity 
+          style={styles.finalizeButton}
+          onPress={() => handleFinalizeInspection(item)}
+        >
+          <Ionicons name="checkmark-circle-outline" size={20} color="#007AFF" />
+          <Text style={styles.finalizeButtonText}>Finalize Inspection</Text>
         </TouchableOpacity>
       )}
     </View>
