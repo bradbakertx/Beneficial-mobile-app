@@ -710,4 +710,42 @@ const styles = StyleSheet.create({
     color: '#C7C7CC',
     marginTop: 8,
   },
+  scrollContent: {
+    padding: 16,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1C1C1E',
+    marginBottom: 16,
+  },
+  emptySection: {
+    padding: 24,
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  emptySectionText: {
+    fontSize: 14,
+    color: '#8E8E93',
+  },
+  viewReportsButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#FFD700',
+    borderRadius: 8,
+    marginTop: 12,
+  },
+  viewReportsButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+  },
 });
