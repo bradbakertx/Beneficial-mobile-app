@@ -62,11 +62,14 @@ interface ManualInspectionInfo {
 
 export default function InspectionDetailScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const { id } = useLocalSearchParams();
   const [loading, setLoading] = useState(true);
   const [inspection, setInspection] = useState<InspectionInfo | null>(null);
   const [manualInspection, setManualInspection] = useState<ManualInspectionInfo | null>(null);
   const [isManual, setIsManual] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [marking, setMarking] = useState(false);
 
   useEffect(() => {
     fetchInspectionDetail();
