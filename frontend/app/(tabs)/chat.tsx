@@ -116,7 +116,7 @@ export default function ChatTabScreen() {
     const isOwnerChat = item.conversation_type === 'owner_chat';
     const cardStyle = isOwnerChat ? styles.ownerChatCard : styles.inspectorChatCard;
     
-    return (
+    const cardContent = (
       <TouchableOpacity
         style={[styles.conversationCard, cardStyle]}
         onPress={() => handleConversationPress(item)}
@@ -188,6 +188,21 @@ export default function ChatTabScreen() {
         </View>
       </TouchableOpacity>
     );
+
+    // Wrap owner chats in Swipeable for delete functionality
+    if (isOwnerChat) {
+      return (
+        <Swipeable
+          renderRightActions={() => renderRightActions(item)}
+          overshootRight={false}
+        >
+          {cardContent}
+        </Swipeable>
+      );
+    }
+
+    // Return inspection chats without swipe (they auto-delete when finalized)
+    return cardContent;
   };
 
   if (loading) {
