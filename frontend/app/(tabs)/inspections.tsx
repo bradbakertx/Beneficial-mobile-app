@@ -34,7 +34,8 @@ interface Inspection {
 export default function InspectionsScreen() {
   const { user } = useAuth();
   const router = useRouter();
-  const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [activeInspections, setActiveInspections] = useState<Inspection[]>([]);
+  const [finalizedInspections, setFinalizedInspections] = useState<Inspection[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [showRescheduleModal, setShowRescheduleModal] = useState(false);
@@ -50,13 +51,20 @@ export default function InspectionsScreen() {
       }
       const response = await api.get(endpoint);
       
-      // For customers and agents, filter to show only scheduled inspections
-      let inspectionsList = response.data;
-      if (user?.role === 'customer' || user?.role === 'agent') {
-        inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled');
-      }
+      // Separate active and finalized inspections
+      const allInspections = response.data;
+      const active = allInspections.filter((i: any) => i.status === 'scheduled' && !i.finalized);
+      const finalized = allInspections.filter((i: any) => i.status === 'finalized' || i.finalized);
       
-      setInspections(inspectionsList);
+      // Sort finalized by date (newest first)
+      finalized.sort((a: any, b: any) => {
+        const dateA = new Date(a.finalized_at || a.scheduled_date).getTime();
+        const dateB = new Date(b.finalized_at || b.scheduled_date).getTime();
+        return dateB - dateA;
+      });
+      
+      setActiveInspections(active);
+      setFinalizedInspections(finalized);
     } catch (error: any) {
       console.error('Error fetching inspections:', error);
       if (error.response?.status !== 401) {
