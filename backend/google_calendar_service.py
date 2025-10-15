@@ -27,6 +27,7 @@ def get_google_auth_url(state: str = None):
     authorization_url, state = flow.authorization_url(
         access_type='offline',
         include_granted_scopes='true',
+        prompt='consent',  # Force consent screen to get refresh_token
         state=state
     )
     
