@@ -534,6 +534,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8E8E93',
   },
+  statusContainer: {
+    alignItems: 'flex-end',
+    gap: 6,
+  },
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
@@ -543,6 +547,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
     color: '#fff',
+  },
+  feeAmount: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#34C759',
   },
   inspectionDetails: {
     gap: 8,
