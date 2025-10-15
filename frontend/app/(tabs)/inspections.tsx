@@ -175,6 +175,14 @@ export default function InspectionsScreen() {
     const displayDate = item.inspection_date || (item as any).scheduled_date;
     const displayTime = item.inspection_time || (item as any).scheduled_time;
     
+    // Debug Pay Now button visibility
+    console.log('=== Inspection Card Debug ===');
+    console.log('Property:', item.property_address);
+    console.log('User role:', user?.role);
+    console.log('Payment completed:', (item as any).payment_completed);
+    console.log('Fee amount:', (item as any).fee_amount);
+    console.log('Should show Pay Now?:', user?.role === 'customer' && !(item as any).payment_completed && (item as any).fee_amount);
+    
     return (
       <TouchableOpacity style={styles.inspectionCard}>
         <View style={styles.inspectionHeader}>
