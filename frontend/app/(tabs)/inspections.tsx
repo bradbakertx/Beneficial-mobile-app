@@ -835,4 +835,22 @@ const styles = StyleSheet.create({
     padding: 4,
     marginLeft: 8,
   },
+  statusAndPayment: {
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  payNowButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#34C759',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  payNowText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#FFF',
+  },
 });
