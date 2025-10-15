@@ -83,6 +83,34 @@ export default function ActiveInspectionsScreen() {
     setShowCancelModal(true);
   };
 
+  const handleFinalizeInspection = async (inspection: ActiveInspection) => {
+    Alert.alert(
+      'Finalize Inspection',
+      `Are you sure you want to finalize this inspection? This will send reports to the customer and agent, and move the inspection to "My Reports".`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Finalize',
+          onPress: async () => {
+            try {
+              const response = await api.post(`/inspections/${inspection.id}/finalize`);
+              
+              Alert.alert(
+                'Success',
+                'Inspection finalized! Notifications and emails sent.',
+                [{ text: 'OK', onPress: () => fetchActiveInspections() }]
+              );
+            } catch (error: any) {
+              console.error('Finalize error:', error);
+              const errorMessage = error.response?.data?.detail || 'Failed to finalize inspection';
+              Alert.alert('Error', errorMessage);
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleUploadReport = async (inspection: ActiveInspection) => {
     try {
       // Pick multiple PDF documents
