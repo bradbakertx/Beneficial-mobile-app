@@ -281,8 +281,8 @@ export default function ActiveInspectionsScreen() {
       setShowPaymentModal(false);
       setPaymentInspection(null);
       
-      // Refresh list
-      fetchActiveInspections();
+      // Navigate to inspections menu
+      router.push('/(tabs)/inspections');
     } catch (error: any) {
       console.error('Error marking as paid:', error);
       Alert.alert('Error', error.response?.data?.detail || 'Failed to mark as paid');
