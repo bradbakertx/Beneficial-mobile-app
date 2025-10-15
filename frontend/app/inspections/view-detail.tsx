@@ -108,6 +108,24 @@ export default function InspectionDetailScreen() {
     router.push(`/inspections/edit?id=${id}&isManual=${isManual}`);
   };
 
+  const handleMarkAsPaid = async (paymentMethod: string) => {
+    setMarking(true);
+    try {
+      await api.post(`/inspections/${id}/mark-paid?payment_method=${encodeURIComponent(paymentMethod)}`);
+      
+      Alert.alert('Success', `Inspection marked as paid via ${paymentMethod}`);
+      setShowPaymentModal(false);
+      
+      // Refresh inspection data
+      fetchInspectionDetail();
+    } catch (error: any) {
+      console.error('Error marking as paid:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to mark as paid');
+    } finally {
+      setMarking(false);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
