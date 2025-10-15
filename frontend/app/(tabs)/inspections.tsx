@@ -880,22 +880,29 @@ const styles = StyleSheet.create({
     padding: 4,
     marginLeft: 8,
   },
-  statusAndPayment: {
+  statusContainer: {
     alignItems: 'flex-end',
     gap: 8,
   },
-  payNowButton: {
+  payNowButtonNew: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    justifyContent: 'center',
+    gap: 8,
     backgroundColor: '#34C759',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+    shadowColor: '#34C759',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  payNowText: {
-    fontSize: 13,
-    fontWeight: '600',
+  payNowTextNew: {
+    fontSize: 15,
+    fontWeight: '700',
     color: '#FFF',
+    letterSpacing: 0.3,
   },
 });
