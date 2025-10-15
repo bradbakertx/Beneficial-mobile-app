@@ -39,7 +39,7 @@ export default function PreInspectionAgreementScreen() {
 
   const fetchAgreement = async () => {
     try {
-      const response = await api.get(`/inspections/${id}/agreement`);
+      const response = await api.get(`/inspections/${inspectionId.current}/agreement`);
       setAgreementData(response.data);
       
       // If already signed, show success message and go back
@@ -59,10 +59,14 @@ export default function PreInspectionAgreementScreen() {
     }
   };
 
-  const handleSignature = (signature: string) => {
-    setSignature(signature);
-    setShowSignaturePad(false);
-  };
+  const handleSignature = useCallback((signatureData: string) => {
+    console.log('handleSignature called with data length:', signatureData.length);
+    // Use a setTimeout to batch state updates and avoid render issues
+    setTimeout(() => {
+      setSignature(signatureData);
+      setShowSignaturePad(false);
+    }, 0);
+  }, []);
 
   const handleClearSignature = () => {
     setSignature(null);
