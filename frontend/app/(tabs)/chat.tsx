@@ -73,7 +73,13 @@ export default function ChatTabScreen() {
   };
 
   const handleConversationPress = (conv: Conversation) => {
-    router.push(`/chat?inspectionId=${conv.inspection_id || ''}&recipientName=${conv.conversation_type === 'owner_chat' ? 'Owner' : 'Inspector'}&propertyAddress=${encodeURIComponent(conv.property_address || '')}&customerName=${encodeURIComponent(conv.customer_name || '')}`);
+    // For owner chats, pass customer_id instead of inspectionId
+    // For inspection chats, pass inspectionId
+    const chatParams = conv.conversation_type === 'owner_chat'
+      ? `customerId=${conv.customer_id}&recipientName=${conv.customer_name}&customerName=${encodeURIComponent(conv.customer_name || '')}`
+      : `inspectionId=${conv.inspection_id || ''}&recipientName=Inspector&propertyAddress=${encodeURIComponent(conv.property_address || '')}&customerName=${encodeURIComponent(conv.customer_name || '')}`;
+    
+    router.push(`/chat?${chatParams}`);
   };
 
   const handleDeleteConversation = (conv: Conversation) => {
