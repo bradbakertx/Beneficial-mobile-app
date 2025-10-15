@@ -286,7 +286,8 @@ export default function InspectionsScreen() {
         <View style={styles.cardHeader}>
           <Ionicons name="checkmark-circle" size={24} color="#34C759" />
           <View style={styles.cardHeaderText}>
-            <Text style={styles.cardTitle}>{inspection.property_address}</Text>
+            <Text style={styles.cardTitleBold}>{inspection.property_address}</Text>
+            <Text style={styles.cardCustomerName}>{inspection.customer_name}</Text>
             <Text style={styles.cardSubtitle}>
               {inspection.scheduled_date && format(new Date(inspection.scheduled_date), 'MMM d, yyyy')}
             </Text>
