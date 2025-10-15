@@ -290,10 +290,15 @@ export default function ActiveInspectionsScreen() {
               {item.property_address}
             </Text>
           </View>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-            <Text style={styles.statusText}>
-              {item.status === 'scheduled' ? 'Confirmed' : 'Pending'}
-            </Text>
+          <View style={styles.statusContainer}>
+            <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
+              <Text style={styles.statusText}>
+                {item.status === 'scheduled' ? 'Confirmed' : 'Pending'}
+              </Text>
+            </View>
+            {item.fee_amount && (
+              <Text style={styles.feeAmount}>${item.fee_amount.toFixed(2)}</Text>
+            )}
           </View>
         </View>
         
