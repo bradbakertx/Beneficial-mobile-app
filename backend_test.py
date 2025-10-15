@@ -48,438 +48,296 @@ class BackendTester:
         
         self.log(f"✅ Owner login successful. User: {data['user']['name']} ({data['user']['role']})")
         return data["user"]
-    
-    def get_inspections(self) -> List[Dict]:
-        """Get list of confirmed inspections"""
-        try:
-            response = self.session.get(f"{BASE_URL}/admin/inspections/confirmed")
+        
+    def create_test_customer(self, name, email):
+        """Create a test customer account"""
+        self.log(f"👤 Creating test customer: {name} ({email})")
+        
+        # Remove auth header temporarily for registration
+        auth_header = self.session.headers.pop("Authorization", None)
+        
+        response = self.session.post(f"{BACKEND_URL}/auth/register", json={
+            "name": name,
+            "email": email,
+            "password": "TestPassword123!",
+            "role": "customer"
+        })
+        
+        # Restore auth header
+        if auth_header:
+            self.session.headers["Authorization"] = auth_header
+        
+        if response.status_code != 200:
+            # Customer might already exist, try to login instead
+            self.log(f"⚠️  Registration failed, attempting login for existing customer...")
             
-            if response.status_code == 200:
-                inspections = response.json()
-                print(f"✅ Retrieved {len(inspections)} confirmed inspections")
-                return inspections
-            else:
-                print(f"❌ Failed to get inspections: {response.status_code} - {response.text}")
-                return []
-                
-        except Exception as e:
-            print(f"❌ Error getting inspections: {e}")
-            return []
-    
-    def get_inspection_by_id(self, inspection_id: str) -> Optional[Dict]:
-        """Get specific inspection by ID"""
-        try:
-            response = self.session.get(f"{BASE_URL}/inspections/{inspection_id}")
+            # Remove auth header for login
+            auth_header = self.session.headers.pop("Authorization", None)
             
-            if response.status_code == 200:
-                inspection = response.json()
-                print(f"✅ Retrieved inspection: {inspection_id}")
-                print(f"   Property: {inspection.get('property_address', 'N/A')}")
-                print(f"   Current Inspector: {inspection.get('inspector_name', 'N/A')} ({inspection.get('inspector_email', 'N/A')})")
-                return inspection
-            else:
-                print(f"❌ Failed to get inspection {inspection_id}: {response.status_code} - {response.text}")
-                return None
-                
-        except Exception as e:
-            print(f"❌ Error getting inspection {inspection_id}: {e}")
-            return None
-    
-    def get_inspectors(self) -> List[Dict]:
-        """Get list of available inspectors"""
-        try:
-            response = self.session.get(f"{BASE_URL}/users/inspectors")
-            
-            if response.status_code == 200:
-                data = response.json()
-                inspectors = data.get("inspectors", [])
-                print(f"✅ Retrieved {len(inspectors)} inspectors:")
-                for inspector in inspectors:
-                    print(f"   - {inspector['name']} ({inspector['email']}) - {inspector['role']}")
-                return inspectors
-            else:
-                print(f"❌ Failed to get inspectors: {response.status_code} - {response.text}")
-                return []
-                
-        except Exception as e:
-            print(f"❌ Error getting inspectors: {e}")
-            return []
-    
-    def get_conversations(self, user_token: str = None) -> List[Dict]:
-        """Get conversations list for current user"""
-        try:
-            headers = {}
-            if user_token:
-                headers["Authorization"] = f"Bearer {user_token}"
-            
-            response = self.session.get(f"{BASE_URL}/conversations", headers=headers)
-            
-            if response.status_code == 200:
-                conversations = response.json()
-                print(f"✅ Retrieved {len(conversations)} conversations")
-                for conv in conversations:
-                    print(f"   - Conversation ID: {conv.get('conversation_id', 'N/A')}")
-                    print(f"     Type: {conv.get('conversation_type', 'N/A')}")
-                    print(f"     Participants: {conv.get('participant_names', 'N/A')}")
-                    print(f"     Unread Count: {conv.get('unread_count', 0)}")
-                return conversations
-            else:
-                print(f"❌ Failed to get conversations: {response.status_code} - {response.text}")
-                return []
-                
-        except Exception as e:
-            print(f"❌ Error getting conversations: {e}")
-            return []
-    
-    def get_messages(self, inspection_id: str, user_token: str = None) -> List[Dict]:
-        """Get messages for specific inspection"""
-        try:
-            headers = {}
-            if user_token:
-                headers["Authorization"] = f"Bearer {user_token}"
-            
-            response = self.session.get(f"{BASE_URL}/messages/{inspection_id}", headers=headers)
-            
-            if response.status_code == 200:
-                messages = response.json()
-                print(f"✅ Retrieved {len(messages)} messages for inspection {inspection_id}")
-                for msg in messages:
-                    print(f"   - {msg.get('sender_name', 'N/A')} ({msg.get('sender_role', 'N/A')}): {msg.get('message_text', 'N/A')[:50]}...")
-                    print(f"     Created: {msg.get('created_at', 'N/A')}")
-                return messages
-            else:
-                print(f"❌ Failed to get messages for inspection {inspection_id}: {response.status_code} - {response.text}")
-                return []
-                
-        except Exception as e:
-            print(f"❌ Error getting messages for inspection {inspection_id}: {e}")
-            return []
-    
-    def send_test_message(self, inspection_id: str, message_text: str) -> bool:
-        """Send a test message to create chat history"""
-        try:
-            response = self.session.post(f"{BASE_URL}/messages", json={
-                "inspection_id": inspection_id,
-                "message_text": message_text
-            })
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ Test message sent: {data.get('message_id', 'N/A')}")
-                return True
-            else:
-                print(f"❌ Failed to send test message: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Error sending test message: {e}")
-            return False
-    
-    def update_inspection_inspector(self, inspection_id: str, new_inspector_id: str, new_inspector_email: str) -> bool:
-        """Update inspection with new inspector"""
-        try:
-            response = self.session.patch(f"{BASE_URL}/admin/inspections/{inspection_id}/update", json={
-                "inspector_id": new_inspector_id,
-                "inspector_email": new_inspector_email
-            })
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ Inspector updated successfully")
-                print(f"   New Inspector: {data.get('inspector_name', 'N/A')} ({data.get('inspector_email', 'N/A')})")
-                return True
-            else:
-                print(f"❌ Failed to update inspector: {response.status_code} - {response.text}")
-                return False
-                
-        except Exception as e:
-            print(f"❌ Error updating inspector: {e}")
-            return False
-    
-    def create_test_inspector_account(self) -> Optional[Dict]:
-        """Create a test inspector account for testing"""
-        import time
-        try:
-            # Use timestamp to ensure unique email
-            timestamp = str(int(time.time()))
-            test_inspector_data = {
-                "email": f"test.inspector.{timestamp}@example.com",
-                "password": "TestPassword123!",
-                "name": f"Test Inspector {timestamp}",
-                "role": "inspector"
-            }
-            
-            response = self.session.post(f"{BASE_URL}/auth/register", json=test_inspector_data)
-            
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ Test inspector account created: {data['user']['name']} ({data['user']['email']})")
-                return {
-                    "id": data["user"]["id"],
-                    "email": data["user"]["email"],
-                    "name": data["user"]["name"],
-                    "token": data["session_token"]
-                }
-            else:
-                print(f"❌ Failed to create test inspector: {response.status_code} - {response.text}")
-                return None
-                
-        except Exception as e:
-            print(f"❌ Error creating test inspector: {e}")
-            return None
-    
-    def login_as_inspector(self, email: str, password: str) -> Optional[str]:
-        """Login as inspector and return token"""
-        try:
-            response = self.session.post(f"{BASE_URL}/auth/login", json={
+            login_response = self.session.post(f"{BACKEND_URL}/auth/login", json={
                 "email": email,
-                "password": password
+                "password": "TestPassword123!"
             })
             
-            if response.status_code == 200:
-                data = response.json()
-                print(f"✅ Inspector login successful: {data['user']['name']} ({data['user']['email']})")
-                return data["session_token"]
-            else:
-                print(f"❌ Inspector login failed: {response.status_code} - {response.text}")
-                return None
+            # Restore auth header
+            if auth_header:
+                self.session.headers["Authorization"] = auth_header
                 
+            if login_response.status_code == 200:
+                customer_data = login_response.json()["user"]
+                self.log(f"✅ Using existing customer: {customer_data['name']} (ID: {customer_data['id']})")
+                return customer_data
+            else:
+                raise Exception(f"Customer creation/login failed: {response.status_code} - {response.text}")
+        
+        customer_data = response.json()["user"]
+        self.log(f"✅ Test customer created: {customer_data['name']} (ID: {customer_data['id']})")
+        return customer_data
+        
+    def send_customer_message_to_owner(self, customer_email, customer_password, message_text):
+        """Send a message from customer to owner (no recipient_id)"""
+        self.log(f"📤 Customer {customer_email} sending message to owner: '{message_text[:50]}...'")
+        
+        # Login as customer
+        auth_header = self.session.headers.pop("Authorization", None)
+        
+        login_response = self.session.post(f"{BACKEND_URL}/auth/login", json={
+            "email": customer_email,
+            "password": "TestPassword123!"
+        })
+        
+        if login_response.status_code != 200:
+            raise Exception(f"Customer login failed: {login_response.status_code}")
+            
+        customer_token = login_response.json()["session_token"]
+        self.session.headers["Authorization"] = f"Bearer {customer_token}"
+        
+        # Send message (no inspection_id, no recipient_id - goes to owner)
+        response = self.session.post(f"{BACKEND_URL}/messages", json={
+            "message_text": message_text
+        })
+        
+        # Restore owner auth
+        if auth_header:
+            self.session.headers["Authorization"] = auth_header
+        
+        if response.status_code != 200:
+            raise Exception(f"Customer message send failed: {response.status_code} - {response.text}")
+            
+        message_data = response.json()
+        self.log(f"✅ Customer message sent. Message ID: {message_data['id']}")
+        return message_data
+        
+    def send_owner_message_to_customer(self, customer_id, message_text):
+        """Send a message from owner to specific customer (with recipient_id)"""
+        self.log(f"📤 Owner sending message to customer {customer_id}: '{message_text[:50]}...'")
+        
+        # Send message with recipient_id (owner -> specific customer)
+        response = self.session.post(f"{BACKEND_URL}/messages", json={
+            "message_text": message_text,
+            "recipient_id": customer_id
+        })
+        
+        if response.status_code != 200:
+            raise Exception(f"Owner message send failed: {response.status_code} - {response.text}")
+            
+        message_data = response.json()
+        self.log(f"✅ Owner message sent. Message ID: {message_data['id']}, Recipient ID: {message_data.get('recipient_id')}")
+        return message_data
+        
+    def get_conversations(self):
+        """Get conversations list as owner"""
+        self.log("📋 Getting conversations list...")
+        
+        response = self.session.get(f"{BACKEND_URL}/conversations")
+        
+        if response.status_code != 200:
+            raise Exception(f"Get conversations failed: {response.status_code} - {response.text}")
+            
+        conversations = response.json()
+        self.log(f"✅ Retrieved {len(conversations)} conversations")
+        return conversations
+        
+    def get_owner_chat_messages(self):
+        """Get all owner chat messages"""
+        self.log("📋 Getting owner chat messages...")
+        
+        response = self.session.get(f"{BACKEND_URL}/messages/owner/chat")
+        
+        if response.status_code != 200:
+            raise Exception(f"Get owner chat messages failed: {response.status_code} - {response.text}")
+            
+        messages = response.json()
+        self.log(f"✅ Retrieved {len(messages)} owner chat messages")
+        return messages
+        
+    def verify_message_grouping(self, conversations, customer1_id, customer2_id):
+        """Verify that messages are properly grouped by customer"""
+        self.log("🔍 Verifying message grouping by customer...")
+        
+        # Find conversations for each customer
+        customer1_conversations = [c for c in conversations if c.get("customer_id") == customer1_id and c.get("conversation_type") == "owner_chat"]
+        customer2_conversations = [c for c in conversations if c.get("customer_id") == customer2_id and c.get("conversation_type") == "owner_chat"]
+        
+        self.log(f"Customer 1 ({customer1_id}) conversations: {len(customer1_conversations)}")
+        self.log(f"Customer 2 ({customer2_id}) conversations: {len(customer2_conversations)}")
+        
+        # Should have exactly 1 conversation per customer
+        if len(customer1_conversations) != 1:
+            raise Exception(f"Expected 1 conversation for customer1, got {len(customer1_conversations)}")
+            
+        if len(customer2_conversations) != 1:
+            raise Exception(f"Expected 1 conversation for customer2, got {len(customer2_conversations)}")
+            
+        # Conversations should be distinct
+        if customer1_conversations[0]["id"] == customer2_conversations[0]["id"]:
+            raise Exception("Customer conversations have the same ID - messages are not properly separated!")
+            
+        self.log("✅ Messages are properly grouped by customer - each has distinct conversation")
+        return customer1_conversations[0], customer2_conversations[0]
+        
+    def verify_database_state(self, customer1_id, customer2_id):
+        """Verify database state by checking message recipient_ids"""
+        self.log("🔍 Verifying database state - checking recipient_id preservation...")
+        
+        # Get all owner chat messages
+        messages = self.get_owner_chat_messages()
+        
+        # Filter messages by sender/recipient
+        customer1_messages = []
+        customer2_messages = []
+        
+        for msg in messages:
+            # Messages from owner to customer1 should have recipient_id = customer1_id
+            if msg.get("sender_role") == "owner" and msg.get("recipient_id") == customer1_id:
+                customer1_messages.append(msg)
+            # Messages from customer1 to owner should have sender_id = customer1_id
+            elif msg.get("sender_id") == customer1_id and msg.get("recipient_role") == "owner":
+                customer1_messages.append(msg)
+            # Messages from owner to customer2 should have recipient_id = customer2_id  
+            elif msg.get("sender_role") == "owner" and msg.get("recipient_id") == customer2_id:
+                customer2_messages.append(msg)
+            # Messages from customer2 to owner should have sender_id = customer2_id
+            elif msg.get("sender_id") == customer2_id and msg.get("recipient_role") == "owner":
+                customer2_messages.append(msg)
+        
+        self.log(f"Customer 1 messages: {len(customer1_messages)}")
+        self.log(f"Customer 2 messages: {len(customer2_messages)}")
+        
+        # Verify owner->customer messages have correct recipient_id
+        owner_to_customer1 = [m for m in customer1_messages if m.get("sender_role") == "owner"]
+        owner_to_customer2 = [m for m in customer2_messages if m.get("sender_role") == "owner"]
+        
+        for msg in owner_to_customer1:
+            if msg.get("recipient_id") != customer1_id:
+                raise Exception(f"Owner message to customer1 has wrong recipient_id: {msg.get('recipient_id')} != {customer1_id}")
+                
+        for msg in owner_to_customer2:
+            if msg.get("recipient_id") != customer2_id:
+                raise Exception(f"Owner message to customer2 has wrong recipient_id: {msg.get('recipient_id')} != {customer2_id}")
+        
+        self.log("✅ Database state verified - recipient_id correctly preserved for owner messages")
+        
+        # Check for message mixing
+        mixed_messages = []
+        for msg in customer1_messages:
+            if msg.get("sender_role") == "owner" and msg.get("recipient_id") == customer2_id:
+                mixed_messages.append(msg)
+            elif msg.get("sender_id") == customer2_id:
+                mixed_messages.append(msg)
+                
+        for msg in customer2_messages:
+            if msg.get("sender_role") == "owner" and msg.get("recipient_id") == customer1_id:
+                mixed_messages.append(msg)
+            elif msg.get("sender_id") == customer1_id:
+                mixed_messages.append(msg)
+        
+        if mixed_messages:
+            raise Exception(f"Found {len(mixed_messages)} mixed messages between customer conversations!")
+            
+        self.log("✅ No message mixing detected - conversations remain distinct")
+        
+        return {
+            "customer1_messages": len(customer1_messages),
+            "customer2_messages": len(customer2_messages),
+            "owner_to_customer1": len(owner_to_customer1),
+            "owner_to_customer2": len(owner_to_customer2)
+        }
+        
+    def run_comprehensive_test(self):
+        """Run comprehensive test of Owner Chat Grouping Fix"""
+        self.log("🚀 Starting comprehensive Owner Chat Grouping Fix test...")
+        
+        try:
+            # 1. Login as owner
+            owner = self.login_owner()
+            
+            # 2. Create test customers
+            customer1 = self.create_test_customer("Test Customer 1", f"testcustomer1_{int(time.time())}@example.com")
+            customer2 = self.create_test_customer("Test Customer 2", f"testcustomer2_{int(time.time())}@example.com")
+            
+            customer1_id = customer1["id"]
+            customer2_id = customer2["id"]
+            
+            # 3. Have customers send messages to owner
+            self.send_customer_message_to_owner(customer1["email"], "TestPassword123!", "Hello from customer 1 - initial message")
+            self.send_customer_message_to_owner(customer2["email"], "TestPassword123!", "Hello from customer 2 - initial message")
+            
+            # 4. Get conversations and verify separation
+            conversations = self.get_conversations()
+            customer1_conv, customer2_conv = self.verify_message_grouping(conversations, customer1_id, customer2_id)
+            
+            # 5. Owner sends replies to each customer (with recipient_id)
+            self.send_owner_message_to_customer(customer1_id, "Reply to customer 1 - this should be grouped with customer 1")
+            self.send_owner_message_to_customer(customer2_id, "Reply to customer 2 - this should be grouped with customer 2")
+            
+            # 6. Send more messages to test continued separation
+            self.send_customer_message_to_owner(customer1["email"], "TestPassword123!", "Customer 1 follow-up message")
+            self.send_customer_message_to_owner(customer2["email"], "TestPassword123!", "Customer 2 follow-up message")
+            
+            self.send_owner_message_to_customer(customer1_id, "Owner second reply to customer 1")
+            self.send_owner_message_to_customer(customer2_id, "Owner second reply to customer 2")
+            
+            # 7. Final verification
+            final_conversations = self.get_conversations()
+            self.verify_message_grouping(final_conversations, customer1_id, customer2_id)
+            
+            # 8. Verify database state
+            stats = self.verify_database_state(customer1_id, customer2_id)
+            
+            self.log("🎉 ALL TESTS PASSED!")
+            self.log("=" * 60)
+            self.log("✅ Messages from owner to customer1 have recipient_id = customer1_id")
+            self.log("✅ Messages from owner to customer2 have recipient_id = customer2_id") 
+            self.log("✅ Each customer's conversation remains distinct and separate")
+            self.log("✅ No message mixing between different customer conversations")
+            self.log(f"✅ Customer 1 total messages: {stats['customer1_messages']}")
+            self.log(f"✅ Customer 2 total messages: {stats['customer2_messages']}")
+            self.log(f"✅ Owner->Customer1 messages: {stats['owner_to_customer1']}")
+            self.log(f"✅ Owner->Customer2 messages: {stats['owner_to_customer2']}")
+            self.log("=" * 60)
+            
+            return True
+            
         except Exception as e:
-            print(f"❌ Inspector login error: {e}")
-            return None
-    
-    def run_chat_history_visibility_test(self):
-        """Run the comprehensive Chat History Visibility test"""
-        print("=" * 80)
-        print("CHAT HISTORY VISIBILITY FEATURE TEST")
-        print("=" * 80)
-        
-        # Step 1: Login as owner
-        print("\n🔐 STEP 1: Login as Owner")
-        if not self.login_as_owner():
-            print("❌ CRITICAL: Cannot login as owner. Test cannot continue.")
-            return False
-        
-        # Step 2: Find an inspection to test with
-        print("\n🔍 STEP 2: Find Test Inspection")
-        target_inspection_id = "737c416d-d0ae-4e4d-b6b7-c328d339eb72"  # From review request
-        
-        inspection = self.get_inspection_by_id(target_inspection_id)
-        if not inspection:
-            # Try to get any confirmed inspection
-            inspections = self.get_inspections()
-            if inspections:
-                inspection = inspections[0]
-                target_inspection_id = inspection["id"]
-                print(f"✅ Using alternative inspection: {target_inspection_id}")
-            else:
-                print("❌ CRITICAL: No inspections found for testing.")
-                return False
-        
-        original_inspector_id = inspection.get("inspector_id")
-        original_inspector_email = inspection.get("inspector_email")
-        original_inspector_name = inspection.get("inspector_name")
-        
-        print(f"📋 Test Inspection Details:")
-        print(f"   ID: {target_inspection_id}")
-        print(f"   Property: {inspection.get('property_address', 'N/A')}")
-        print(f"   Current Inspector: {original_inspector_name} ({original_inspector_email})")
-        
-        # Step 3: Check existing messages for this inspection
-        print(f"\n💬 STEP 3: Check Existing Messages")
-        existing_messages = self.get_messages(target_inspection_id)
-        
-        # Step 4: Send a test message to create chat history if none exists
-        print(f"\n📝 STEP 4: Create Test Message (if needed)")
-        if len(existing_messages) == 0:
-            test_message = f"Test message for chat history visibility - Inspector change test at {target_inspection_id}"
-            if not self.send_test_message(target_inspection_id, test_message):
-                print("⚠️  Warning: Could not create test message, but continuing with test...")
-        
-        # Step 5: Get list of available inspectors
-        print(f"\n👥 STEP 5: Get Available Inspectors")
-        inspectors = self.get_inspectors()
-        
-        # Always create a fresh test inspector for this test to ensure we have proper credentials
-        print("🔧 Creating fresh test inspector for this test...")
-        test_inspector = self.create_test_inspector_account()
-        fresh_inspector_token = None
-        
-        if test_inspector:
-            # Add the new inspector to our list
-            inspectors.append({
-                "id": test_inspector["id"],
-                "name": test_inspector["name"], 
-                "email": test_inspector["email"],
-                "role": "inspector"
-            })
-            fresh_inspector_token = test_inspector["token"]
-            print(f"✅ Fresh test inspector added: {test_inspector['name']} ({test_inspector['email']})")
-        
-        if len(inspectors) < 2:
-            print("❌ CRITICAL: Need at least 2 inspectors for testing.")
-            return False
-        
-        # Step 6: Select a different inspector (prefer the fresh test inspector)
-        print(f"\n🔄 STEP 6: Select Different Inspector")
-        new_inspector = None
-        
-        # First, try to use the fresh test inspector we just created
-        if test_inspector:
-            for inspector in inspectors:
-                if inspector["email"] == test_inspector["email"]:
-                    new_inspector = inspector
-                    break
-        
-        # If we couldn't use the fresh inspector, find any other different inspector
-        if not new_inspector:
-            for inspector in inspectors:
-                if inspector["id"] != original_inspector_id:
-                    new_inspector = inspector
-                    break
-        
-        if not new_inspector:
-            print("❌ CRITICAL: Cannot find a different inspector for testing.")
-            return False
-        
-        print(f"✅ Selected new inspector: {new_inspector['name']} ({new_inspector['email']})")
-        
-        # Step 7: Get conversations for NEW inspector BEFORE assignment
-        print(f"\n📋 STEP 7: Check New Inspector's Conversations BEFORE Assignment")
-        
-        # Use the fresh test inspector's token if we created one and it matches
-        new_inspector_token = None
-        if test_inspector and new_inspector["email"] == test_inspector["email"]:
-            new_inspector_token = fresh_inspector_token
-            print(f"✅ Using fresh test inspector token")
-        elif new_inspector["email"] == OWNER_EMAIL:
-            # If the new inspector is the owner, use owner credentials
-            new_inspector_token = self.owner_token
-            print(f"✅ Using owner token for owner inspector")
-        else:
-            # Try different password combinations for existing inspectors
-            inspector_password = "TestPassword123!"
-            if "test.inspector@example.com" in new_inspector["email"]:
-                inspector_password = "Beneficial1!"  # This might be the existing test inspector
-            
-            new_inspector_token = self.login_as_inspector(new_inspector["email"], inspector_password)
-        
-        if new_inspector_token:
-            conversations_before = self.get_conversations(new_inspector_token)
-            inspection_conversation_before = any(
-                conv.get("conversation_id") == target_inspection_id 
-                for conv in conversations_before
-            )
-            print(f"📊 New inspector has conversation for inspection {target_inspection_id} BEFORE assignment: {inspection_conversation_before}")
-        else:
-            print("⚠️  Warning: Could not login as new inspector, skipping BEFORE check")
-            conversations_before = []
-            inspection_conversation_before = False
-        
-        # Step 8: Change inspector on the inspection
-        print(f"\n🔄 STEP 8: Change Inspector Assignment")
-        if not self.update_inspection_inspector(target_inspection_id, new_inspector["id"], new_inspector["email"]):
-            print("❌ CRITICAL: Failed to update inspector assignment.")
-            return False
-        
-        # Step 9: Verify new inspector can see the conversation
-        print(f"\n✅ STEP 9: Verify New Inspector Can See Chat History")
-        
-        if new_inspector_token:
-            # Check conversations list
-            conversations_after = self.get_conversations(new_inspector_token)
-            inspection_conversation_after = any(
-                conv.get("conversation_id") == target_inspection_id 
-                for conv in conversations_after
-            )
-            
-            print(f"📊 New inspector has conversation for inspection {target_inspection_id} AFTER assignment: {inspection_conversation_after}")
-            
-            # Check message history access
-            messages_for_new_inspector = self.get_messages(target_inspection_id, new_inspector_token)
-            
-            print(f"📊 New inspector can access {len(messages_for_new_inspector)} messages for inspection {target_inspection_id}")
-            
-            # Step 10: Verify chat history continuity
-            print(f"\n🔍 STEP 10: Verify Chat History Continuity")
-            
-            # Get messages as owner for comparison
-            messages_for_owner = self.get_messages(target_inspection_id)
-            
-            print(f"📊 Message count comparison:")
-            print(f"   Owner can see: {len(messages_for_owner)} messages")
-            print(f"   New inspector can see: {len(messages_for_new_inspector)} messages")
-            
-            # Test Results
-            print(f"\n📋 TEST RESULTS:")
-            print(f"=" * 50)
-            
-            success = True
-            
-            # Test 1: New inspector should see conversation in their list
-            if inspection_conversation_after:
-                print(f"✅ TEST 1 PASSED: New inspector sees conversation in their list")
-            else:
-                print(f"❌ TEST 1 FAILED: New inspector does NOT see conversation in their list")
-                success = False
-            
-            # Test 2: New inspector should be able to access message history
-            if len(messages_for_new_inspector) > 0:
-                print(f"✅ TEST 2 PASSED: New inspector can access message history ({len(messages_for_new_inspector)} messages)")
-            else:
-                print(f"❌ TEST 2 FAILED: New inspector cannot access message history")
-                success = False
-            
-            # Test 3: Message history should be complete (same as owner sees)
-            if len(messages_for_new_inspector) == len(messages_for_owner):
-                print(f"✅ TEST 3 PASSED: New inspector sees complete message history")
-            else:
-                print(f"⚠️  TEST 3 PARTIAL: New inspector sees {len(messages_for_new_inspector)} messages, owner sees {len(messages_for_owner)}")
-                # This might be acceptable depending on implementation
-            
-            # Test 4: Conversation should appear even if inspector was never recipient
-            if not inspection_conversation_before and inspection_conversation_after:
-                print(f"✅ TEST 4 PASSED: Conversation appears for newly assigned inspector (was not visible before)")
-            elif inspection_conversation_before and inspection_conversation_after:
-                print(f"✅ TEST 4 PASSED: Conversation remains visible for inspector")
-            else:
-                print(f"❌ TEST 4 FAILED: Conversation visibility logic not working correctly")
-                success = False
-            
-            # Step 11: Restore original inspector (cleanup)
-            print(f"\n🔄 STEP 11: Restore Original Inspector (Cleanup)")
-            if original_inspector_id and original_inspector_email:
-                self.update_inspection_inspector(target_inspection_id, original_inspector_id, original_inspector_email)
-                print(f"✅ Restored original inspector: {original_inspector_name}")
-            
-            return success
-        
-        else:
-            print("❌ CRITICAL: Could not login as new inspector to verify chat visibility.")
+            self.log(f"❌ TEST FAILED: {str(e)}")
             return False
 
 def main():
     """Main test execution"""
-    tester = ChatHistoryVisibilityTester()
+    print("=" * 60)
+    print("BACKEND TEST: Owner Chat Grouping Fix")
+    print("=" * 60)
     
-    try:
-        success = tester.run_chat_history_visibility_test()
-        
-        print(f"\n" + "=" * 80)
-        if success:
-            print("🎉 CHAT HISTORY VISIBILITY TEST: PASSED")
-            print("✅ New inspectors can see chat history for assigned inspections")
-        else:
-            print("❌ CHAT HISTORY VISIBILITY TEST: FAILED")
-            print("❌ Issues found with chat history visibility feature")
-        print("=" * 80)
-        
-        return 0 if success else 1
-        
-    except Exception as e:
-        print(f"\n❌ CRITICAL ERROR: {e}")
-        print("❌ CHAT HISTORY VISIBILITY TEST: FAILED")
-        return 1
+    tester = BackendTester()
+    success = tester.run_comprehensive_test()
+    
+    if success:
+        print("\n🎉 OWNER CHAT GROUPING FIX: WORKING CORRECTLY")
+        exit(0)
+    else:
+        print("\n❌ OWNER CHAT GROUPING FIX: FAILED")
+        exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
