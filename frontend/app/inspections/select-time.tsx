@@ -62,23 +62,36 @@ export default function SelectTimeSlotScreen() {
   };
 
   const handleConfirmSelection = async () => {
+    console.log('=== handleConfirmSelection CALLED ===');
+    console.log('Selected slot:', selectedSlot);
+    console.log('Inspection ID:', id);
+    
     if (!selectedSlot) {
+      console.log('No slot selected, showing alert');
       if (Platform.OS === 'web') {
         window.alert('Please select a time slot');
       }
       return;
     }
 
+    console.log('Setting submitting to true');
     setSubmitting(true);
+    
     try {
-      console.log('Confirming time slot:', selectedSlot);
+      console.log('Making API call to confirm time slot');
+      console.log('URL:', `/inspections/${id}/confirm-time`);
+      console.log('Payload:', {
+        scheduled_date: selectedSlot.date,
+        scheduled_time: selectedSlot.time,
+      });
       
       const response = await api.patch(`/inspections/${id}/confirm-time`, {
         scheduled_date: selectedSlot.date,
         scheduled_time: selectedSlot.time,
       });
       
-      console.log('Time slot confirmed:', response.data);
+      console.log('API response received:', response.data);
+      console.log('Navigating to tabs...');
 
       // Navigate to dashboard
       router.replace('/(tabs)');
@@ -91,7 +104,10 @@ export default function SelectTimeSlotScreen() {
       }, 500);
 
     } catch (error: any) {
-      console.error('Error confirming time slot:', error);
+      console.error('=== ERROR confirming time slot ===');
+      console.error('Error object:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error message:', error.message);
       setSubmitting(false);
       
       if (Platform.OS === 'web') {
