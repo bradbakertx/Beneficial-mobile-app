@@ -362,7 +362,25 @@ frontend:
         agent: "main"
         comment: "IMPLEMENTED: Added Inspector dropdown to Edit Inspection screen (only visible for regular inspections, not manual). Features: 1) Fetches inspector list from new GET /api/users/inspectors endpoint, 2) Displays inspector name and email in dropdown, 3) Pre-selects current inspector if one is assigned, 4) Mandatory field validation with visual error state (red border), 5) Saves inspector_id and inspector_email on update, 6) Shows 'Select an inspector...' placeholder. Ready for backend testing."
 
+backend:
+  - task: "Owner Chat Grouping by Customer Fix"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, frontend/app/chat/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: false
+        agent: "user"
+        comment: "User reported critical chat grouping issue: All messages from different customers/agents were appearing in a single undifferentiated owner chat feed, rather than being separated into distinct conversations for each participant. The backend /api/conversations endpoint was correctly grouping by customer_id, but the frontend was not passing customerId for owner chats, causing all messages to display together."
+      - working: "NA"
+        agent: "main"
+        comment: "CHAT GROUPING FIX IMPLEMENTED: Updated both backend and frontend to properly separate owner-to-customer/agent conversations. Backend fix (server.py lines 2490-2507): Modified POST /api/messages endpoint to preserve recipient_id when provided (owner sending to specific customer/agent) instead of always overwriting with owner's ID. Now checks if recipient_id exists in request and looks up recipient role. Frontend fix (chat/index.tsx lines 114-120): Updated handleSend function to pass recipient_id: customerId when sending messages in owner chats, ensuring messages are associated with the correct customer conversation. Backend restarted successfully. Ready for backend testing to verify messages are properly grouped by customer in owner chats."
+
 agent_communication:
+  - agent: "main"
+    message: "OWNER CHAT GROUPING FIX COMPLETE: Fixed critical issue where all owner chat messages appeared in one feed. Backend - Updated POST /api/messages to preserve recipient_id when provided (owner -> customer) instead of always defaulting to owner ID. Frontend - Already updated by previous engineer to pass customerId in navigation and message fetching. Final fix completed handleSend function to pass recipient_id. Backend restarted. Ready for comprehensive backend testing to verify messages are now properly grouped by customer in owner conversations."
   - agent: "main"
     message: "INSPECTOR SELECTION FEATURE COMPLETE: Backend - Added GET /api/users/inspectors endpoint and updated PATCH /api/admin/inspections/{inspection_id}/update to handle inspector assignment with push notifications. Frontend - Added inspector dropdown to edit screen with mandatory validation, pre-selection, and error states. Backend restarted successfully. Ready for comprehensive backend testing."
   - agent: "testing"
