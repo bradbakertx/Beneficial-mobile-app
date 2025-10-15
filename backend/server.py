@@ -1998,6 +1998,192 @@ async def download_inspection_report(
         raise HTTPException(status_code=500, detail="Failed to generate download URL")
 
 
+@api_router.post("/inspections/{inspection_id}/finalize")
+async def finalize_inspection(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Finalize inspection - send notifications and emails with reports (Owner/Inspector only)"""
+    from push_notification_service import send_push_notification
+    from s3_service import get_report_download_url
+    import smtplib
+    from email.mime.multipart import MIMEMultipart
+    from email.mime.text import MIMEText
+    from email.mime.application import MIMEApplication
+    import os
+    import requests
+    
+    # Only owners or inspectors can finalize
+    if current_user.role not in [UserRole.owner, UserRole.inspector]:
+        raise HTTPException(status_code=403, detail="Only owners or inspectors can finalize inspections")
+    
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check if already finalized
+    if inspection.get("finalized"):
+        raise HTTPException(status_code=400, detail="Inspection already finalized")
+    
+    # Check if reports exist
+    report_files = inspection.get("report_files", [])
+    if not report_files:
+        raise HTTPException(status_code=400, detail="No reports uploaded yet")
+    
+    try:
+        # Update inspection as finalized
+        await db.inspections.update_one(
+            {"id": inspection_id},
+            {
+                "$set": {
+                    "finalized": True,
+                    "finalized_at": datetime.utcnow(),
+                    "status": "finalized",
+                    "updated_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        property_address = inspection.get("property_address", "the property")
+        inspector_name = inspection.get("inspector_name", "Brad Baker")
+        inspector_phone = inspection.get("inspector_phone", "(210) 562-0673")
+        
+        # Send push notifications
+        customer = await db.users.find_one({"id": inspection["customer_id"]})
+        if customer and customer.get("push_token"):
+            send_push_notification(
+                push_token=customer["push_token"],
+                title="Inspection Reports Available",
+                body=f"Your inspection reports for {property_address} have been uploaded!",
+                data={
+                    "type": "inspection_finalized",
+                    "inspection_id": inspection_id
+                }
+            )
+            logging.info(f"Push notification sent to customer for finalization")
+        
+        if inspection.get("agent_email"):
+            agent = await db.users.find_one({"email": inspection["agent_email"]})
+            if agent and agent.get("push_token"):
+                send_push_notification(
+                    push_token=agent["push_token"],
+                    title="Inspection Reports Available",
+                    body=f"Inspection reports for {property_address} have been uploaded!",
+                    data={
+                        "type": "inspection_finalized",
+                        "inspection_id": inspection_id
+                    }
+                )
+                logging.info(f"Push notification sent to agent for finalization")
+        
+        # Send emails with report attachments
+        gmail_user = os.getenv("GMAIL_USER")
+        gmail_password = os.getenv("GMAIL_APP_PASSWORD")
+        
+        # Email to customer
+        if customer:
+            msg = MIMEMultipart()
+            msg['From'] = gmail_user
+            msg['To'] = customer["email"]
+            msg['Subject'] = f'{property_address} Inspection Reports'
+            
+            # Email body
+            body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+
+Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
+
+You can reach {inspector_name} directly at {inspector_phone} voice or text.
+
+Thanks again!
+
+Brad Baker
+TREC Lic #7522
+San Antonio
+(210) 562-0673
+www.beneficialinspects.com"""
+            
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Attach all report files
+            for report_file in report_files:
+                try:
+                    # Get file from S3
+                    download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                    response = requests.get(download_url)
+                    if response.status_code == 200:
+                        part = MIMEApplication(response.content, Name=report_file["filename"])
+                        part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                        msg.attach(part)
+                except Exception as e:
+                    logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+            
+            # Send email
+            try:
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(gmail_user, gmail_password)
+                server.send_message(msg)
+                server.quit()
+                logging.info(f"Email sent to customer {customer['email']}")
+            except Exception as e:
+                logging.error(f"Failed to send email to customer: {e}")
+        
+        # Email to agent (if exists)
+        if inspection.get("agent_email") and agent:
+            msg = MIMEMultipart()
+            msg['From'] = gmail_user
+            msg['To'] = agent["email"]
+            msg['Subject'] = f'{property_address} Inspection Reports'
+            
+            body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+
+Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
+
+You can reach {inspector_name} directly at {inspector_phone} voice or text.
+
+Thanks again!
+
+Brad Baker
+TREC Lic #7522
+San Antonio
+(210) 562-0673
+www.beneficialinspects.com"""
+            
+            msg.attach(MIMEText(body, 'plain'))
+            
+            # Attach all report files
+            for report_file in report_files:
+                try:
+                    download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                    response = requests.get(download_url)
+                    if response.status_code == 200:
+                        part = MIMEApplication(response.content, Name=report_file["filename"])
+                        part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                        msg.attach(part)
+                except Exception as e:
+                    logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+            
+            try:
+                server = smtplib.SMTP('smtp.gmail.com', 587)
+                server.starttls()
+                server.login(gmail_user, gmail_password)
+                server.send_message(msg)
+                server.quit()
+                logging.info(f"Email sent to agent {agent['email']}")
+            except Exception as e:
+                logging.error(f"Failed to send email to agent: {e}")
+        
+        return {
+            "success": True,
+            "message": "Inspection finalized successfully. Notifications and emails sent."
+        }
+        
+    except Exception as e:
+        logging.error(f"Failed to finalize inspection: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to finalize inspection: {str(e)}")
+
+
 # ============= CHAT/MESSAGE ENDPOINTS =============
 
 @api_router.post("/messages", response_model=MessageResponse)
