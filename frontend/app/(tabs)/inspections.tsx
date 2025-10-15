@@ -347,12 +347,36 @@ export default function InspectionsScreen() {
         {/* My Reports Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Reports</Text>
+          
+          {/* Search Bar - Only show for Owner/Agent */}
+          {(user?.role === 'owner' || user?.role === 'agent') && finalizedInspections.length > 0 && (
+            <View style={styles.searchContainer}>
+              <Ionicons name="search-outline" size={20} color="#8E8E93" style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search by customer name or address..."
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholderTextColor="#8E8E93"
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearButton}>
+                  <Ionicons name="close-circle" size={20} color="#8E8E93" />
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+          
           {finalizedInspections.length === 0 ? (
             <View style={styles.emptySection}>
               <Text style={styles.emptySectionText}>No finalized inspections yet</Text>
             </View>
+          ) : filteredFinalizedInspections.length === 0 ? (
+            <View style={styles.emptySection}>
+              <Text style={styles.emptySectionText}>No results found for "{searchQuery}"</Text>
+            </View>
           ) : (
-            finalizedInspections.map((inspection) => (
+            filteredFinalizedInspections.map((inspection) => (
               <View key={inspection.id}>
                 {renderFinalizedItem(inspection)}
               </View>
