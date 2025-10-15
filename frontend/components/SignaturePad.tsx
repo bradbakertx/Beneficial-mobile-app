@@ -1,5 +1,6 @@
-import React, { useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
 import { View, StyleSheet, Platform } from 'react-native';
+import SignatureCanvas from 'react-native-signature-canvas';
 
 interface SignaturePadProps {
   onEnd: (signature: string) => void;
@@ -13,9 +14,11 @@ export interface SignaturePadRef {
 
 const SignaturePad = forwardRef<SignaturePadRef, SignaturePadProps>(({ onEnd, onClear }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const nativeSignatureRef = useRef<any>(null);
   const isDrawing = useRef(false);
   const contextRef = useRef<CanvasRenderingContext2D | null>(null);
   const hasDrawn = useRef(false);
+  const [nativeSignature, setNativeSignature] = useState<string | null>(null);
 
   useEffect(() => {
     if (Platform.OS === 'web' && canvasRef.current) {
