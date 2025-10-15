@@ -23,6 +23,7 @@ export default function ChatScreen() {
   const params = useLocalSearchParams();
   const { user } = useAuth();
   const inspectionId = params.inspectionId as string | undefined;
+  const customerId = params.customerId as string | undefined;
   const recipientName = params.recipientName as string || 'Inspector';
   const propertyAddress = params.propertyAddress as string || '';
   const customerName = params.customerName as string || '';
@@ -38,7 +39,7 @@ export default function ChatScreen() {
     // Poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [inspectionId]);
+  }, [inspectionId, customerId]);
 
   useEffect(() => {
     // Auto-scroll to bottom when messages change
