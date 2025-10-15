@@ -52,10 +52,21 @@ export default function ChatScreen() {
 
   const fetchMessages = async () => {
     try {
-      // For owner chat (no inspection), fetch messages directly
-      if (!inspectionId) {
+      // For owner chat with specific customer, filter messages by customer_id
+      if (customerId && !inspectionId) {
         const response = await api.get('/messages/owner/chat');
         console.log('Owner chat messages response:', response.data);
+        
+        // Filter messages to only show this specific customer's conversation
+        const filteredMessages = response.data.filter((msg: any) => 
+          msg.sender_id === customerId || msg.recipient_id === customerId
+        );
+        console.log(`Filtered to ${filteredMessages.length} messages for customer ${customerId}`);
+        setMessages(filteredMessages);
+      } else if (!inspectionId) {
+        // Fallback: fetch all owner chat messages (shouldn't happen with new navigation)
+        const response = await api.get('/messages/owner/chat');
+        console.log('Owner chat messages response (no customer filter):', response.data);
         setMessages(response.data);
       } else {
         // Inspector chat - fetch by inspection ID
