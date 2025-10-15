@@ -1999,6 +1999,112 @@ async def download_inspection_report(
         raise HTTPException(status_code=500, detail="Failed to generate download URL")
 
 
+@api_router.post("/inspections/{inspection_id}/create-payment")
+async def create_square_payment(
+    inspection_id: str,
+    payment_data: dict,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Create Square payment for inspection"""
+    from square.client import Client
+    import os
+    from push_notification_service import send_push_notification
+    
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Check if already paid
+    if inspection.get("payment_completed"):
+        raise HTTPException(status_code=400, detail="Inspection already paid")
+    
+    # Get fee amount
+    fee_amount = inspection.get("fee_amount")
+    if not fee_amount:
+        raise HTTPException(status_code=400, detail="No fee amount set for this inspection")
+    
+    try:
+        # Initialize Square client
+        client = Client(
+            access_token=os.getenv("SQUARE_ACCESS_TOKEN"),
+            environment='production' if os.getenv("SQUARE_ENVIRONMENT") == "production" else 'sandbox'
+        )
+        
+        # Convert amount to cents (Square uses cents)
+        amount_cents = int(float(fee_amount) * 100)
+        
+        # Create payment
+        result = client.payments.create_payment(
+            body={
+                "source_id": payment_data.get("source_id"),
+                "idempotency_key": payment_data.get("idempotency_key"),
+                "amount_money": {
+                    "amount": amount_cents,
+                    "currency": "USD"
+                },
+                "location_id": os.getenv("SQUARE_LOCATION_ID"),
+                "note": f"Inspection payment for {inspection.get('property_address')}"
+            }
+        )
+        
+        if result.is_success():
+            payment_response = result.body
+            transaction_id = payment_response['payment']['id']
+            
+            # Update inspection with payment info
+            await db.inspections.update_one(
+                {"id": inspection_id},
+                {
+                    "$set": {
+                        "payment_completed": True,
+                        "payment_date": datetime.utcnow(),
+                        "payment_transaction_id": transaction_id,
+                        "payment_amount": fee_amount,
+                        "updated_at": datetime.utcnow()
+                    }
+                }
+            )
+            
+            # Check if inspection is also finalized - if both, send notifications
+            if inspection.get("finalized"):
+                # Send notifications to customer and agent
+                customer = await db.users.find_one({"id": inspection["customer_id"]})
+                if customer and customer.get("push_token"):
+                    send_push_notification(
+                        push_token=customer["push_token"],
+                        title="Reports Unlocked!",
+                        body=f"Payment received and reports are now available for {inspection.get('property_address')}",
+                        data={"type": "reports_unlocked", "inspection_id": inspection_id}
+                    )
+                
+                if inspection.get("agent_email"):
+                    agent = await db.users.find_one({"email": inspection["agent_email"]})
+                    if agent and agent.get("push_token"):
+                        send_push_notification(
+                            push_token=agent["push_token"],
+                            title="Reports Unlocked!",
+                            body=f"Payment received and reports are now available for {inspection.get('property_address')}",
+                            data={"type": "reports_unlocked", "inspection_id": inspection_id}
+                        )
+            
+            return {
+                "success": True,
+                "message": "Payment successful",
+                "transaction_id": transaction_id,
+                "reports_unlocked": inspection.get("finalized", False)
+            }
+        
+        elif result.is_error():
+            error_message = result.errors[0]['detail'] if result.errors else "Payment failed"
+            logging.error(f"Square payment error: {error_message}")
+            raise HTTPException(status_code=400, detail=error_message)
+            
+    except Exception as e:
+        logging.error(f"Payment processing error: {e}")
+        raise HTTPException(status_code=500, detail=f"Payment processing failed: {str(e)}")
+
+
 @api_router.post("/inspections/{inspection_id}/finalize")
 async def finalize_inspection(
     inspection_id: str,
