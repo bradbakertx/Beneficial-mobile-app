@@ -146,10 +146,10 @@ export default function PreInspectionAgreementScreen() {
               <View style={styles.signaturePreview}>
                 <Text style={styles.signatureLabel}>Your Signature:</Text>
                 <View style={styles.signatureImageContainer}>
-                  <img 
-                    src={signature} 
-                    alt="Signature" 
-                    style={{ width: '100%', height: 100, objectFit: 'contain' }}
+                  <Image 
+                    source={{ uri: signature }} 
+                    style={{ width: '100%', height: 100 }}
+                    resizeMode="contain"
                   />
                 </View>
                 <TouchableOpacity 
