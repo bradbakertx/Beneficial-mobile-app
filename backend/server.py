@@ -952,12 +952,13 @@ async def get_pending_inspections(
 async def get_confirmed_inspections(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Get all confirmed/scheduled inspections (Owner only)"""
+    """Get all confirmed/scheduled inspections including finalized (Owner only)"""
     if current_user.role != UserRole.owner:
         raise HTTPException(status_code=403, detail="Only owners can view all inspections")
     
+    # Get both scheduled and finalized inspections
     inspections = await db.inspections.find(
-        {"status": InspectionStatus.scheduled.value}
+        {"status": {"$in": [InspectionStatus.scheduled.value, "finalized"]}}
     ).to_list(1000)
     return [InspectionResponse(**inspection) for inspection in inspections]
 
