@@ -2156,33 +2156,62 @@ async def finalize_inspection(
         inspector_name = inspection.get("inspector_name", "Brad Baker")
         inspector_phone = inspection.get("inspector_phone", "(210) 562-0673")
         
-        # Send push notifications
+        # Check if payment is completed
+        payment_completed = inspection.get("payment_completed", False)
+        
+        # Send push notifications based on payment status
         customer = await db.users.find_one({"id": inspection["customer_id"]})
         if customer and customer.get("push_token"):
-            send_push_notification(
-                push_token=customer["push_token"],
-                title="Inspection Reports Available",
-                body=f"Your inspection reports for {property_address} have been uploaded!",
-                data={
-                    "type": "inspection_finalized",
-                    "inspection_id": inspection_id
-                }
-            )
-            logging.info(f"Push notification sent to customer for finalization")
-        
-        if inspection.get("agent_email"):
-            agent = await db.users.find_one({"email": inspection["agent_email"]})
-            if agent and agent.get("push_token"):
+            if payment_completed:
+                # Both finalized AND paid - reports unlocked!
                 send_push_notification(
-                    push_token=agent["push_token"],
-                    title="Inspection Reports Available",
-                    body=f"Inspection reports for {property_address} have been uploaded!",
+                    push_token=customer["push_token"],
+                    title="Reports Unlocked!",
+                    body=f"Your inspection reports for {property_address} are now available to view!",
+                    data={
+                        "type": "reports_unlocked",
+                        "inspection_id": inspection_id
+                    }
+                )
+                logging.info(f"Reports unlocked notification sent to customer")
+            else:
+                # Finalized but not paid - reports pending payment
+                send_push_notification(
+                    push_token=customer["push_token"],
+                    title="Inspection Reports Ready",
+                    body=f"Reports for {property_address} are ready. Payment required to view.",
                     data={
                         "type": "inspection_finalized",
                         "inspection_id": inspection_id
                     }
                 )
-                logging.info(f"Push notification sent to agent for finalization")
+                logging.info(f"Finalization notification sent to customer (pending payment)")
+        
+        if inspection.get("agent_email"):
+            agent = await db.users.find_one({"email": inspection["agent_email"]})
+            if agent and agent.get("push_token"):
+                if payment_completed:
+                    send_push_notification(
+                        push_token=agent["push_token"],
+                        title="Reports Unlocked!",
+                        body=f"Inspection reports for {property_address} are now available!",
+                        data={
+                            "type": "reports_unlocked",
+                            "inspection_id": inspection_id
+                        }
+                    )
+                    logging.info(f"Reports unlocked notification sent to agent")
+                else:
+                    send_push_notification(
+                        push_token=agent["push_token"],
+                        title="Inspection Reports Ready",
+                        body=f"Reports for {property_address} are ready (pending payment).",
+                        data={
+                            "type": "inspection_finalized",
+                            "inspection_id": inspection_id
+                        }
+                    )
+                    logging.info(f"Finalization notification sent to agent (pending payment)")
         
         # Send emails with report attachments
         gmail_user = os.getenv("GMAIL_USER")
