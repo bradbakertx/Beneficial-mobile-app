@@ -833,10 +833,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 12,
   },
+  viewReportsButtonUnlocked: {
+    backgroundColor: '#34C759',
+  },
   viewReportsButtonText: {
     fontSize: 14,
     fontWeight: '600',
     color: '#000',
+  },
+  viewReportsButtonTextUnlocked: {
+    color: '#FFF',
   },
   cardTitleBold: {
     fontSize: 16,
