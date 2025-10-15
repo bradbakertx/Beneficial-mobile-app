@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,8 @@ const { height } = Dimensions.get('window');
 
 export default function PreInspectionAgreementScreen() {
   const router = useRouter();
-  const [id, setId] = useState<string>('');
+  const params = useLocalSearchParams();
+  const inspectionId = useRef<string>('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [agreementData, setAgreementData] = useState<any>(null);
@@ -27,20 +28,14 @@ export default function PreInspectionAgreementScreen() {
   const [showSignaturePad, setShowSignaturePad] = useState(false);
   const signatureRef = useRef<SignaturePadRef>(null);
 
-  // Extract params once on mount
+  // Extract params once on mount and store in ref
   useEffect(() => {
-    const params = useLocalSearchParams();
     const extractedId = Array.isArray(params.id) ? params.id[0] : params.id;
-    if (extractedId) {
-      setId(extractedId);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (id) {
+    if (extractedId && typeof extractedId === 'string') {
+      inspectionId.current = extractedId;
       fetchAgreement();
     }
-  }, [id]);
+  }, []);
 
   const fetchAgreement = async () => {
     try {
