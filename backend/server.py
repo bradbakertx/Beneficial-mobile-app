@@ -178,13 +178,37 @@ async def login(credentials: UserLogin):
 @api_router.get("/auth/me", response_model=UserResponse)
 async def get_me(current_user: UserInDB = Depends(get_current_user_from_token)):
     """Get current user info"""
+    from s3_service import s3_client, AWS_S3_BUCKET_NAME
+    
+    # If user has a profile picture (stored as S3 key), generate a presigned URL
+    profile_picture_url = None
+    if current_user.profile_picture:
+        # Check if it's already a full URL (old format) or just an S3 key (new format)
+        if current_user.profile_picture.startswith('http'):
+            # Old format - full URL (may not work if private)
+            profile_picture_url = current_user.profile_picture
+        else:
+            # New format - S3 key, generate presigned URL
+            try:
+                profile_picture_url = s3_client.generate_presigned_url(
+                    'get_object',
+                    Params={
+                        'Bucket': AWS_S3_BUCKET_NAME,
+                        'Key': current_user.profile_picture
+                    },
+                    ExpiresIn=604800  # 7 days
+                )
+            except Exception as e:
+                logging.error(f"Error generating presigned URL for profile picture: {e}")
+                profile_picture_url = None
+    
     return UserResponse(
         id=current_user.id,
         email=current_user.email,
         name=current_user.name,
         role=current_user.role,
         phone=current_user.phone,
-        profile_picture=current_user.profile_picture,
+        profile_picture=profile_picture_url,
         created_at=current_user.created_at
     )
 
