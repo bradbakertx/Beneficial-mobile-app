@@ -81,11 +81,45 @@ export default function ActiveInspectionsScreen() {
         inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled' && !i.finalized);
       }
       
-      // Sort by inspection date (earliest first)
+      // Sort by inspection date (earliest first), then by time (earliest first)
       inspectionsList.sort((a: any, b: any) => {
         const dateA = new Date(a.scheduled_date || a.inspection_date || a.created_at).getTime();
         const dateB = new Date(b.scheduled_date || b.inspection_date || b.created_at).getTime();
-        return dateA - dateB; // Ascending order (earliest first)
+        
+        // If dates are different, sort by date
+        if (dateA !== dateB) {
+          return dateA - dateB; // Ascending order (earliest first)
+        }
+        
+        // If dates are the same, sort by time
+        const timeA = a.scheduled_time || a.inspection_time || '00:00';
+        const timeB = b.scheduled_time || b.inspection_time || '00:00';
+        
+        // Convert time strings to comparable format (e.g., "2pm" -> 14:00)
+        const parseTime = (timeStr: string) => {
+          const timeLower = timeStr.toLowerCase().trim();
+          let hours = 0;
+          let minutes = 0;
+          
+          // Handle "8am", "11am", "2pm" format
+          if (timeLower.includes('am') || timeLower.includes('pm')) {
+            const isPM = timeLower.includes('pm');
+            const timeNum = parseInt(timeLower.replace(/[^\d]/g, ''));
+            hours = isPM && timeNum !== 12 ? timeNum + 12 : (timeNum === 12 && !isPM ? 0 : timeNum);
+          } else if (timeLower.includes(':')) {
+            // Handle "14:00" or "2:30" format
+            const [h, m] = timeLower.split(':');
+            hours = parseInt(h);
+            minutes = parseInt(m || '0');
+          } else {
+            // Just a number, assume it's the hour
+            hours = parseInt(timeLower) || 0;
+          }
+          
+          return hours * 60 + minutes; // Return total minutes for comparison
+        };
+        
+        return parseTime(timeA) - parseTime(timeB); // Ascending order (earliest first)
       });
       
       console.log('Active inspections after filtering and sorting:', inspectionsList.length);
