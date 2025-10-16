@@ -39,14 +39,22 @@ export default function ChatScreen() {
 
   useEffect(() => {
     fetchMessages();
-    // Fetch owner profile for owner chats
+    // Fetch profiles for owner chats
     if (!inspectionId) {
-      fetchOwnerProfile();
+      if (user?.role === 'owner') {
+        // Owner viewing chat - fetch the other party's profile (customer/agent)
+        if (customerId) {
+          fetchOtherPartyProfile(customerId);
+        }
+      } else {
+        // Customer/Agent viewing chat - fetch owner's profile
+        fetchOwnerProfile();
+      }
     }
     // Poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
-  }, [inspectionId, customerId]);
+  }, [inspectionId, customerId, user?.role]);
 
   const fetchOwnerProfile = async () => {
     try {
@@ -59,6 +67,16 @@ export default function ChatScreen() {
       }
     } catch (error) {
       console.error('Error fetching owner profile:', error);
+    }
+  };
+
+  const fetchOtherPartyProfile = async (userId: string) => {
+    try {
+      // Fetch specific user profile by ID
+      const response = await api.get(`/users/${userId}`);
+      setOtherPartyProfile(response.data);
+    } catch (error) {
+      console.error('Error fetching other party profile:', error);
     }
   };
 
