@@ -17,12 +17,7 @@ import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import CalendarWeekView from '../../components/CalendarWeekView';
 import ManualInspectionEntry from '../../components/ManualInspectionEntry';
-
-// Conditionally import wrapper only for native platforms
-let CustomerDashboardWrapper: any = null;
-if (Platform.OS !== 'web') {
-  CustomerDashboardWrapper = require('../../components/CustomerDashboardWrapper').default;
-}
+import CustomerDashboardWrapper from '../../components/CustomerDashboardWrapper';
 
 interface DashboardStats {
   pending_quotes: number;
