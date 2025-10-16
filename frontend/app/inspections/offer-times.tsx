@@ -600,6 +600,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#8E8E93',
   },
+  googleCalendarSection: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  sectionSubtitle: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginBottom: 16,
+  },
   timeSlotSection: {
     padding: 16,
   },
