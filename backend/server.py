@@ -2196,73 +2196,77 @@ async def finalize_inspection(
         # Check if payment is completed
         payment_completed = inspection.get("payment_completed", False)
         
-        # Send push notifications based on payment status
-        customer = await db.users.find_one({"id": inspection["customer_id"]})
-        if customer and customer.get("push_token"):
-            if payment_completed:
-                # Both finalized AND paid - reports unlocked!
-                send_push_notification(
-                    push_token=customer["push_token"],
-                    title="Reports Unlocked!",
-                    body=f"Your inspection reports for {property_address} are now available to view!",
-                    data={
-                        "type": "reports_unlocked",
-                        "inspection_id": inspection_id
-                    }
-                )
-                logging.info(f"Reports unlocked notification sent to customer")
-            else:
-                # Finalized but not paid - reports pending payment
-                send_push_notification(
-                    push_token=customer["push_token"],
-                    title="Inspection Reports Ready",
-                    body=f"Reports for {property_address} are ready. Payment required to view.",
-                    data={
-                        "type": "inspection_finalized",
-                        "inspection_id": inspection_id
-                    }
-                )
-                logging.info(f"Finalization notification sent to customer (pending payment)")
-        
-        if inspection.get("agent_email"):
-            agent = await db.users.find_one({"email": inspection["agent_email"]})
-            if agent and agent.get("push_token"):
+        # Send push notifications (non-blocking - don't fail finalization if this fails)
+        try:
+            customer = await db.users.find_one({"id": inspection["customer_id"]})
+            if customer and customer.get("push_token"):
                 if payment_completed:
+                    # Both finalized AND paid - reports unlocked!
                     send_push_notification(
-                        push_token=agent["push_token"],
+                        push_token=customer["push_token"],
                         title="Reports Unlocked!",
-                        body=f"Inspection reports for {property_address} are now available!",
+                        body=f"Your inspection reports for {property_address} are now available to view!",
                         data={
                             "type": "reports_unlocked",
                             "inspection_id": inspection_id
                         }
                     )
-                    logging.info(f"Reports unlocked notification sent to agent")
+                    logging.info(f"Reports unlocked notification sent to customer")
                 else:
+                    # Finalized but not paid - reports pending payment
                     send_push_notification(
-                        push_token=agent["push_token"],
+                        push_token=customer["push_token"],
                         title="Inspection Reports Ready",
-                        body=f"Reports for {property_address} are ready (pending payment).",
+                        body=f"Reports for {property_address} are ready. Payment required to view.",
                         data={
                             "type": "inspection_finalized",
                             "inspection_id": inspection_id
                         }
                     )
-                    logging.info(f"Finalization notification sent to agent (pending payment)")
-        
-        # Send emails with report attachments
-        gmail_user = os.getenv("GMAIL_USER")
-        gmail_password = os.getenv("GMAIL_APP_PASSWORD")
-        
-        # Email to customer
-        if customer:
-            msg = MIMEMultipart()
-            msg['From'] = gmail_user
-            msg['To'] = customer["email"]
-            msg['Subject'] = f'{property_address} Inspection Reports'
+                    logging.info(f"Finalization notification sent to customer (pending payment)")
             
-            # Email body
-            body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+            if inspection.get("agent_email"):
+                agent = await db.users.find_one({"email": inspection["agent_email"]})
+                if agent and agent.get("push_token"):
+                    if payment_completed:
+                        send_push_notification(
+                            push_token=agent["push_token"],
+                            title="Reports Unlocked!",
+                            body=f"Inspection reports for {property_address} are now available!",
+                            data={
+                                "type": "reports_unlocked",
+                                "inspection_id": inspection_id
+                            }
+                        )
+                        logging.info(f"Reports unlocked notification sent to agent")
+                    else:
+                        send_push_notification(
+                            push_token=agent["push_token"],
+                            title="Inspection Reports Ready",
+                            body=f"Reports for {property_address} are ready (pending payment).",
+                            data={
+                                "type": "inspection_finalized",
+                                "inspection_id": inspection_id
+                            }
+                        )
+                        logging.info(f"Finalization notification sent to agent (pending payment)")
+        except Exception as e:
+            logging.error(f"Failed to send push notifications (non-critical): {e}")
+        
+        # Send emails with report attachments (non-blocking - don't fail finalization if this fails)
+        try:
+            gmail_user = os.getenv("GMAIL_USER")
+            gmail_password = os.getenv("GMAIL_APP_PASSWORD")
+            
+            # Email to customer
+            if customer:
+                msg = MIMEMultipart()
+                msg['From'] = gmail_user
+                msg['To'] = customer["email"]
+                msg['Subject'] = f'{property_address} Inspection Reports'
+                
+                # Email body
+                body = f"""Thank you for trusting Beneficial Inspections with your inspection.
 
 Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
 
@@ -2275,41 +2279,43 @@ TREC Lic #7522
 San Antonio
 (210) 562-0673
 www.beneficialinspects.com"""
-            
-            msg.attach(MIMEText(body, 'plain'))
-            
-            # Attach all report files
-            for report_file in report_files:
+                
+                msg.attach(MIMEText(body, 'plain'))
+                
+                # Attach all report files
+                for report_file in report_files:
+                    try:
+                        # Get file from S3
+                        download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                        response = requests.get(download_url)
+                        if response.status_code == 200:
+                            part = MIMEApplication(response.content, Name=report_file["filename"])
+                            part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                            msg.attach(part)
+                    except Exception as e:
+                        logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+                
+                # Send email
                 try:
-                    # Get file from S3
-                    download_url = get_report_download_url(report_file["s3_key"], expiration=300)
-                    response = requests.get(download_url)
-                    if response.status_code == 200:
-                        part = MIMEApplication(response.content, Name=report_file["filename"])
-                        part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
-                        msg.attach(part)
+                    server = smtplib.SMTP('smtp.gmail.com', 587)
+                    server.starttls()
+                    server.login(gmail_user, gmail_password)
+                    server.send_message(msg)
+                    server.quit()
+                    logging.info(f"Email sent to customer {customer['email']}")
                 except Exception as e:
-                    logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+                    logging.error(f"Failed to send email to customer: {e}")
             
-            # Send email
-            try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(gmail_user, gmail_password)
-                server.send_message(msg)
-                server.quit()
-                logging.info(f"Email sent to customer {customer['email']}")
-            except Exception as e:
-                logging.error(f"Failed to send email to customer: {e}")
-        
-        # Email to agent (if exists)
-        if inspection.get("agent_email") and agent:
-            msg = MIMEMultipart()
-            msg['From'] = gmail_user
-            msg['To'] = agent["email"]
-            msg['Subject'] = f'{property_address} Inspection Reports'
-            
-            body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+            # Email to agent (if exists)
+            if inspection.get("agent_email"):
+                agent = await db.users.find_one({"email": inspection["agent_email"]})
+                if agent:
+                    msg = MIMEMultipart()
+                    msg['From'] = gmail_user
+                    msg['To'] = agent["email"]
+                    msg['Subject'] = f'{property_address} Inspection Reports'
+                    
+                    body = f"""Thank you for trusting Beneficial Inspections with your inspection.
 
 Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
 
@@ -2322,30 +2328,32 @@ TREC Lic #7522
 San Antonio
 (210) 562-0673
 www.beneficialinspects.com"""
-            
-            msg.attach(MIMEText(body, 'plain'))
-            
-            # Attach all report files
-            for report_file in report_files:
-                try:
-                    download_url = get_report_download_url(report_file["s3_key"], expiration=300)
-                    response = requests.get(download_url)
-                    if response.status_code == 200:
-                        part = MIMEApplication(response.content, Name=report_file["filename"])
-                        part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
-                        msg.attach(part)
-                except Exception as e:
-                    logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
-            
-            try:
-                server = smtplib.SMTP('smtp.gmail.com', 587)
-                server.starttls()
-                server.login(gmail_user, gmail_password)
-                server.send_message(msg)
-                server.quit()
-                logging.info(f"Email sent to agent {agent['email']}")
-            except Exception as e:
-                logging.error(f"Failed to send email to agent: {e}")
+                    
+                    msg.attach(MIMEText(body, 'plain'))
+                    
+                    # Attach all report files
+                    for report_file in report_files:
+                        try:
+                            download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                            response = requests.get(download_url)
+                            if response.status_code == 200:
+                                part = MIMEApplication(response.content, Name=report_file["filename"])
+                                part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                                msg.attach(part)
+                        except Exception as e:
+                            logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+                    
+                    try:
+                        server = smtplib.SMTP('smtp.gmail.com', 587)
+                        server.starttls()
+                        server.login(gmail_user, gmail_password)
+                        server.send_message(msg)
+                        server.quit()
+                        logging.info(f"Email sent to agent {agent['email']}")
+                    except Exception as e:
+                        logging.error(f"Failed to send email to agent: {e}")
+        except Exception as e:
+            logging.error(f"Failed to send emails (non-critical): {e}")
         
         return {
             "success": True,
