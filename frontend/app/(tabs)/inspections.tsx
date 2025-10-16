@@ -383,7 +383,16 @@ export default function InspectionsScreen() {
     };
     
     return (
-      <View style={styles.card}>
+      <TouchableOpacity 
+        style={styles.card}
+        onPress={() => {
+          // Only navigate to detail for owners
+          if (user?.role === 'owner' || user?.role === 'admin') {
+            router.push(`/inspections/view-detail?id=${inspection.id}`);
+          }
+        }}
+        activeOpacity={user?.role === 'owner' || user?.role === 'admin' ? 0.7 : 1}
+      >
         <View style={styles.cardHeader}>
           <Ionicons name="checkmark-circle" size={24} color="#34C759" />
           <View style={styles.cardHeaderText}>
@@ -393,6 +402,10 @@ export default function InspectionsScreen() {
               {inspection.scheduled_date && format(new Date(inspection.scheduled_date), 'MMM d, yyyy')}
             </Text>
           </View>
+          {/* Show chevron for owners to indicate it's clickable */}
+          {(user?.role === 'owner' || user?.role === 'admin') && (
+            <Ionicons name="chevron-forward" size={20} color="#8E8E93" />
+          )}
         </View>
         
         {inspection.inspector_name && (
@@ -418,7 +431,7 @@ export default function InspectionsScreen() {
             View/Download Reports
           </Text>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   };
 
