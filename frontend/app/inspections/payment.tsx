@@ -272,20 +272,57 @@ export default function PaymentScreen() {
         </View>
       )}
 
-      {paymentUrl && !loading && (
-        <WebView
-          source={{ uri: paymentUrl }}
-          style={styles.webview}
-          onMessage={handleWebViewMessage}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          startInLoadingState={true}
-          renderLoading={() => (
-            <View style={styles.webviewLoading}>
-              <ActivityIndicator size="large" color="#007AFF" />
+      {testMode ? (
+        <View style={styles.testModeContainer}>
+          <View style={styles.testModeCard}>
+            <Ionicons name="warning-outline" size={48} color="#FF9500" style={styles.testIcon} />
+            <Text style={styles.testModeTitle}>Test Payment Mode</Text>
+            <Text style={styles.testModeMessage}>
+              Square payments require HTTPS-served pages and cannot be loaded in preview environments.
+            </Text>
+            <Text style={styles.testModeNote}>
+              Use the button below to simulate a payment for testing purposes.
+            </Text>
+            
+            <View style={styles.paymentDetails}>
+              <Text style={styles.paymentLabel}>Property Address</Text>
+              <Text style={styles.paymentValue}>{address}</Text>
+              
+              <Text style={styles.paymentLabel}>Amount Due</Text>
+              <Text style={styles.paymentAmount}>${amount}</Text>
             </View>
-          )}
-        />
+            
+            <TouchableOpacity
+              style={styles.testPayButton}
+              onPress={handleTestPayment}
+              disabled={loading}
+            >
+              <Text style={styles.testPayButtonText}>
+                Simulate Payment (Test)
+              </Text>
+            </TouchableOpacity>
+            
+            <Text style={styles.testModeFooter}>
+              Note: This will mark the inspection as paid without processing actual payment.
+            </Text>
+          </View>
+        </View>
+      ) : (
+        paymentUrl && !loading && (
+          <WebView
+            source={{ uri: paymentUrl }}
+            style={styles.webview}
+            onMessage={handleWebViewMessage}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <View style={styles.webviewLoading}>
+                <ActivityIndicator size="large" color="#007AFF" />
+              </View>
+            )}
+          />
+        )
       )}
     </SafeAreaView>
   );
