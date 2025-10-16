@@ -74,8 +74,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     storeLogout();
   };
 
+  const updateUser = (updatedUser: Partial<User>) => {
+    if (user) {
+      setUser({ ...user, ...updatedUser });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticated, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
