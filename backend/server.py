@@ -211,7 +211,7 @@ async def upload_profile_picture(
             Key=s3_key,
             Body=file_content,
             ContentType=f"image/{file_extension}",
-            ACL='private'
+            ACL='public-read'  # Make profile pictures publicly accessible
         )
         
         # Get the profile picture URL
