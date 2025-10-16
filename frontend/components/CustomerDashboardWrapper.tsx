@@ -1,10 +1,15 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import PagerView from 'react-native-pager-view';
+import { View, StyleSheet, Dimensions, Platform, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomerLandingScreen from './CustomerLandingScreen';
 
 const { width } = Dimensions.get('window');
+
+// Conditionally import PagerView only for native platforms
+let PagerView: any = null;
+if (Platform.OS !== 'web') {
+  PagerView = require('react-native-pager-view').default;
+}
 
 interface CustomerDashboardWrapperProps {
   children: React.ReactNode;
@@ -13,7 +18,8 @@ interface CustomerDashboardWrapperProps {
 const LAST_PAGE_KEY = '@customer_dashboard_last_page';
 
 export default function CustomerDashboardWrapper({ children }: CustomerDashboardWrapperProps) {
-  const pagerRef = useRef<PagerView>(null);
+  const pagerRef = useRef<any>(null);
+  const scrollRef = useRef<ScrollView>(null);
   const [initialPage, setInitialPage] = useState(0);
   const [isReady, setIsReady] = useState(false);
 
@@ -27,6 +33,13 @@ export default function CustomerDashboardWrapper({ children }: CustomerDashboard
       if (savedPage !== null) {
         const pageNum = parseInt(savedPage, 10);
         setInitialPage(pageNum);
+        
+        // Scroll to saved page for web
+        if (Platform.OS === 'web' && scrollRef.current) {
+          setTimeout(() => {
+            scrollRef.current?.scrollTo({ x: pageNum * width, animated: false });
+          }, 100);
+        }
       }
     } catch (error) {
       console.log('Error loading last page:', error);
@@ -48,10 +61,40 @@ export default function CustomerDashboardWrapper({ children }: CustomerDashboard
     saveLastPage(page);
   };
 
+  const handleScroll = (event: any) => {
+    const page = Math.round(event.nativeEvent.contentOffset.x / width);
+    saveLastPage(page);
+  };
+
   if (!isReady) {
     return <View style={styles.container} />;
   }
 
+  // For web: use ScrollView with horizontal paging
+  if (Platform.OS === 'web') {
+    return (
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        style={styles.container}
+        onMomentumScrollEnd={handleScroll}
+        scrollEventThrottle={16}
+      >
+        <View style={styles.page}>
+          <CustomerLandingScreen
+            onNavigateToDashboard={() => {
+              scrollRef.current?.scrollTo({ x: width, animated: true });
+            }}
+          />
+        </View>
+        <View style={styles.page}>{children}</View>
+      </ScrollView>
+    );
+  }
+
+  // For native: use PagerView
   return (
     <PagerView
       ref={pagerRef}
