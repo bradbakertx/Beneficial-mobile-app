@@ -81,7 +81,14 @@ export default function ActiveInspectionsScreen() {
         inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled' && !i.finalized);
       }
       
-      console.log('Active inspections after filtering:', inspectionsList.length);
+      // Sort by inspection date (earliest first)
+      inspectionsList.sort((a: any, b: any) => {
+        const dateA = new Date(a.scheduled_date || a.inspection_date || a.created_at).getTime();
+        const dateB = new Date(b.scheduled_date || b.inspection_date || b.created_at).getTime();
+        return dateA - dateB; // Ascending order (earliest first)
+      });
+      
+      console.log('Active inspections after filtering and sorting:', inspectionsList.length);
       setInspections(inspectionsList);
     } catch (error: any) {
       console.error('Error fetching active inspections:', error);
