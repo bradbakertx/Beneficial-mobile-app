@@ -68,8 +68,10 @@ export default function ChatScreen() {
 
   const fetchOtherPartyProfile = async (userId: string) => {
     try {
+      console.log('Fetching other party profile for userId:', userId);
       // Fetch specific user profile by ID
       const response = await api.get(`/users/${userId}`);
+      console.log('Other party profile fetched:', response.data);
       setOtherPartyProfile(response.data);
     } catch (error) {
       console.error('Error fetching other party profile:', error);
