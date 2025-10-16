@@ -156,7 +156,7 @@ export default function EditInspectionScreen() {
     try {
       const payload = {
         client_name: clientName.trim(),
-        client_phone: clientPhone.trim() || null,
+        customer_phone: clientPhone.trim() || null,
         client_email: clientEmail.trim() || null,
         agent_name: agentName.trim() || null,
         agent_phone: agentPhone.trim() || null,
