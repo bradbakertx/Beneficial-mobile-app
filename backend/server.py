@@ -981,12 +981,18 @@ async def get_confirmed_inspections(
         {"status": {"$in": [InspectionStatus.scheduled.value, "finalized"]}}
     ).to_list(1000)
     
+    logging.info(f"Fetched {len(inspections)} inspections for owner")
+    
     # Add fee_amount from linked quote for backward compatibility with existing data
     for inspection in inspections:
         if not inspection.get("fee_amount") and inspection.get("quote_id"):
             quote = await db.quotes.find_one({"id": inspection["quote_id"]})
             if quote and quote.get("quote_amount"):
                 inspection["fee_amount"] = float(quote["quote_amount"])
+        
+        # Log status of each inspection for debugging
+        if inspection.get("finalized") or inspection.get("status") == "finalized":
+            logging.info(f"Inspection {inspection['id']}: status={inspection.get('status')}, finalized={inspection.get('finalized')}, property={inspection.get('property_address')}")
     
     return [InspectionResponse(**inspection) for inspection in inspections]
 
