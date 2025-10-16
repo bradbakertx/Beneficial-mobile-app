@@ -112,15 +112,15 @@ export default function ChatScreen() {
       
       // Send to owner chat if no inspection, otherwise to inspector chat
       if (customerId && !inspectionId) {
-        // Send message to specific customer in owner chat
-        const response = await api.post('/messages/owner/chat', {
+        // Owner sending message to specific customer in owner chat
+        const response = await api.post('/messages', {
           message_text: messageText,
           recipient_id: customerId, // Specify the recipient
         });
         console.log('Message sent to owner chat with customer:', response.data);
       } else if (!inspectionId) {
-        // Fallback: send to general owner chat
-        const response = await api.post('/messages/owner/chat', {
+        // Customer/Agent sending to owner - no recipient_id needed (backend defaults to owner)
+        const response = await api.post('/messages', {
           message_text: messageText,
         });
         console.log('Message sent to general owner chat:', response.data);
