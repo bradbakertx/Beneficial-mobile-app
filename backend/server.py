@@ -164,11 +164,34 @@ async def login(credentials: UserLogin):
     # Create access token
     access_token = create_access_token({"sub": user.id, "role": user.role.value})
     
+    # Generate presigned URL for profile picture if exists
+    profile_picture_url = None
+    if user.profile_picture:
+        if not user.profile_picture.startswith('http'):
+            # It's an S3 key, generate presigned URL
+            try:
+                from s3_service import s3_client, AWS_S3_BUCKET_NAME
+                profile_picture_url = s3_client.generate_presigned_url(
+                    'get_object',
+                    Params={
+                        'Bucket': AWS_S3_BUCKET_NAME,
+                        'Key': user.profile_picture
+                    },
+                    ExpiresIn=604800  # 7 days
+                )
+            except Exception as e:
+                logging.error(f"Error generating presigned URL for profile picture on login: {e}")
+                profile_picture_url = None
+        else:
+            profile_picture_url = user.profile_picture
+    
     user_response = UserResponse(
         id=user.id,
         email=user.email,
         name=user.name,
         role=user.role,
+        phone=user.phone,
+        profile_picture=profile_picture_url,
         created_at=user.created_at
     )
     
