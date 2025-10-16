@@ -129,6 +129,7 @@ async def register(user_data: UserCreate):
         email=user_data.email,
         name=user_data.name,
         role=user_data.role,
+        phone=user_data.phone,
         hashed_password=hashed_password,
         created_at=datetime.utcnow()
     )
@@ -143,6 +144,8 @@ async def register(user_data: UserCreate):
         email=user_data.email,
         name=user_data.name,
         role=user_data.role,
+        phone=user_data.phone,
+        profile_picture=None,  # New users don't have profile picture yet
         created_at=user_in_db.created_at
     )
     
