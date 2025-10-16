@@ -159,21 +159,52 @@ export default function ChatScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardView}
       >
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Ionicons name="arrow-back" size={24} color="#007AFF" />
-          </TouchableOpacity>
-          <View style={styles.headerText}>
-            <Text style={styles.headerTitle}>Message {recipientName}</Text>
-            {customerName && inspectionId && (
-              <Text style={styles.headerSubtitle}>{customerName}</Text>
-            )}
-            {propertyAddress && (
-              <Text style={styles.headerSubtitle}>{propertyAddress}</Text>
-            )}
+        {/* Custom header for owner chats (customer/agent chatting with Brad Baker) */}
+        {!inspectionId && customerId ? (
+          <View style={styles.ownerChatHeader}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#007AFF" />
+            </TouchableOpacity>
+            <View style={styles.profileBubbles}>
+              {/* User's profile bubble */}
+              <View style={styles.profileBubbleContainer}>
+                {user?.profile_picture ? (
+                  <Image source={{ uri: user.profile_picture }} style={styles.profileBubbleImage} />
+                ) : (
+                  <View style={styles.profileBubble}>
+                    <Text style={styles.profileBubbleText}>
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </Text>
+                  </View>
+                )}
+              </View>
+              {/* Brad Baker's profile bubble */}
+              <View style={styles.profileBubbleContainer}>
+                <View style={[styles.profileBubble, styles.ownerBubble]}>
+                  <Text style={styles.profileBubbleText}>BB</Text>
+                </View>
+              </View>
+            </View>
+            <View style={styles.placeholder} />
           </View>
-          <View style={styles.placeholder} />
-        </View>
+        ) : (
+          // Regular header for inspection chats
+          <View style={styles.header}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <Ionicons name="arrow-back" size={24} color="#007AFF" />
+            </TouchableOpacity>
+            <View style={styles.headerText}>
+              <Text style={styles.headerTitle}>Message {recipientName}</Text>
+              {customerName && inspectionId && (
+                <Text style={styles.headerSubtitle}>{customerName}</Text>
+              )}
+              {propertyAddress && (
+                <Text style={styles.headerSubtitle}>{propertyAddress}</Text>
+              )}
+            </View>
+            <View style={styles.placeholder} />
+          </View>
+        )}
 
         <ScrollView
           ref={scrollViewRef}
