@@ -107,7 +107,7 @@ export default function ManualInspectionEntry() {
     try {
       const payload = {
         client_name: clientName.trim(),
-        client_phone: clientPhone.trim(),
+        customer_phone: clientPhone.trim(),
         client_email: clientEmail.trim(),
         agent_name: agentName.trim() || null,
         agent_phone: agentPhone.trim() || null,
