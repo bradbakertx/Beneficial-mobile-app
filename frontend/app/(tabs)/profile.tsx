@@ -7,16 +7,123 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  Image,
+  ActionSheetIOS,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
+import api from '../../services/api';
 
 export default function ProfileScreen() {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
   const router = useRouter();
   const [showLogoutConfirm, setShowLogoutConfirm] = React.useState(false);
+  const [uploadingImage, setUploadingImage] = React.useState(false);
+
+  const handleImagePicker = async () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options: ['Cancel', 'Take Photo', 'Choose from Library'],
+          cancelButtonIndex: 0,
+        },
+        async (buttonIndex) => {
+          if (buttonIndex === 1) {
+            await takePhoto();
+          } else if (buttonIndex === 2) {
+            await pickImage();
+          }
+        }
+      );
+    } else {
+      Alert.alert(
+        'Profile Picture',
+        'Choose an option',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Take Photo', onPress: takePhoto },
+          { text: 'Choose from Library', onPress: pickImage },
+        ]
+      );
+    }
+  };
+
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Camera permission is needed to take photos');
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      await uploadProfilePicture(result.assets[0].uri);
+    }
+  };
+
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission Required', 'Photo library permission is needed');
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+
+    if (!result.canceled) {
+      await uploadProfilePicture(result.assets[0].uri);
+    }
+  };
+
+  const uploadProfilePicture = async (uri: string) => {
+    try {
+      setUploadingImage(true);
+      
+      // Create form data
+      const formData = new FormData();
+      const filename = uri.split('/').pop() || 'profile.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      
+      formData.append('file', {
+        uri,
+        name: filename,
+        type,
+      } as any);
+
+      // Upload to backend
+      const response = await api.post('/users/profile-picture', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      // Update user context with new profile picture URL
+      if (response.data.profile_picture_url) {
+        updateUser({ ...user, profile_picture: response.data.profile_picture_url });
+        Alert.alert('Success', 'Profile picture updated successfully');
+      }
+    } catch (error: any) {
+      console.error('Error uploading profile picture:', error);
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to upload profile picture');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleLogout = () => {
     console.log('=== LOGOUT BUTTON PRESSED ===');
