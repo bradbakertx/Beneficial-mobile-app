@@ -1103,7 +1103,7 @@ async def create_manual_inspection(
         owner_id=current_user.id,
         owner_name=current_user.name,
         client_name=inspection_data.client_name,
-        client_phone=inspection_data.client_phone,
+        customer_phone=inspection_data.customer_phone,
         client_email=inspection_data.client_email,
         agent_name=inspection_data.agent_name,
         agent_phone=inspection_data.agent_phone,
