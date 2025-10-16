@@ -157,7 +157,7 @@ export default function InspectionDetailScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Client Information</Text>
           <InfoRow label="Name" value={manualInspection!.client_name} />
-          <InfoRow label="Phone" value={manualInspection!.client_phone} />
+          <InfoRow label="Phone" value={manualInspection!.customer_phone} />
           <InfoRow label="Email" value={manualInspection!.client_email} />
         </View>
 
