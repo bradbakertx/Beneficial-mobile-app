@@ -38,10 +38,28 @@ export default function ChatScreen() {
 
   useEffect(() => {
     fetchMessages();
+    // Fetch owner profile for owner chats
+    if (!inspectionId) {
+      fetchOwnerProfile();
+    }
     // Poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
   }, [inspectionId, customerId]);
+
+  const fetchOwnerProfile = async () => {
+    try {
+      // Fetch all users with owner role
+      const response = await api.get('/users/inspectors');
+      // Find Brad Baker or any user with owner role
+      const owner = response.data.find((u: any) => u.role === 'owner' || u.email === 'bradbakertx@gmail.com');
+      if (owner) {
+        setOwnerProfile(owner);
+      }
+    } catch (error) {
+      console.error('Error fetching owner profile:', error);
+    }
+  };
 
   useEffect(() => {
     // Auto-scroll to bottom when messages change
