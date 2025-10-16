@@ -42,7 +42,7 @@ interface InspectionInfo {
 interface ManualInspectionInfo {
   id: string;
   client_name: string;
-  client_phone: string;
+  customer_phone: string;
   client_email: string;
   agent_name?: string;
   agent_phone?: string;
