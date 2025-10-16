@@ -32,6 +32,7 @@ class UserBase(BaseModel):
     email: EmailStr
     name: str
     role: UserRole = UserRole.customer
+    phone: Optional[str] = None
 
 
 class UserCreate(UserBase):
