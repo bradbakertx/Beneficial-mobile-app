@@ -1294,7 +1294,7 @@ async def update_regular_inspection(
     field_mapping = {
         'client_name': 'customer_name',
         'client_email': 'customer_email',
-        'client_phone': 'customer_phone',
+        'customer_phone': 'customer_phone',
     }
     
     mapped_updates = {}
