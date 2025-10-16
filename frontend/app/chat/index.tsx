@@ -197,11 +197,17 @@ export default function ChatScreen() {
                   </View>
                 )}
               </View>
-              {/* Brad Baker's profile bubble */}
+              {/* Owner's profile bubble (Brad Baker) */}
               <View style={styles.profileBubbleContainer}>
-                <View style={[styles.profileBubble, styles.ownerBubble]}>
-                  <Text style={styles.profileBubbleText}>BB</Text>
-                </View>
+                {ownerProfile?.profile_picture ? (
+                  <Image source={{ uri: ownerProfile.profile_picture }} style={styles.profileBubbleImage} />
+                ) : (
+                  <View style={[styles.profileBubble, styles.ownerBubble]}>
+                    <Text style={styles.profileBubbleText}>
+                      {ownerProfile?.name ? ownerProfile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'BB'}
+                    </Text>
+                  </View>
+                )}
               </View>
             </View>
             <View style={styles.placeholder} />
