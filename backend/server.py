@@ -206,12 +206,12 @@ async def upload_profile_picture(
         # Upload to S3 using s3_client from s3_service
         from s3_service import s3_client, AWS_S3_BUCKET_NAME, AWS_REGION
         
+        # Upload without ACL - bucket policy will handle access
         s3_client.put_object(
             Bucket=AWS_S3_BUCKET_NAME,
             Key=s3_key,
             Body=file_content,
-            ContentType=f"image/{file_extension}",
-            ACL='public-read'  # Make profile pictures publicly accessible
+            ContentType=f"image/{file_extension}"
         )
         
         # Get the profile picture URL
