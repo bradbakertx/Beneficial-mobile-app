@@ -204,7 +204,7 @@ async def upload_profile_picture(
         s3_key = f"profile-pictures/{current_user.id}.{file_extension}"
         
         # Upload to S3 using s3_client from s3_service
-        from s3_service import s3_client, AWS_S3_BUCKET_NAME, AWS_REGION
+        from s3_service import s3_client, AWS_S3_BUCKET_NAME
         
         # Upload without ACL - bucket policy will handle access
         s3_client.put_object(
@@ -214,21 +214,29 @@ async def upload_profile_picture(
             ContentType=f"image/{file_extension}"
         )
         
-        # Get the profile picture URL
-        profile_picture_url = f"https://{AWS_S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
-        
-        # Update user in database
-        await db.users.update_one(
-            {"id": current_user.id},
-            {"$set": {"profile_picture": profile_picture_url}}
+        # Generate a long-lived presigned URL (7 days) for the profile picture
+        profile_picture_url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': AWS_S3_BUCKET_NAME,
+                'Key': s3_key
+            },
+            ExpiresIn=604800  # 7 days in seconds
         )
         
-        logging.info(f"Profile picture uploaded for user {current_user.id}: {profile_picture_url}")
+        # Store the S3 key in database instead of the presigned URL
+        # We'll generate a new presigned URL each time the user data is fetched
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {"profile_picture": s3_key}}  # Store S3 key, not URL
+        )
+        
+        logging.info(f"Profile picture uploaded for user {current_user.id}: {s3_key}")
         
         return {
             "success": True,
             "message": "Profile picture uploaded successfully",
-            "profile_picture_url": profile_picture_url
+            "profile_picture_url": profile_picture_url  # Return presigned URL to frontend
         }
         
     except Exception as e:
