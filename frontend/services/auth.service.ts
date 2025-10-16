@@ -39,9 +39,7 @@ class AuthService {
   }
 
   async register(data: RegisterData): Promise<{ token: string; user: User }> {
-    const response = await api.post('/auth/register', null, {
-      params: data
-    });
+    const response = await api.post('/auth/register', data);
     const { session_token, user } = response.data;
     
     await AsyncStorage.setItem('session_token', session_token);
