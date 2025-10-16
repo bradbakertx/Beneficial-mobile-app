@@ -2168,7 +2168,7 @@ async def finalize_inspection(
     
     try:
         # Update inspection as finalized
-        await db.inspections.update_one(
+        update_result = await db.inspections.update_one(
             {"id": inspection_id},
             {
                 "$set": {
@@ -2179,6 +2179,15 @@ async def finalize_inspection(
                 }
             }
         )
+        
+        logging.info(f"Finalized inspection {inspection_id}, matched: {update_result.matched_count}, modified: {update_result.modified_count}")
+        
+        if update_result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Inspection not found during update")
+        
+        # Fetch updated inspection to verify
+        inspection = await db.inspections.find_one({"id": inspection_id})
+        logging.info(f"Updated inspection status: {inspection.get('status')}, finalized: {inspection.get('finalized')}")
         
         property_address = inspection.get("property_address", "the property")
         inspector_name = inspection.get("inspector_name", "Brad Baker")
