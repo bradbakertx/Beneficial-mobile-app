@@ -401,6 +401,9 @@ const styles = StyleSheet.create({
   ownerBubble: {
     backgroundColor: '#34C759',
   },
+  customerBubble: {
+    backgroundColor: '#007AFF',
+  },
   profileBubbleImage: {
     width: 56,
     height: 56,
