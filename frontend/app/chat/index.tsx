@@ -160,7 +160,7 @@ export default function ChatScreen() {
         style={styles.keyboardView}
       >
         {/* Custom header for owner chats (customer/agent chatting with Brad Baker) */}
-        {!inspectionId && customerId ? (
+        {!inspectionId ? (
           <View style={styles.ownerChatHeader}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
