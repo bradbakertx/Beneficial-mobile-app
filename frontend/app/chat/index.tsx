@@ -35,6 +35,7 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [ownerProfile, setOwnerProfile] = useState<any>(null);
+  const [otherPartyProfile, setOtherPartyProfile] = useState<any>(null);
 
   useEffect(() => {
     fetchMessages();
