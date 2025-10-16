@@ -283,6 +283,44 @@ async def register_push_token(
 
 # ============= USER ENDPOINTS =============
 
+# ============= USER HELPER FUNCTIONS =============
+
+async def get_user_details(user_id: str, include_profile_picture: bool = True):
+    """
+    Central function to fetch user details by ID - Single Source of Truth
+    This is the "file" in the filing cabinet - all user data comes from here
+    
+    Returns: {id, name, email, phone, role, profile_picture_url} or None if not found
+    """
+    if not user_id:
+        return None
+        
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        logger.warning(f"User not found: {user_id}")
+        return None
+    
+    result = {
+        "id": user["id"],
+        "name": user["name"],
+        "email": user["email"],
+        "phone": user.get("phone"),
+        "role": user["role"]
+    }
+    
+    if include_profile_picture and user.get("profile_picture"):
+        try:
+            from s3_service import generate_presigned_url
+            result["profile_picture"] = generate_presigned_url(user["profile_picture"])
+        except Exception as e:
+            logger.error(f"Error generating presigned URL for profile picture: {e}")
+            result["profile_picture"] = None
+    else:
+        result["profile_picture"] = None
+    
+    return result
+
+
 @api_router.get("/users/inspectors")
 async def get_inspectors(
     current_user: UserInDB = Depends(get_current_user_from_token)
