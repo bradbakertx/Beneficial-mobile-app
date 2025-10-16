@@ -163,8 +163,9 @@ export default function DashboardScreen() {
     );
   }
 
-  // For customers only: wrap dashboard in swipeable landing screen
-  if (user?.role === 'customer') {
+  // For customers on MOBILE only: wrap dashboard in swipeable landing screen
+  // Web users get normal dashboard without landing screen
+  if (user?.role === 'customer' && Platform.OS !== 'web') {
     return (
       <CustomerDashboardWrapper>
         <DashboardContent 
@@ -179,7 +180,7 @@ export default function DashboardScreen() {
     );
   }
 
-  // For owners and agents: normal dashboard
+  // For owners, agents, and web users: normal dashboard
   return (
     <DashboardContent 
       user={user}
