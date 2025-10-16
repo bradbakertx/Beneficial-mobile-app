@@ -64,7 +64,7 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
 
       {/* Background Image with Content */}
       <ImageBackground
-        source={require('../../assets/images/san-antonio-houses.jpg')}
+        source={require('../assets/images/san-antonio-houses.jpg')}
         style={styles.backgroundImage}
         imageStyle={{ opacity: 0.18 }}
       >
