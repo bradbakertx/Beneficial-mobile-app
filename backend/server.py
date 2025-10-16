@@ -324,7 +324,8 @@ async def get_user_by_id(
     profile_picture_url = None
     if user.get("profile_picture"):
         try:
-            profile_picture_url = s3_service.generate_presigned_url(user["profile_picture"])
+            from s3_service import generate_presigned_url
+            profile_picture_url = generate_presigned_url(user["profile_picture"])
         except Exception as e:
             logger.error(f"Error generating presigned URL for profile picture: {e}")
     
