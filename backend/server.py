@@ -183,8 +183,49 @@ async def get_me(current_user: UserInDB = Depends(get_current_user_from_token)):
         email=current_user.email,
         name=current_user.name,
         role=current_user.role,
+        phone=current_user.phone,
+        profile_picture=current_user.profile_picture,
         created_at=current_user.created_at
     )
+
+
+@api_router.post("/users/profile-picture")
+async def upload_profile_picture(
+    file: UploadFile = File(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Upload and update user profile picture"""
+    try:
+        # Read file content
+        file_content = await file.read()
+        
+        # Generate unique filename
+        file_extension = file.filename.split('.')[-1] if '.' in file.filename else 'jpg'
+        s3_key = f"profile-pictures/{current_user.id}.{file_extension}"
+        
+        # Upload to S3
+        upload_file_to_s3(file_content, s3_key, f"image/{file_extension}")
+        
+        # Get the profile picture URL
+        profile_picture_url = f"https://{os.getenv('S3_BUCKET_NAME')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{s3_key}"
+        
+        # Update user in database
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {"profile_picture": profile_picture_url}}
+        )
+        
+        logging.info(f"Profile picture uploaded for user {current_user.id}: {profile_picture_url}")
+        
+        return {
+            "success": True,
+            "message": "Profile picture uploaded successfully",
+            "profile_picture_url": profile_picture_url
+        }
+        
+    except Exception as e:
+        logging.error(f"Error uploading profile picture: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to upload profile picture: {str(e)}")
 
 
 @api_router.post("/auth/register-push-token")
