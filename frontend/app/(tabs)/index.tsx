@@ -165,7 +165,7 @@ export default function DashboardScreen() {
   }
 
   // For customers on MOBILE only: wrap dashboard in swipeable landing screen
-  // Web users get normal dashboard without landing screen
+  // Web gets normal dashboard (CustomerDashboardWrapper.web.tsx just renders children)
   if (user?.role === 'customer' && Platform.OS !== 'web') {
     return (
       <CustomerDashboardWrapper>
