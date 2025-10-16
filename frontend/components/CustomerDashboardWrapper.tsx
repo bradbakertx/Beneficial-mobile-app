@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import PagerView from 'react-native-pager-view';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomerLandingScreen from '../app/(tabs)/customer-landing';
+import CustomerLandingScreen from './CustomerLandingScreen';
 
 const { width } = Dimensions.get('window');
 
