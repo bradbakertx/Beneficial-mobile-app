@@ -154,10 +154,27 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
-          <View style={styles.avatar}>
-            <Text style={styles.avatarText}>
-              {user?.name?.charAt(0).toUpperCase()}
-            </Text>
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatar}>
+              {user?.profile_picture ? (
+                <Image source={{ uri: user.profile_picture }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarText}>
+                  {user?.name?.charAt(0).toUpperCase()}
+                </Text>
+              )}
+            </View>
+            <TouchableOpacity 
+              style={styles.editIconContainer}
+              onPress={handleImagePicker}
+              disabled={uploadingImage}
+            >
+              <Ionicons 
+                name={uploadingImage ? "hourglass-outline" : "pencil"} 
+                size={16} 
+                color="#FFF" 
+              />
+            </TouchableOpacity>
           </View>
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
