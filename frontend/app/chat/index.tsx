@@ -204,7 +204,7 @@ export default function ChatScreen() {
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
             </TouchableOpacity>
             <View style={styles.profileBubbles}>
-              {/* User's profile bubble */}
+              {/* Current user's profile bubble (always shown) */}
               <View style={styles.profileBubbleContainer}>
                 {user?.profile_picture ? (
                   <Image source={{ uri: user.profile_picture }} style={styles.profileBubbleImage} />
@@ -216,16 +216,30 @@ export default function ChatScreen() {
                   </View>
                 )}
               </View>
-              {/* Owner's profile bubble (Brad Baker) */}
+              {/* Other party's profile bubble */}
               <View style={styles.profileBubbleContainer}>
-                {ownerProfile?.profile_picture ? (
-                  <Image source={{ uri: ownerProfile.profile_picture }} style={styles.profileBubbleImage} />
+                {user?.role === 'owner' ? (
+                  // Owner viewing chat - show customer/agent profile
+                  otherPartyProfile?.profile_picture ? (
+                    <Image source={{ uri: otherPartyProfile.profile_picture }} style={styles.profileBubbleImage} />
+                  ) : (
+                    <View style={[styles.profileBubble, styles.customerBubble]}>
+                      <Text style={styles.profileBubbleText}>
+                        {otherPartyProfile?.name ? otherPartyProfile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'C'}
+                      </Text>
+                    </View>
+                  )
                 ) : (
-                  <View style={[styles.profileBubble, styles.ownerBubble]}>
-                    <Text style={styles.profileBubbleText}>
-                      {ownerProfile?.name ? ownerProfile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'BB'}
-                    </Text>
-                  </View>
+                  // Customer/Agent viewing chat - show owner profile
+                  ownerProfile?.profile_picture ? (
+                    <Image source={{ uri: ownerProfile.profile_picture }} style={styles.profileBubbleImage} />
+                  ) : (
+                    <View style={[styles.profileBubble, styles.ownerBubble]}>
+                      <Text style={styles.profileBubbleText}>
+                        {ownerProfile?.name ? ownerProfile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'BB'}
+                      </Text>
+                    </View>
+                  )
                 )}
               </View>
             </View>
