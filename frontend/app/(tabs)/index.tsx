@@ -163,6 +163,37 @@ export default function DashboardScreen() {
     );
   }
 
+  // For customers only: wrap dashboard in swipeable landing screen
+  if (user?.role === 'customer') {
+    return (
+      <CustomerDashboardWrapper>
+        <DashboardContent 
+          user={user}
+          stats={stats}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          getRoleTitle={getRoleTitle}
+          router={router}
+        />
+      </CustomerDashboardWrapper>
+    );
+  }
+
+  // For owners and agents: normal dashboard
+  return (
+    <DashboardContent 
+      user={user}
+      stats={stats}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
+      getRoleTitle={getRoleTitle}
+      router={router}
+    />
+  );
+}
+
+// Extract dashboard content as separate component
+function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, router }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView
