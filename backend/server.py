@@ -2875,32 +2875,42 @@ async def delete_conversation(
         raise HTTPException(status_code=403, detail="Only owners can delete conversations")
     
     try:
-        # Find messages for this conversation
-        # For owner chats: conversation_id matches the message conversation_type field
-        messages = await db.messages.find({
-            "conversation_type": "owner_chat",
-            "customer_id": conversation_id  # conversation_id is actually the customer_id for owner chats
-        }).to_list(None)
-        
-        if not messages:
-            # Try alternate query - check if conversation_id is in inspection_id field
-            messages = await db.messages.find({
-                "inspection_id": conversation_id
-            }).to_list(None)
-        
-        # Delete all messages in this conversation
-        if messages:
-            message_ids = [msg["id"] for msg in messages]
+        # Parse the conversation_id format: "owner_{customer_id}" or "inspector_{inspection_id}"
+        if conversation_id.startswith("owner_"):
+            # Extract customer_id from the conversation_id
+            customer_id = conversation_id.replace("owner_", "")
+            
+            # Delete all messages where:
+            # - sender is the customer and recipient is owner, OR
+            # - sender is owner and recipient is the customer
             delete_result = await db.messages.delete_many({
-                "id": {"$in": message_ids}
+                "$or": [
+                    {
+                        "sender_id": customer_id,
+                        "recipient_role": UserRole.owner.value,
+                        "inspection_id": None  # Only delete owner chats, not inspection chats
+                    },
+                    {
+                        "sender_role": UserRole.owner.value,
+                        "recipient_id": customer_id,
+                        "inspection_id": None  # Only delete owner chats, not inspection chats
+                    }
+                ]
             })
-            logging.info(f"Deleted {delete_result.deleted_count} messages for conversation {conversation_id}")
-        
-        return {
-            "success": True,
-            "message": "Conversation deleted successfully",
-            "deleted_messages": len(messages) if messages else 0
-        }
+            
+            logging.info(f"Deleted {delete_result.deleted_count} messages for owner chat with customer {customer_id}")
+            
+            return {
+                "success": True,
+                "message": "Conversation deleted successfully",
+                "deleted_messages": delete_result.deleted_count
+            }
+        else:
+            # Don't allow deletion of inspector chats
+            raise HTTPException(
+                status_code=400, 
+                detail="Can only delete owner chat conversations. Inspector chats are auto-deleted when finalized."
+            )
         
     except Exception as e:
         logging.error(f"Error deleting conversation: {e}")
