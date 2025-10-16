@@ -344,6 +344,15 @@ export default function OfferTimeSlotsScreen() {
           )}
         </View>
 
+        {/* Google Calendar View */}
+        <View style={styles.googleCalendarSection}>
+          <Text style={styles.sectionTitle}>Your Google Calendar:</Text>
+          <Text style={styles.sectionSubtitle}>
+            View your existing appointments to find available time slots
+          </Text>
+          <CalendarWeekView />
+        </View>
+
         {/* Time Slot Selection for Selected Dates */}
         {selectedDates.length > 0 && (
           <View style={styles.timeSlotSection}>
