@@ -55,7 +55,7 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
       <View style={styles.logoContainer}>
         <View style={styles.logoBackground}>
           <Image
-            source={require('../../assets/images/beneficial-logo-full.jpg')}
+            source={require('../assets/images/beneficial-logo-full.jpg')}
             style={styles.logo}
             resizeMode="contain"
           />
