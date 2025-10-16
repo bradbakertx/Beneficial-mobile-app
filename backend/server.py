@@ -203,11 +203,19 @@ async def upload_profile_picture(
         file_extension = file.filename.split('.')[-1] if '.' in file.filename else 'jpg'
         s3_key = f"profile-pictures/{current_user.id}.{file_extension}"
         
-        # Upload to S3
-        upload_file_to_s3(file_content, s3_key, f"image/{file_extension}")
+        # Upload to S3 using s3_client from s3_service
+        from s3_service import s3_client, AWS_S3_BUCKET_NAME, AWS_REGION
+        
+        s3_client.put_object(
+            Bucket=AWS_S3_BUCKET_NAME,
+            Key=s3_key,
+            Body=file_content,
+            ContentType=f"image/{file_extension}",
+            ACL='private'
+        )
         
         # Get the profile picture URL
-        profile_picture_url = f"https://{os.getenv('S3_BUCKET_NAME')}.s3.{os.getenv('AWS_REGION')}.amazonaws.com/{s3_key}"
+        profile_picture_url = f"https://{AWS_S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
         
         # Update user in database
         await db.users.update_one(
