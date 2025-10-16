@@ -23,6 +23,7 @@ interface Conversation {
   inspection_id?: string;
   property_address?: string;
   customer_name: string;
+  customer_id?: string;
   customer_phone?: string;
   inspector_name?: string;
   last_message?: string;
