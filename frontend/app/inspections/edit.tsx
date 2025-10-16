@@ -72,7 +72,7 @@ export default function EditInspectionScreen() {
         const data = response.data;
         
         setClientName(data.client_name || '');
-        setClientPhone(data.client_phone || '');
+        setClientPhone(data.customer_phone || '');
         setClientEmail(data.client_email || '');
         setAgentName(data.agent_name || '');
         setAgentPhone(data.agent_phone || '');
