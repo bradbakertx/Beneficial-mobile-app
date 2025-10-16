@@ -381,7 +381,22 @@ backend:
         agent: "testing"
         comment: "✅ COMPREHENSIVE OWNER CHAT GROUPING FIX TESTING COMPLETED: All backend functionality is working perfectly. Successfully tested complete owner-to-customer chat separation workflow using test credentials bradbakertx@gmail.com/Beneficial1!. ✅ Created 2 test customers (Test Customer 1 & 2) and verified complete message flow: 1) Customer->Owner messages (no recipient_id), 2) Owner->Customer messages (with recipient_id), 3) Multiple message exchanges. ✅ CRITICAL FIX VERIFIED: Messages from owner to customer1 have recipient_id = customer1_id, Messages from owner to customer2 have recipient_id = customer2_id. ✅ CONVERSATION SEPARATION CONFIRMED: Each customer has distinct conversation (different conversation IDs), no message mixing between customer conversations. ✅ DATABASE STATE VERIFIED: recipient_id correctly preserved for all owner messages, proper message grouping by customer maintained. ✅ COMPREHENSIVE TEST RESULTS: Customer 1: 4 total messages (2 owner->customer), Customer 2: 4 total messages (2 owner->customer). The critical chat grouping bug is COMPLETELY RESOLVED - owner chat messages are now properly separated by customer/agent instead of appearing in one undifferentiated feed."
 
+frontend:
+  - task: "Owner Chat Custom Header with Profile Bubbles"
+    implemented: true
+    working: "NA"
+    file: "frontend/app/chat/index.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Custom chat header with profile bubbles for all owner chats (Customer/Agent chatting with Brad Baker). Header displays at the top of the chat window with: 1) User's profile bubble (with profile picture if available, or initials), 2) Brad Baker's profile bubble (BB with green background), 3) Back arrow on the left, 4) Bubbles centered with proper spacing and shadows. Logic: Header appears when !inspectionId (all owner chats don't have inspectionId, only customerId). Works for both Customer→Owner and Agent→Owner scenarios. Replaces 'Message Owner' text with visual profile representation. Frontend needs testing to verify UI appearance and profile picture loading."
+
 agent_communication:
+  - agent: "main"
+    message: "OWNER CHAT CUSTOM HEADER COMPLETE: Implemented custom chat header with profile bubbles for all owner chats. When Customer or Agent clicks 'Chat with Brad Baker', the chat window now displays a centered bar at the top with both user's profile bubble and owner's profile bubble (BB). Header automatically appears for all owner chats (identified by !inspectionId condition). Profile pictures load from user.profile_picture if available, otherwise shows user initials. Styling includes proper shadows, centered alignment, and 56px bubble size. Backend restarted. Frontend needs visual testing to confirm UI appearance."
   - agent: "main"
     message: "OWNER CHAT GROUPING FIX COMPLETE: Fixed critical issue where all owner chat messages appeared in one feed. Backend - Updated POST /api/messages to preserve recipient_id when provided (owner -> customer) instead of always defaulting to owner ID. Frontend - Already updated by previous engineer to pass customerId in navigation and message fetching. Final fix completed handleSend function to pass recipient_id. Backend restarted. Ready for comprehensive backend testing to verify messages are now properly grouped by customer in owner conversations."
   - agent: "testing"
