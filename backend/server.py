@@ -374,6 +374,40 @@ async def get_inspectors(
     return {"inspectors": inspector_list}
 
 
+@api_router.get("/users/owner")
+async def get_owner_info(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get owner information for chat display (accessible to all authenticated users)"""
+    owner = await db.users.find_one({"role": UserRole.owner.value})
+    if not owner:
+        raise HTTPException(status_code=404, detail="Owner not found")
+    
+    # Generate presigned URL for profile picture if exists
+    profile_picture_url = None
+    if owner.get("profile_picture"):
+        try:
+            from s3_service import s3_client, AWS_S3_BUCKET_NAME
+            profile_picture_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': AWS_S3_BUCKET_NAME,
+                    'Key': owner["profile_picture"]
+                },
+                ExpiresIn=604800  # 7 days
+            )
+        except Exception as e:
+            logger.error(f"Error generating presigned URL for owner profile picture: {e}")
+    
+    return {
+        "id": owner["id"],
+        "name": owner["name"],
+        "email": owner["email"],
+        "role": owner["role"],
+        "profile_picture": profile_picture_url
+    }
+
+
 @api_router.get("/users/{user_id}")
 async def get_user_by_id(
     user_id: str,
