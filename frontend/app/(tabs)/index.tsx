@@ -16,6 +16,7 @@ import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import CalendarWeekView from '../../components/CalendarWeekView';
 import ManualInspectionEntry from '../../components/ManualInspectionEntry';
+import CustomerDashboardWrapper from '../../components/CustomerDashboardWrapper';
 
 interface DashboardStats {
   pending_quotes: number;
