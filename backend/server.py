@@ -422,8 +422,15 @@ async def get_user_by_id(
     profile_picture_url = None
     if user.get("profile_picture"):
         try:
-            from s3_service import generate_presigned_url
-            profile_picture_url = generate_presigned_url(user["profile_picture"])
+            from s3_service import s3_client, AWS_S3_BUCKET_NAME
+            profile_picture_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': AWS_S3_BUCKET_NAME,
+                    'Key': user["profile_picture"]
+                },
+                ExpiresIn=604800  # 7 days
+            )
         except Exception as e:
             logger.error(f"Error generating presigned URL for profile picture: {e}")
     
