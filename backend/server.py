@@ -1135,7 +1135,7 @@ async def create_manual_inspection(
         customer_id="manual-entry",
         customer_email=inspection_data.client_email,
         customer_name=inspection_data.client_name,
-        customer_phone=inspection_data.client_phone,
+        customer_phone=inspection_data.customer_phone,
         property_address=full_address,
         preferred_date=inspection_data.inspection_date,
         preferred_time=inspection_data.inspection_time,
