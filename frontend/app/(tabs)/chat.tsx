@@ -196,8 +196,8 @@ export default function ChatTabScreen() {
       </TouchableOpacity>
     );
 
-    // Wrap owner chats in Swipeable for delete functionality
-    if (isOwnerChat) {
+    // Wrap owner chats in Swipeable for delete functionality (Owner only)
+    if (isOwnerChat && user?.role === 'owner') {
       return (
         <Swipeable
           renderRightActions={() => renderRightActions(item)}
@@ -208,7 +208,7 @@ export default function ChatTabScreen() {
       );
     }
 
-    // Return inspection chats without swipe (they auto-delete when finalized)
+    // Return inspection chats or non-owner user chats without swipe
     return cardContent;
   };
 
