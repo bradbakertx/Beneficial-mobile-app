@@ -58,13 +58,9 @@ export default function ChatScreen() {
 
   const fetchOwnerProfile = async () => {
     try {
-      // Fetch all users with owner role
-      const response = await api.get('/users/inspectors');
-      // Find Brad Baker or any user with owner role
-      const owner = response.data.find((u: any) => u.role === 'owner' || u.email === 'bradbakertx@gmail.com');
-      if (owner) {
-        setOwnerProfile(owner);
-      }
+      // Fetch owner profile (accessible to all authenticated users)
+      const response = await api.get('/users/owner');
+      setOwnerProfile(response.data);
     } catch (error) {
       console.error('Error fetching owner profile:', error);
     }
