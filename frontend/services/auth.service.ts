@@ -20,6 +20,7 @@ export interface User {
   name: string;
   phone?: string;
   role: 'customer' | 'agent' | 'owner';
+  profile_picture?: string;
 }
 
 class AuthService {
