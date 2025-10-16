@@ -20,13 +20,59 @@ export default function PaymentScreen() {
   const { id, amount, address } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState('');
+  const [testMode, setTestMode] = useState(false);
 
   const appId = Constants.expoConfig?.extra?.squareAppId || process.env.EXPO_PUBLIC_SQUARE_APP_ID;
   const locationId = Constants.expoConfig?.extra?.squareLocationId || process.env.EXPO_PUBLIC_SQUARE_LOCATION_ID;
 
   useEffect(() => {
-    generatePaymentForm();
+    // Check if we're in a development/preview environment
+    const isDev = __DEV__ || Platform.OS === 'web';
+    setTestMode(isDev);
+    
+    if (!isDev) {
+      generatePaymentForm();
+    }
   }, []);
+
+  const handleTestPayment = async () => {
+    Alert.alert(
+      'Test Payment Mode',
+      `Process test payment of $${amount}?\n\nNote: This is a test mode for preview environments. Real payments require HTTPS-served pages.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'Confirm Test Payment',
+          onPress: async () => {
+            setLoading(true);
+            try {
+              // Simulate payment processing
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              
+              // Mark inspection as paid without actual Square payment
+              await api.post(`/inspections/${id}/mark-as-paid`, {
+                payment_method: 'Test Payment (Preview Mode)'
+              });
+              
+              setLoading(false);
+              Alert.alert(
+                'Test Payment Successful!',
+                'Inspection marked as paid in test mode.',
+                [{ text: 'OK', onPress: () => router.back() }]
+              );
+            } catch (error: any) {
+              setLoading(false);
+              console.error('Test payment error:', error);
+              Alert.alert('Error', error.response?.data?.detail || 'Test payment failed');
+            }
+          }
+        }
+      ]
+    );
+  };
 
   const generatePaymentForm = () => {
     // Create HTML content with Square Web Payments SDK
