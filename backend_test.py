@@ -12,7 +12,7 @@ from datetime import datetime
 import time
 
 # Configuration
-BACKEND_URL = "https://inspectapp-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://homeinspect-pro.preview.emergentagent.com/api"
 
 # Test credentials
 OWNER_EMAIL = "bradbakertx@gmail.com"
