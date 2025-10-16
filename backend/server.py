@@ -310,6 +310,33 @@ async def get_inspectors(
     return {"inspectors": inspector_list}
 
 
+@api_router.get("/users/{user_id}")
+async def get_user_by_id(
+    user_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get user details by ID (for chat profile display)"""
+    user = await db.users.find_one({"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Generate presigned URL for profile picture if exists
+    profile_picture_url = None
+    if user.get("profile_picture"):
+        try:
+            profile_picture_url = s3_service.generate_presigned_url(user["profile_picture"])
+        except Exception as e:
+            logger.error(f"Error generating presigned URL for profile picture: {e}")
+    
+    return {
+        "id": user["id"],
+        "name": user["name"],
+        "email": user["email"],
+        "role": user["role"],
+        "profile_picture": profile_picture_url
+    }
+
+
 # ============= QUOTE ENDPOINTS =============
 
 @api_router.post("/quotes", response_model=QuoteResponse)
