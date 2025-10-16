@@ -33,6 +33,7 @@ class UserBase(BaseModel):
     name: str
     role: UserRole = UserRole.customer
     phone: Optional[str] = None
+    profile_picture: Optional[str] = None
 
 
 class UserCreate(UserBase):
