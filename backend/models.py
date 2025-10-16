@@ -189,7 +189,7 @@ class InspectionDateTimeUpdate(BaseModel):
 # Manual Inspection Entry Model
 class ManualInspectionCreate(BaseModel):
     client_name: str
-    client_phone: str
+    customer_phone: str
     client_email: EmailStr
     agent_name: Optional[str] = None
     agent_phone: Optional[str] = None
