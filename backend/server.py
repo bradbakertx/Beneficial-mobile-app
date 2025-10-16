@@ -2357,7 +2357,10 @@ www.beneficialinspects.com"""
         
         return {
             "success": True,
-            "message": "Inspection finalized successfully. Notifications and emails sent."
+            "message": "Inspection finalized successfully. Notifications and emails sent.",
+            "inspection_id": inspection_id,
+            "status": inspection.get("status"),
+            "finalized": inspection.get("finalized")
         }
         
     except Exception as e:
