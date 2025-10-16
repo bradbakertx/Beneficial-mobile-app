@@ -112,9 +112,10 @@ export default function ProfileScreen() {
         },
       });
 
-      // Update user context with new profile picture URL
+      // Update user context with new profile picture URL (add timestamp to force reload)
       if (response.data.profile_picture_url) {
-        updateUser({ ...user, profile_picture: response.data.profile_picture_url });
+        const urlWithTimestamp = `${response.data.profile_picture_url}?t=${Date.now()}`;
+        updateUser({ ...user, profile_picture: urlWithTimestamp });
         Alert.alert('Success', 'Profile picture updated successfully');
       }
     } catch (error: any) {
