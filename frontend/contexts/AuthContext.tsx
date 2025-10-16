@@ -10,6 +10,7 @@ interface AuthContextType {
   login: (email: string, password: string, stayLoggedIn?: boolean) => Promise<void>;
   register: (data: any) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (updatedUser: Partial<User>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
