@@ -62,14 +62,26 @@ export default function ActiveInspectionsScreen() {
         : '/inspections';
       
       const response = await api.get(endpoint);
-      console.log('Active inspections:', response.data);
+      console.log('Fetched inspections for active screen:', response.data.length);
       
-      // For customers and agents, filter to only show 'scheduled' status
+      // Filter based on user role
       let inspectionsList = response.data;
-      if (user?.role === 'customer' || user?.role === 'agent') {
-        inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled');
+      
+      if (user?.role === 'owner' || user?.role === 'admin') {
+        // For owners/admins: exclude finalized inspections
+        inspectionsList = inspectionsList.filter((i: any) => {
+          const isFinalized = i.finalized === true || i.status === 'finalized';
+          if (isFinalized) {
+            console.log(`Filtering out finalized inspection: ${i.property_address}`);
+          }
+          return !isFinalized;
+        });
+      } else if (user?.role === 'customer' || user?.role === 'agent') {
+        // For customers and agents: only show 'scheduled' status (not finalized)
+        inspectionsList = inspectionsList.filter((i: any) => i.status === 'scheduled' && !i.finalized);
       }
       
+      console.log('Active inspections after filtering:', inspectionsList.length);
       setInspections(inspectionsList);
     } catch (error: any) {
       console.error('Error fetching active inspections:', error);
