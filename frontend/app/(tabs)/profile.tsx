@@ -157,7 +157,15 @@ export default function ProfileScreen() {
           <View style={styles.avatarContainer}>
             <View style={styles.avatar}>
               {user?.profile_picture ? (
-                <Image source={{ uri: user.profile_picture }} style={styles.avatarImage} />
+                <Image 
+                  source={{ uri: user.profile_picture }} 
+                  style={styles.avatarImage}
+                  onError={(e) => {
+                    console.log('Profile picture load error:', e.nativeEvent.error);
+                    // If image fails to load, show initials instead
+                    updateUser({ profile_picture: undefined });
+                  }}
+                />
               ) : (
                 <Text style={styles.avatarText}>
                   {user?.name?.charAt(0).toUpperCase()}
