@@ -257,7 +257,7 @@ export default function ChatScreen() {
                   otherPartyProfile?.profile_picture ? (
                     <Image source={{ uri: otherPartyProfile.profile_picture }} style={styles.profileBubbleImage} />
                   ) : (
-                    <View style={[styles.profileBubble, styles.customerBubble]}>
+                    <View style={styles.profileBubble}>
                       <Text style={styles.profileBubbleText}>
                         {otherPartyProfile?.name ? otherPartyProfile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'C'}
                       </Text>
@@ -268,7 +268,7 @@ export default function ChatScreen() {
                   ownerProfile?.profile_picture ? (
                     <Image source={{ uri: ownerProfile.profile_picture }} style={styles.profileBubbleImage} />
                   ) : (
-                    <View style={[styles.profileBubble, styles.ownerBubble]}>
+                    <View style={styles.profileBubble}>
                       <Text style={styles.profileBubbleText}>
                         {ownerProfile?.name ? ownerProfile.name.split(' ').map((n: string) => n[0]).join('').toUpperCase() : 'BB'}
                       </Text>
