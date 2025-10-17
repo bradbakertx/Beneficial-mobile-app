@@ -69,6 +69,13 @@ class TokenResponse(BaseModel):
     user: UserResponse
 
 
+class NotificationPreferences(BaseModel):
+    new_quotes: bool = True
+    scheduling_updates: bool = True
+    chat_messages: bool = True
+    report_uploads: bool = True
+
+
 # Quote Models
 class QuoteBase(BaseModel):
     property_address: str
