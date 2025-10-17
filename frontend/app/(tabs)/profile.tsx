@@ -195,7 +195,10 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/profile/edit-profile')}
+          >
             <View style={styles.menuIconContainer}>
               <Ionicons name="person-outline" size={20} color="#007AFF" />
             </View>
@@ -203,29 +206,10 @@ export default function ProfileScreen() {
             <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="call-outline" size={20} color="#007AFF" />
-            </View>
-            <View style={styles.menuContent}>
-              <Text style={styles.menuText}>Phone</Text>
-              <Text style={styles.menuValue}>{user?.phone}</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
-          
-          <TouchableOpacity style={styles.menuItem}>
-            <View style={styles.menuIconContainer}>
-              <Ionicons name="notifications-outline" size={20} color="#007AFF" />
-            </View>
-            <Text style={styles.menuText}>Notifications</Text>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/profile/change-password')}
+          >
             <View style={styles.menuIconContainer}>
               <Ionicons name="lock-closed-outline" size={20} color="#007AFF" />
             </View>
@@ -235,20 +219,45 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Preferences</Text>
+          
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/profile/notifications')}
+          >
+            <View style={styles.menuIconContainer}>
+              <Ionicons name="notifications-outline" size={20} color="#007AFF" />
+            </View>
+            <Text style={styles.menuText}>Notifications</Text>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
           
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/profile/contact-us')}
+          >
             <View style={styles.menuIconContainer}>
-              <Ionicons name="help-circle-outline" size={20} color="#007AFF" />
+              <Ionicons name="mail-outline" size={20} color="#007AFF" />
             </View>
-            <Text style={styles.menuText}>Help Center</Text>
+            <Text style={styles.menuText}>Contact Us</Text>
             <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.menuItem}>
+          <TouchableOpacity 
+            style={styles.menuItem}
+            onPress={() => router.push('/profile/terms-of-service')}
+          >
             <View style={styles.menuIconContainer}>
               <Ionicons name="document-text-outline" size={20} color="#007AFF" />
             </View>
+            <Text style={styles.menuText}>Terms of Service</Text>
+            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+          </TouchableOpacity>
+        </View>
             <Text style={styles.menuText}>Terms of Service</Text>
             <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
           </TouchableOpacity>
