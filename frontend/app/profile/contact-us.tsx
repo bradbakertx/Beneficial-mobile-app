@@ -98,19 +98,6 @@ export default function ContactUsScreen() {
             </View>
             <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.contactItem} onPress={handleAddress}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="location-outline" size={24} color="#FF3B30" />
-            </View>
-            <View style={styles.contactInfo}>
-              <Text style={styles.contactLabel}>Address</Text>
-              <Text style={styles.contactValue}>
-                24114 Alpine Lodge{'\n'}San Antonio, TX 78258
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
-          </TouchableOpacity>
         </View>
 
         <View style={styles.licenseSection}>
