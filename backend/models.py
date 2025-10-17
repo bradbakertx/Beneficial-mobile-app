@@ -45,6 +45,12 @@ class UserLogin(BaseModel):
     password: str
 
 
+class UserProfileUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+    phone: Optional[str] = None
+
+
 class UserInDB(UserBase):
     id: str
     hashed_password: str
