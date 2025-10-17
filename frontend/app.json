@@ -9,21 +9,27 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.beneficialinspections"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.anonymous.beneficialinspections"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png",
       "cors": {
-        "origin": ["https://app.emergent.sh", "https://*.emergent.sh", "*"]
+        "origin": [
+          "https://app.emergent.sh",
+          "https://*.emergent.sh",
+          "*"
+        ]
       }
     },
     "plugins": [
