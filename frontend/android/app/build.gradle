@@ -189,4 +189,7 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+    
+    // Square In-App Payments SDK
+    implementation "com.squareup.sdk.in-app-payments:card-entry:1.7.6"
 }
