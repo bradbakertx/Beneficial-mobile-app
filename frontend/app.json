@@ -36,6 +36,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#000"
         }
+      ],
+      [
+        "react-native-square-in-app-payments",
+        {
+          "squareApplicationId": "sq0idp-KPprlVpEwx6PRpSM-38ruA"
+        }
       ]
     ],
     "experiments": {
