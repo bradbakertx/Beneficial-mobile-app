@@ -72,6 +72,8 @@ def normalize_time_format(time_str: str) -> str:
 
 
 ROOT_DIR = Path(__file__).parent
+from fastapi.responses import HTMLResponse
+
 load_dotenv(ROOT_DIR / '.env')
 
 # MongoDB connection
