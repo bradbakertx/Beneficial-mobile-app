@@ -3029,12 +3029,31 @@ async def get_conversations(
             conversations.append(conversation)
     
     elif current_user.role == UserRole.customer:
-        # Customers see their sent messages grouped by recipient
+        # Customers see:
+        # 1. Messages they sent
+        # 2. Messages for inspections where they are the customer
+        
+        # Get all inspections where customer is involved
+        customer_inspections = await db.inspections.find({
+            "customer_id": current_user.id
+        }).to_list(1000)
+        customer_inspection_ids = [insp["id"] for insp in customer_inspections]
+        
+        # Get messages where customer sent them OR messages for their inspections
         messages = await db.messages.find({
-            "sender_id": current_user.id,
-            "$or": [
-                {"expires_at": {"$gt": now}},
-                {"expires_at": None}
+            "$and": [
+                {
+                    "$or": [
+                        {"sender_id": current_user.id},  # Messages they sent
+                        {"inspection_id": {"$in": customer_inspection_ids}}  # Messages for their inspections
+                    ]
+                },
+                {
+                    "$or": [
+                        {"expires_at": {"$gt": now}},
+                        {"expires_at": None}
+                    ]
+                }
             ]
         }).to_list(1000)
         
