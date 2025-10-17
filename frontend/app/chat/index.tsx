@@ -54,11 +54,43 @@ export default function ChatScreen() {
         // Customer/Agent viewing chat - fetch owner's profile
         fetchOwnerProfile();
       }
+    } else {
+      // Inspection chat - fetch all participants
+      fetchInspectionParticipants();
     }
     // Poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
   }, [inspectionId, customerId, user?.role]);
+
+  const fetchInspectionParticipants = async () => {
+    try {
+      // Fetch inspection details
+      const inspectionResponse = await api.get(`/inspections/${inspectionId}`);
+      const inspection = inspectionResponse.data;
+      setInspectionDetails(inspection);
+
+      // Fetch customer profile
+      if (inspection.customer_id) {
+        const customerRes = await api.get(`/users/${inspection.customer_id}`);
+        setCustomerProfile(customerRes.data);
+      }
+
+      // Fetch agent profile if exists
+      if (inspection.agent_id) {
+        const agentRes = await api.get(`/users/${inspection.agent_id}`);
+        setAgentProfile(agentRes.data);
+      }
+
+      // Fetch inspector profile if exists
+      if (inspection.inspector_id) {
+        const inspectorRes = await api.get(`/users/${inspection.inspector_id}`);
+        setInspectorProfile(inspectorRes.data);
+      }
+    } catch (error) {
+      console.error('Error fetching inspection participants:', error);
+    }
+  };
 
   const fetchOwnerProfile = async () => {
     try {
