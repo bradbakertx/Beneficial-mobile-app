@@ -544,6 +544,12 @@ const styles = StyleSheet.create({
   customerBubble: {
     backgroundColor: '#007AFF',
   },
+  agentBubble: {
+    backgroundColor: '#FF9500',
+  },
+  inspectorBubble: {
+    backgroundColor: '#5856D6',
+  },
   profileBubbleImage: {
     width: 56,
     height: 56,
