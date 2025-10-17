@@ -298,32 +298,28 @@ async def upload_profile_picture(
 
 @api_router.put("/users/profile")
 async def update_profile(
-    profile_data: dict,
+    profile_data: UserProfileUpdate,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Update user profile information (name, email, phone)"""
     try:
         update_data = {}
         
-        name = profile_data.get('name')
-        email = profile_data.get('email')
-        phone = profile_data.get('phone')
+        if profile_data.name:
+            update_data["name"] = profile_data.name.strip()
         
-        if name:
-            update_data["name"] = name.strip()
-        
-        if email:
+        if profile_data.email:
             # Check if email is already taken by another user
             existing_user = await db.users.find_one({
-                "email": email.strip(),
+                "email": profile_data.email.strip(),
                 "id": {"$ne": current_user.id}  # Exclude current user
             })
             if existing_user:
                 raise HTTPException(status_code=400, detail="Email already in use")
-            update_data["email"] = email.strip()
+            update_data["email"] = profile_data.email.strip()
         
-        if phone is not None:  # Allow empty string to clear phone
-            update_data["phone"] = phone.strip() if phone.strip() else None
+        if profile_data.phone is not None:  # Allow empty string to clear phone
+            update_data["phone"] = profile_data.phone.strip() if profile_data.phone.strip() else None
         
         if not update_data:
             raise HTTPException(status_code=400, detail="No fields to update")
