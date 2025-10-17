@@ -296,6 +296,81 @@ async def upload_profile_picture(
         raise HTTPException(status_code=500, detail=f"Failed to upload profile picture: {str(e)}")
 
 
+@api_router.put("/users/profile")
+async def update_profile(
+    name: str = None,
+    email: str = None,
+    phone: str = None,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Update user profile information (name, email, phone)"""
+    try:
+        update_data = {}
+        
+        if name:
+            update_data["name"] = name.strip()
+        
+        if email:
+            # Check if email is already taken by another user
+            existing_user = await db.users.find_one({
+                "email": email.strip(),
+                "id": {"$ne": current_user.id}  # Exclude current user
+            })
+            if existing_user:
+                raise HTTPException(status_code=400, detail="Email already in use")
+            update_data["email"] = email.strip()
+        
+        if phone is not None:  # Allow empty string to clear phone
+            update_data["phone"] = phone.strip() if phone.strip() else None
+        
+        if not update_data:
+            raise HTTPException(status_code=400, detail="No fields to update")
+        
+        # Update user in database
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": update_data}
+        )
+        
+        # Fetch updated user data
+        updated_user = await db.users.find_one({"id": current_user.id})
+        
+        # Generate presigned URL for profile picture if exists
+        profile_picture_url = None
+        if updated_user.get("profile_picture"):
+            try:
+                from s3_service import s3_client, AWS_S3_BUCKET_NAME
+                profile_picture_url = s3_client.generate_presigned_url(
+                    'get_object',
+                    Params={
+                        'Bucket': AWS_S3_BUCKET_NAME,
+                        'Key': updated_user["profile_picture"]
+                    },
+                    ExpiresIn=604800  # 7 days
+                )
+            except Exception as e:
+                logger.error(f"Error generating presigned URL: {e}")
+        
+        logger.info(f"Profile updated for user {current_user.id}: {list(update_data.keys())}")
+        
+        # Return updated user data
+        return {
+            "id": updated_user["id"],
+            "name": updated_user["name"],
+            "email": updated_user["email"],
+            "phone": updated_user.get("phone"),
+            "role": updated_user["role"],
+            "profile_picture": profile_picture_url,
+            "created_at": updated_user.get("created_at")
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating profile: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
+
+
 @api_router.post("/auth/register-push-token")
 async def register_push_token(
     push_token: str,
