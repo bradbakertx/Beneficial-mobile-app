@@ -370,6 +370,45 @@ async def update_profile(
         raise HTTPException(status_code=500, detail=f"Failed to update profile: {str(e)}")
 
 
+@api_router.put("/users/change-password")
+async def change_password(
+    old_password: str,
+    new_password: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Change user password"""
+    try:
+        # Verify old password
+        if not verify_password(old_password, current_user.hashed_password):
+            raise HTTPException(status_code=400, detail="Current password is incorrect")
+        
+        # Validate new password
+        if len(new_password) < 6:
+            raise HTTPException(status_code=400, detail="New password must be at least 6 characters")
+        
+        if old_password == new_password:
+            raise HTTPException(status_code=400, detail="New password must be different from current password")
+        
+        # Hash new password
+        new_hashed_password = get_password_hash(new_password)
+        
+        # Update password in database
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {"hashed_password": new_hashed_password}}
+        )
+        
+        logger.info(f"Password changed for user {current_user.id}")
+        
+        return {"success": True, "message": "Password changed successfully"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error changing password: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to change password: {str(e)}")
+
+
 @api_router.post("/auth/register-push-token")
 async def register_push_token(
     push_token: str,
