@@ -235,70 +235,90 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#FFF',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
     borderBottomColor: '#E5E5EA',
   },
   backButton: {
-    padding: 8,
+    padding: 4,
   },
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
     color: '#1C1C1E',
   },
+  placeholder: {
+    width: 32,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   scrollContent: {
     padding: 16,
   },
-  section: {
-    marginBottom: 24,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: '600',
+  description: {
+    fontSize: 14,
     color: '#8E8E93',
-    textTransform: 'uppercase',
-    marginBottom: 12,
-    letterSpacing: 0.5,
+    marginBottom: 24,
+    textAlign: 'center',
   },
-  settingRow: {
+  section: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  notificationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#FFF',
     padding: 16,
-    borderRadius: 12,
-    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
   },
-  settingInfo: {
+  notificationInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
     flex: 1,
     marginRight: 16,
   },
-  settingLabel: {
+  iconContainer: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F2F2F7',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  notificationTitle: {
     fontSize: 16,
     fontWeight: '500',
     color: '#1C1C1E',
     marginBottom: 4,
   },
-  settingDescription: {
+  notificationDescription: {
     fontSize: 13,
     color: '#8E8E93',
-    lineHeight: 18,
   },
-  saveButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 12,
-    padding: 16,
+  savingIndicator: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    justifyContent: 'center',
+    marginTop: 16,
+    padding: 12,
+    backgroundColor: '#fff',
+    borderRadius: 12,
   },
-  saveButtonDisabled: {
-    backgroundColor: '#C7C7CC',
-  },
-  saveButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: '600',
+  savingText: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginLeft: 8,
   },
 });
