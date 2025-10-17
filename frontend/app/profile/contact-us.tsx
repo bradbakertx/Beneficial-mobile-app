@@ -36,14 +36,6 @@ export default function ContactUsScreen() {
     });
   };
 
-  const handleAddress = () => {
-    const address = '24114 Alpine Lodge, San Antonio, TX 78258';
-    const encodedAddress = encodeURIComponent(address);
-    Linking.openURL(`https://maps.google.com/?q=${encodedAddress}`).catch(() => {
-      Alert.alert('Error', 'Unable to open maps');
-    });
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
