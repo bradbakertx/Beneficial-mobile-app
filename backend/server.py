@@ -422,6 +422,54 @@ async def register_push_token(
     return {"success": True, "message": "Push token registered"}
 
 
+@api_router.get("/users/notification-preferences")
+async def get_notification_preferences(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Get user's notification preferences"""
+    try:
+        user = await db.users.find_one({"id": current_user.id})
+        
+        # Return preferences or defaults
+        preferences = user.get("notification_preferences", {
+            "new_quotes": True,
+            "scheduling_updates": True,
+            "chat_messages": True,
+            "report_uploads": True
+        })
+        
+        return preferences
+        
+    except Exception as e:
+        logger.error(f"Error fetching notification preferences: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch notification preferences")
+
+
+@api_router.put("/users/notification-preferences")
+async def update_notification_preferences(
+    preferences: NotificationPreferences,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Update user's notification preferences"""
+    try:
+        # Convert preferences to dict
+        preferences_dict = preferences.model_dump()
+        
+        # Update in database
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": {"notification_preferences": preferences_dict}}
+        )
+        
+        logger.info(f"Notification preferences updated for user {current_user.id}")
+        
+        return preferences_dict
+        
+    except Exception as e:
+        logger.error(f"Error updating notification preferences: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update notification preferences")
+
+
 # ============= USER ENDPOINTS =============
 
 # ============= USER HELPER FUNCTIONS =============
