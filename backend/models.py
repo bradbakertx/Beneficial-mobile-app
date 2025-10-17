@@ -49,6 +49,7 @@ class UserInDB(UserBase):
     id: str
     hashed_password: str
     push_token: Optional[str] = None
+    google_calendar_credentials: Optional[dict] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
