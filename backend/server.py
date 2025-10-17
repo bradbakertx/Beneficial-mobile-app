@@ -12,7 +12,7 @@ from datetime import datetime
 
 from models import (
     UserCreate, UserLogin, UserResponse, TokenResponse, UserInDB, UserRole,
-    UserProfileUpdate,
+    UserProfileUpdate, NotificationPreferences,
     QuoteCreate, QuoteResponse, QuoteInDB, QuoteStatus,
     InspectionCreate, InspectionResponse, InspectionInDB, InspectionStatus,
     SchedulingRequestCreate,
