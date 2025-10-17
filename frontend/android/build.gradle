@@ -17,6 +17,8 @@ allprojects {
     google()
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
+    // Square In-App Payments SDK
+    maven { url 'https://sdk.squareup.com/public/android' }
   }
 }
 
