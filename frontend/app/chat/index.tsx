@@ -528,23 +528,11 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#007AFF',
+    backgroundColor: '#007AFF', // Blue for all users without profile pictures
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#fff',
-  },
-  ownerBubble: {
-    backgroundColor: '#34C759',
-  },
-  customerBubble: {
-    backgroundColor: '#007AFF',
-  },
-  agentBubble: {
-    backgroundColor: '#FF9500',
-  },
-  inspectorBubble: {
-    backgroundColor: '#5856D6',
   },
   profileBubbleImage: {
     width: 56,
