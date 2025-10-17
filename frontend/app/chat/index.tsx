@@ -291,11 +291,7 @@ export default function ChatScreen() {
                 {user?.profile_picture ? (
                   <Image source={{ uri: user.profile_picture }} style={styles.profileBubbleImage} />
                 ) : (
-                  <View style={[styles.profileBubble, 
-                    user?.role === 'customer' ? styles.customerBubble :
-                    user?.role === 'agent' ? styles.agentBubble :
-                    user?.role === 'inspector' ? styles.inspectorBubble :
-                    styles.ownerBubble]}>
+                  <View style={styles.profileBubble}>
                     <Text style={styles.profileBubbleText}>
                       {user?.name?.charAt(0).toUpperCase()}
                     </Text>
@@ -312,7 +308,7 @@ export default function ChatScreen() {
                       {agentProfile.profile_picture ? (
                         <Image source={{ uri: agentProfile.profile_picture }} style={styles.profileBubbleImage} />
                       ) : (
-                        <View style={[styles.profileBubble, styles.agentBubble]}>
+                        <View style={styles.profileBubble}>
                           <Text style={styles.profileBubbleText}>
                             {agentProfile.name?.charAt(0).toUpperCase()}
                           </Text>
@@ -325,7 +321,7 @@ export default function ChatScreen() {
                       {inspectorProfile.profile_picture ? (
                         <Image source={{ uri: inspectorProfile.profile_picture }} style={styles.profileBubbleImage} />
                       ) : (
-                        <View style={[styles.profileBubble, styles.inspectorBubble]}>
+                        <View style={styles.profileBubble}>
                           <Text style={styles.profileBubbleText}>
                             {inspectorProfile.name?.charAt(0).toUpperCase()}
                           </Text>
@@ -344,7 +340,7 @@ export default function ChatScreen() {
                       {customerProfile.profile_picture ? (
                         <Image source={{ uri: customerProfile.profile_picture }} style={styles.profileBubbleImage} />
                       ) : (
-                        <View style={[styles.profileBubble, styles.customerBubble]}>
+                        <View style={styles.profileBubble}>
                           <Text style={styles.profileBubbleText}>
                             {customerProfile.name?.charAt(0).toUpperCase()}
                           </Text>
@@ -357,7 +353,7 @@ export default function ChatScreen() {
                       {inspectorProfile.profile_picture ? (
                         <Image source={{ uri: inspectorProfile.profile_picture }} style={styles.profileBubbleImage} />
                       ) : (
-                        <View style={[styles.profileBubble, styles.inspectorBubble]}>
+                        <View style={styles.profileBubble}>
                           <Text style={styles.profileBubbleText}>
                             {inspectorProfile.name?.charAt(0).toUpperCase()}
                           </Text>
@@ -376,7 +372,7 @@ export default function ChatScreen() {
                       {customerProfile.profile_picture ? (
                         <Image source={{ uri: customerProfile.profile_picture }} style={styles.profileBubbleImage} />
                       ) : (
-                        <View style={[styles.profileBubble, styles.customerBubble]}>
+                        <View style={styles.profileBubble}>
                           <Text style={styles.profileBubbleText}>
                             {customerProfile.name?.charAt(0).toUpperCase()}
                           </Text>
@@ -389,7 +385,7 @@ export default function ChatScreen() {
                       {agentProfile.profile_picture ? (
                         <Image source={{ uri: agentProfile.profile_picture }} style={styles.profileBubbleImage} />
                       ) : (
-                        <View style={[styles.profileBubble, styles.agentBubble]}>
+                        <View style={styles.profileBubble}>
                           <Text style={styles.profileBubbleText}>
                             {agentProfile.name?.charAt(0).toUpperCase()}
                           </Text>
