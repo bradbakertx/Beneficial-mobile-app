@@ -36,6 +36,10 @@ export default function ChatScreen() {
   const [loading, setLoading] = useState(true);
   const [ownerProfile, setOwnerProfile] = useState<any>(null);
   const [otherPartyProfile, setOtherPartyProfile] = useState<any>(null);
+  const [inspectionDetails, setInspectionDetails] = useState<any>(null);
+  const [customerProfile, setCustomerProfile] = useState<any>(null);
+  const [agentProfile, setAgentProfile] = useState<any>(null);
+  const [inspectorProfile, setInspectorProfile] = useState<any>(null);
 
   useEffect(() => {
     fetchMessages();
