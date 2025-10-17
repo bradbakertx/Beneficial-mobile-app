@@ -298,14 +298,16 @@ async def upload_profile_picture(
 
 @api_router.put("/users/profile")
 async def update_profile(
-    name: str = None,
-    email: str = None,
-    phone: str = None,
+    profile_data: dict,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Update user profile information (name, email, phone)"""
     try:
         update_data = {}
+        
+        name = profile_data.get('name')
+        email = profile_data.get('email')
+        phone = profile_data.get('phone')
         
         if name:
             update_data["name"] = name.strip()
