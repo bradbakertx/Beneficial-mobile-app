@@ -2250,6 +2250,23 @@ async def download_inspection_report(
         raise HTTPException(status_code=500, detail="Failed to generate download URL")
 
 
+# ============= PAYMENT ENDPOINTS =============
+
+@app.get("/payment", response_class=HTMLResponse)
+async def serve_payment_form(
+    id: str,
+    amount: str,
+    address: str,
+    appId: str,
+    locationId: str
+):
+    """Serve Square payment form via HTTPS"""
+    html_path = ROOT_DIR / "payment_form.html"
+    with open(html_path, 'r') as f:
+        html_content = f.read()
+    return html_content
+
+
 @api_router.post("/inspections/{inspection_id}/create-payment")
 async def create_square_payment(
     inspection_id: str,
