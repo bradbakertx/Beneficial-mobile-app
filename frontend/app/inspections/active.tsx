@@ -397,11 +397,24 @@ export default function ActiveInspectionsScreen() {
             </View>
           )}
           {item.scheduled_date && item.scheduled_time && (
-            <View style={styles.detailRow}>
-              <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
-              <Text style={styles.detailText}>
-                {item.scheduled_date} at {item.scheduled_time}
-              </Text>
+            <View style={styles.dateRowWithChat}>
+              <View style={styles.detailRow}>
+                <Ionicons name="calendar-outline" size={16} color="#8E8E93" />
+                <Text style={styles.detailText}>
+                  {item.scheduled_date} at {item.scheduled_time}
+                </Text>
+              </View>
+              {(user?.role === 'owner' || user?.role === 'admin') && (
+                <TouchableOpacity 
+                  style={styles.chatIconButton}
+                  onPress={() => {
+                    // Navigate to group chat for this inspection
+                    router.push(`/chat?inspectionId=${item.id}&propertyAddress=${encodeURIComponent(item.property_address)}&customerName=${encodeURIComponent(item.customer_name)}`);
+                  }}
+                >
+                  <Ionicons name="chatbubble-outline" size={20} color="#007AFF" />
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
