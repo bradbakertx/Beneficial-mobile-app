@@ -740,6 +740,15 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8E8E93',
   },
+  dateRowWithChat: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  chatIconButton: {
+    padding: 8,
+    marginLeft: 8,
+  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
