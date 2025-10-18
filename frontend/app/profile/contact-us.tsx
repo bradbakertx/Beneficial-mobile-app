@@ -151,13 +151,13 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    paddingVertical: 24,
+    paddingVertical: 12,
     backgroundColor: '#fff',
     borderRadius: 12,
     marginBottom: 24,
   },
   logoImage: {
-    height: 150,
+    height: 300,
     maxWidth: '100%',
   },
   section: {
