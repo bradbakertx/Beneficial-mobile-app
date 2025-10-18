@@ -53,7 +53,7 @@ export default function ContactUsScreen() {
         <View style={styles.logoContainer}>
           <Image
             source={require('../../assets/images/beneficial-logo-full.jpg')}
-            style={[styles.logoImage, { width: width - 32 }]}
+            style={[styles.logoImage, { width: width - 16 }]}
             resizeMode="contain"
           />
         </View>
