@@ -279,19 +279,29 @@ const styles = StyleSheet.create({
     color: '#34C759',
     marginLeft: 8,
   },
-  contactBox: {
-    backgroundColor: '#F2F2F7',
-    padding: 16,
-    borderRadius: 8,
-    marginVertical: 12,
-  },
-  contactLine: {
-    fontSize: 14,
-    color: '#1C1C1E',
-    lineHeight: 20,
-  },
   link: {
     color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
+  footer: {
+    marginTop: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E5EA',
+    alignItems: 'center',
+  },
+  footerText: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 8,
+    fontWeight: '500',
+  },
+  footerLink: {
+    fontSize: 11,
+    color: '#007AFF',
+    textAlign: 'center',
     textDecorationLine: 'underline',
   },
 });
