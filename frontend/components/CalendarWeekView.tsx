@@ -32,7 +32,7 @@ export default function CalendarWeekView() {
   const [connected, setConnected] = useState(false);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [currentWeekStart, setCurrentWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 })); // Sunday
+  const [currentWeekStart, setCurrentWeekStart] = useState(new Date()); // Start from today
   
   // Calculate responsive column width
   const TIME_COLUMN_WIDTH = 60;
