@@ -151,29 +151,14 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 24,
     backgroundColor: '#fff',
     borderRadius: 12,
     marginBottom: 24,
   },
-  logoCircle: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#F2F2F7',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  companyName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#1C1C1E',
-    marginBottom: 4,
-  },
-  tagline: {
-    fontSize: 14,
-    color: '#8E8E93',
+  logoImage: {
+    height: 150,
+    maxWidth: '100%',
   },
   section: {
     marginBottom: 24,
