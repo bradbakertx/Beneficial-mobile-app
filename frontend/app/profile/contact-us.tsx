@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Linking,
   Alert,
+  Image,
+  useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,6 +16,7 @@ import { useRouter } from 'expo-router';
 
 export default function ContactUsScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
 
   const handleEmail = () => {
     const email = 'bradbakertx@gmail.com';
@@ -48,11 +51,11 @@ export default function ContactUsScreen() {
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.logoContainer}>
-          <View style={styles.logoCircle}>
-            <Ionicons name="business-outline" size={48} color="#007AFF" />
-          </View>
-          <Text style={styles.companyName}>Beneficial Inspections Inc.</Text>
-          <Text style={styles.tagline}>Professional Property Inspection Services</Text>
+          <Image
+            source={require('../../assets/images/beneficial-logo-full.jpg')}
+            style={[styles.logoImage, { width: width - 32 }]}
+            resizeMode="contain"
+          />
         </View>
 
         <View style={styles.section}>
