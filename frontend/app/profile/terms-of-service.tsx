@@ -185,26 +185,18 @@ export default function TermsOfServiceScreen() {
           </Text>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>14. Contact Information</Text>
-          <Text style={styles.paragraph}>
-            For questions about these Terms or our Services, contact us at:
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>
+            Beneficial Inspections Inc - Brad Baker TREC Lic #7522 since 2004
           </Text>
-          <View style={styles.contactBox}>
-            <Text style={styles.contactLine}>Beneficial Inspections Inc.</Text>
-            <Text style={styles.contactLine}>Licensed by TREC – License #7522</Text>
-            <Text style={styles.contactLine}>Email: bradbakertx@gmail.com</Text>
-            <Text style={styles.contactLine}>Phone: (210) 562-0673</Text>
-            <Text style={styles.contactLine}>Address: 24114 Alpine Lodge</Text>
-            <Text style={styles.contactLine}>San Antonio, TX 78258</Text>
-            <Text style={styles.contactLine}>Website: www.beneficialinspects.com</Text>
-          </View>
-          <Text style={styles.paragraph}>
-            For more information about the Texas Real Estate Commission (TREC), visit:{' '}
-            <Text style={styles.link} onPress={handleTRECLink}>
-              https://www.trec.texas.gov
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://www.trec.texas.gov/sites/default/files/pdf-forms/CN%201-5_0.pdf')}
+          >
+            <Text style={styles.footerLink}>
+              Texas Real Estate Commission Consumer Protection Notice
             </Text>
-          </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </SafeAreaView>
