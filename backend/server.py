@@ -2382,7 +2382,7 @@ async def download_inspection_report(
     inspection_id: str,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Get a download URL for the inspection report PDF"""
+    """Get a download URL for the inspection report PDF - with UUID-based authorization"""
     from s3_service import get_report_download_url
     
     # Get inspection
@@ -2390,9 +2390,31 @@ async def download_inspection_report(
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     
-    # Check permissions - customer, agent, owner, or inspector can download
-    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    # UUID-based authorization: Check if user is authorized to access this report
+    is_authorized = False
+    
+    if current_user.role == UserRole.owner:
+        # Owner has access to all reports
+        is_authorized = True
+    elif current_user.role == UserRole.customer:
+        # Customer can access if their UUID matches
+        is_authorized = inspection.get("customer_id") == current_user.id
+    elif current_user.role == UserRole.agent:
+        # Agent can access if their email or UUID matches (for historical records)
+        is_authorized = (
+            inspection.get("agent_email") == current_user.email or
+            inspection.get("agent_id") == current_user.id
+        )
+    elif current_user.role == UserRole.inspector:
+        # Inspector can access if their email or UUID matches (for historical records)
+        is_authorized = (
+            inspection.get("inspector_email") == current_user.email or
+            inspection.get("inspector_id") == current_user.id
+        )
+    
+    if not is_authorized:
+        logging.warning(f"Unauthorized report access attempt by {current_user.email} (role: {current_user.role}) for inspection {inspection_id}")
+        raise HTTPException(status_code=403, detail="Not authorized to access this report")
     
     # Check if report exists
     s3_key = inspection.get("report_s3_key")
@@ -2402,6 +2424,7 @@ async def download_inspection_report(
     # Generate pre-signed download URL (valid for 1 hour)
     try:
         download_url = get_report_download_url(s3_key, expiration=3600)
+        logging.info(f"Report download URL generated for {current_user.email} (role: {current_user.role}) - inspection {inspection_id}")
         return {
             "download_url": download_url,
             "expires_in": 3600  # seconds
