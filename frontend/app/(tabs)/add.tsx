@@ -29,12 +29,19 @@ export default function AddUserScreen() {
     password: '',
     confirmPassword: '',
     role: 'customer' as 'customer' | 'agent' | 'inspector',
+    license_number: '',  // For inspectors
   });
 
   const handleSubmit = async () => {
     // Validation
     if (!formData.name || !formData.email || !formData.phone || !formData.password) {
       Alert.alert('Error', 'Please fill in all fields');
+      return;
+    }
+
+    // Validate license number for inspectors
+    if (formData.role === 'inspector' && !formData.license_number) {
+      Alert.alert('Error', 'Inspector license number is required');
       return;
     }
 
@@ -50,13 +57,20 @@ export default function AddUserScreen() {
 
     setLoading(true);
     try {
-      await api.post('/auth/register', {
+      const payload: any = {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
         role: formData.role,
-      });
+      };
+      
+      // Add license number for inspectors
+      if (formData.role === 'inspector' && formData.license_number) {
+        payload.license_number = formData.license_number;
+      }
+
+      await api.post('/auth/register', payload);
 
       Alert.alert(
         'Success', 
@@ -73,6 +87,7 @@ export default function AddUserScreen() {
                 password: '',
                 confirmPassword: '',
                 role: 'customer',
+                license_number: '',
               });
             },
           },
