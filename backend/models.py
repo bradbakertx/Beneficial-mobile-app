@@ -34,6 +34,7 @@ class UserBase(BaseModel):
     role: UserRole = UserRole.customer
     phone: Optional[str] = None
     profile_picture: Optional[str] = None
+    license_number: Optional[str] = None  # For inspectors
 
 
 class UserCreate(UserBase):
