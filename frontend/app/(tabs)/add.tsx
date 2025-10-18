@@ -181,6 +181,20 @@ export default function AddUserScreen() {
               </View>
             </View>
 
+            {/* Inspector License Number Field - Only shown for inspectors */}
+            {formData.role === 'inspector' && (
+              <View style={styles.inputContainer}>
+                <Ionicons name="card-outline" size={20} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Inspector License Number *"
+                  value={formData.license_number}
+                  onChangeText={(text) => setFormData({ ...formData, license_number: text })}
+                  autoCapitalize="characters"
+                />
+              </View>
+            )}
+
             <View style={styles.inputContainer}>
               <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
