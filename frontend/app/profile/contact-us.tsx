@@ -112,7 +112,7 @@ export default function ContactUsScreen() {
         <View style={styles.infoSection}>
           <Text style={styles.infoText}>
             We're here to help! Contact us for any questions about our inspection services, 
-            scheduling, or general inquiries. Our team typically responds within 24 hours.
+            scheduling, or general inquiries.
           </Text>
         </View>
       </ScrollView>
