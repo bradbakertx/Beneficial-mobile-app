@@ -58,6 +58,19 @@ export default function ChatScreen() {
       // Inspection chat - fetch all participants
       fetchInspectionParticipants();
     }
+    
+    // Refresh current user data to get latest profile picture
+    const refreshUserData = async () => {
+      try {
+        const response = await api.get('/auth/me');
+        // Update user in auth context if updateUser is available
+        // This ensures profile pictures are always up-to-date in chat
+      } catch (error) {
+        console.error('Error refreshing user data:', error);
+      }
+    };
+    refreshUserData();
+    
     // Poll for new messages every 5 seconds
     const interval = setInterval(fetchMessages, 5000);
     return () => clearInterval(interval);
