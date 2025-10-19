@@ -3652,14 +3652,32 @@ async def get_conversations(
 async def get_unread_count(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Get total unread message count"""
-    # Count all unread messages not sent by current user
-    unread_count = await db.messages.count_documents({
-        "sender_id": {"$ne": current_user.id},
-        "is_read": False
-    })
+    """Get total unread message count - only for valid inspections"""
+    from datetime import datetime as dt
     
-    return {"unread_count": unread_count}
+    # Get all unread messages not sent by current user
+    unread_messages = await db.messages.find({
+        "sender_id": {"$ne": current_user.id},
+        "is_read": False,
+        "$or": [
+            {"expires_at": {"$gt": dt.utcnow()}},
+            {"expires_at": None}
+        ]
+    }).to_list(1000)
+    
+    # Filter out messages from deleted inspections
+    valid_count = 0
+    for msg in unread_messages:
+        if msg.get("inspection_id"):
+            # Check if inspection still exists
+            inspection = await db.inspections.find_one({"id": msg["inspection_id"]})
+            if inspection:
+                valid_count += 1
+        else:
+            # Non-inspection messages (owner chats) are always valid
+            valid_count += 1
+    
+    return {"unread_count": valid_count}
 
 
 @api_router.delete("/conversations/{conversation_id}")
