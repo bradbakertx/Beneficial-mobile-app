@@ -143,10 +143,17 @@ async def register(user_data: UserCreate):
     if user_data.role == UserRole.customer:
         # Find inspections with matching email or phone where customer_id is null
         matching_inspections = await db.inspections.find({
-            "customer_id": None,
             "$or": [
-                {"customer_email": user_data.email},
-                {"customer_phone": user_data.phone}
+                {"customer_id": None},
+                {"customer_id": {"$exists": False}}
+            ],
+            "$and": [
+                {
+                    "$or": [
+                        {"customer_email": user_data.email},
+                        {"customer_phone": user_data.phone}
+                    ]
+                }
             ]
         }).to_list(1000)
         
