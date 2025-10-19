@@ -1021,21 +1021,28 @@ async def confirm_time_slot(
     request_body: dict = Body(...),
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Customer confirms a selected time slot"""
+    """Customer or Agent confirms a selected time slot"""
     from push_notification_service import send_push_notification
     from email_service import send_inspection_calendar_invite
     
-    if current_user.role != UserRole.customer:
-        raise HTTPException(status_code=403, detail="Only customers can confirm time slots")
+    # Allow customers and agents
+    if current_user.role not in [UserRole.customer, UserRole.agent]:
+        raise HTTPException(status_code=403, detail="Only customers and agents can confirm time slots")
     
     # Get the inspection
     inspection = await db.inspections.find_one({"id": inspection_id})
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     
-    # Verify the inspection belongs to the customer
-    if inspection["customer_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    # Verify authorization
+    if current_user.role == UserRole.customer:
+        # Customer must own the inspection
+        if inspection["customer_id"] != current_user.id:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    elif current_user.role == UserRole.agent:
+        # Agent must be assigned to the inspection
+        if inspection.get("agent_email") != current_user.email:
+            raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
     
     # Verify inspection is in the correct status
     if inspection["status"] != InspectionStatus.awaiting_customer_selection.value:
