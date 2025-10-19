@@ -14,7 +14,19 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 import api from '../../services/api';
+
+const DAYS_OF_WEEK = [
+  { name: 'Monday', value: 'Monday' },
+  { name: 'Tuesday', value: 'Tuesday' },
+  { name: 'Wednesday', value: 'Wednesday' },
+  { name: 'Thursday', value: 'Thursday' },
+  { name: 'Friday', value: 'Friday' },
+  { name: 'Saturday', value: 'Saturday' },
+  { name: 'Sunday', value: 'Sunday' },
+];
 
 export default function DirectScheduleScreen() {
   const router = useRouter();
@@ -34,22 +46,37 @@ export default function DirectScheduleScreen() {
     yearBuilt: '',
     foundationType: 'Slab',
     propertyType: 'Single family buyer\'s inspection',
-    
-    // Schedule Request
-    optionPeriodEnd: '',
-    preferredDays: '',
   });
 
-  const foundationTypes = ['Slab', 'Pier & Beam', 'Basement', 'Crawl Space', 'Other'];
+  // Schedule Request state
+  const [optionPeriodEnd, setOptionPeriodEnd] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+
+  // Match quote form dropdowns
+  const foundationTypes = ['Slab', 'Pier & Beam'];
   
   const propertyTypes = [
     'Single family buyer\'s inspection',
-    'Single family seller\'s inspection',
-    'Townhome/Condo',
-    'Multi-family (2-4 units)',
-    'Commercial property',
-    'New construction',
+    'Single family seller\'s pre-list inspection',
+    'Multi-family building inspection',
+    'Commercial inspection',
   ];
+
+  const toggleDay = (day: string) => {
+    if (selectedDays.includes(day)) {
+      setSelectedDays(selectedDays.filter(d => d !== day));
+    } else {
+      setSelectedDays([...selectedDays, day]);
+    }
+  };
+
+  const onDateChange = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(Platform.OS === 'ios');
+    if (selectedDate) {
+      setOptionPeriodEnd(selectedDate);
+    }
+  };
 
   const handleSubmit = async () => {
     // Validation
@@ -63,8 +90,8 @@ export default function DirectScheduleScreen() {
       return;
     }
 
-    if (!formData.optionPeriodEnd || !formData.preferredDays) {
-      Alert.alert('Error', 'Please fill in schedule request information');
+    if (selectedDays.length === 0) {
+      Alert.alert('Error', 'Please select at least one preferred day');
       return;
     }
 
@@ -81,8 +108,8 @@ export default function DirectScheduleScreen() {
         year_built: formData.yearBuilt ? parseInt(formData.yearBuilt) : null,
         foundation_type: formData.foundationType,
         property_type: formData.propertyType,
-        option_period_end: formData.optionPeriodEnd,
-        preferred_days: formData.preferredDays,
+        option_period_end: format(optionPeriodEnd, 'yyyy-MM-dd'),
+        preferred_days: selectedDays.join(','),
       });
 
       Alert.alert(
