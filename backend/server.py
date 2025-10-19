@@ -623,6 +623,7 @@ async def get_owner_info(
         "name": owner["name"],
         "email": owner["email"],
         "role": owner["role"],
+        "phone": owner.get("phone"),
         "profile_picture": profile_picture_url
     }
 
