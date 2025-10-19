@@ -219,11 +219,13 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
             styles.roleBadge,
             user?.role === 'customer' && styles.customerBadge,
             user?.role === 'agent' && styles.agentBadge,
+            user?.role === 'inspector' && styles.inspectorBadge,
             user?.role === 'owner' && styles.ownerBadge
           ]}>
             <Text style={styles.roleBadgeText}>
               {user?.role === 'customer' ? 'Customer' : 
                user?.role === 'agent' ? 'Agent' : 
+               user?.role === 'inspector' ? 'Inspector' :
                'Owner'}
             </Text>
           </View>
