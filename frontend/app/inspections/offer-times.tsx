@@ -177,12 +177,20 @@ export default function OfferTimeSlotsScreen() {
       // Get selected inspector details
       const inspector = INSPECTORS[selectedInspector];
       
-      const response = await api.patch(`/admin/inspections/${id}/offer-times`, {
+      // Prepare request payload
+      const payload: any = {
         offered_time_slots: offeredTimeSlots,
         inspector_name: inspector.name,
         inspector_license: inspector.license,
         inspector_phone: inspector.phone
-      });
+      };
+
+      // Include inspection fee for direct schedule (no quote)
+      if (!inspection.quote_id && inspectionFee) {
+        payload.inspection_fee = parseFloat(inspectionFee);
+      }
+
+      const response = await api.patch(`/admin/inspections/${id}/offer-times`, payload);
       
       console.log('Time slots offered:', response.data);
 
