@@ -62,14 +62,9 @@ export default function DashboardScreen() {
         unreadMessages: unreadCount
       });
       
-      // For customers and agents, log the inspection statuses
-      if (user?.role === 'customer' || user?.role === 'agent') {
-        console.log('Customer/Agent inspection statuses:', {
-          pending: pendingInspections.map((i: any) => ({ id: i.id.substring(0, 8), status: i.status })),
-          confirmed: confirmedInspections.map((i: any) => ({ id: i.id.substring(0, 8), status: i.status }))
-        });
-        
-        // Check for unsigned agreement and auto-navigate
+      // For customers, check for unsigned agreement and auto-navigate
+      // Agents should NOT be auto-navigated to agreements
+      if (user?.role === 'customer') {
         const scheduledInspections = pendingInspections.filter((i: any) => i.status === 'scheduled');
         const unsignedInspection = scheduledInspections.find((i: any) => !i.agreement_signed);
         
