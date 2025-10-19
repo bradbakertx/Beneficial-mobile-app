@@ -94,8 +94,14 @@ export default function PreInspectionAgreementScreen() {
         window.alert('Agreement signed successfully! PDFs have been emailed to you and the inspector.');
       }
 
-      // Navigate to agent info screen using router.push instead of replace
-      router.push(`/inspections/agent-info?inspectionId=${inspectionId.current}`);
+      // Check if agent is already assigned (direct schedule flow)
+      if (agreementData?.agent_email) {
+        // Agent already assigned - skip agent info screen, go to dashboard
+        router.replace('/(tabs)');
+      } else {
+        // No agent yet - navigate to agent info screen
+        router.push(`/inspections/agent-info?inspectionId=${inspectionId.current}`);
+      }
     } catch (error: any) {
       console.error('Error signing agreement:', error);
       if (Platform.OS === 'web') {
