@@ -149,6 +149,16 @@ export default function OfferTimeSlotsScreen() {
       }
     }
 
+    // Validate inspection fee for direct schedule (no quote)
+    if (!inspection.quote_id) {
+      if (!inspectionFee || parseFloat(inspectionFee) <= 0) {
+        if (Platform.OS === 'web') {
+          window.alert('Please enter a valid inspection fee amount');
+        }
+        return;
+      }
+    }
+
     setSubmitting(true);
     try {
       // Build offered time slots array
