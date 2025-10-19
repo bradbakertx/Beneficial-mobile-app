@@ -3012,6 +3012,85 @@ www.beneficialinspects.com"""
         raise HTTPException(status_code=500, detail=f"Failed to finalize inspection: {str(e)}")
 
 
+@api_router.get("/reports/{inspection_id}")
+async def get_inspection_reports(
+    inspection_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """
+    Get all report files for an inspection.
+    Only accessible by:
+    - Customer (if they own the inspection AND payment is completed)
+    - Agent (if associated with the inspection AND payment is completed) 
+    - Owner/Admin (always)
+    """
+    # Get inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Authorization check
+    is_customer = current_user.role == UserRole.customer and inspection.get("customer_id") == current_user.id
+    is_agent = current_user.role == UserRole.agent and inspection.get("agent_email") == current_user.email
+    is_owner_or_admin = current_user.role in [UserRole.owner, UserRole.admin]
+    
+    if not (is_customer or is_agent or is_owner_or_admin):
+        raise HTTPException(status_code=403, detail="Not authorized to view these reports")
+    
+    # For customers and agents, check if payment is completed
+    if not is_owner_or_admin:
+        payment_completed = inspection.get("payment_completed", False)
+        if not payment_completed:
+            raise HTTPException(
+                status_code=403, 
+                detail="Reports are locked until payment is completed"
+            )
+    
+    # Get report files
+    report_files = inspection.get("report_files", [])
+    
+    if not report_files:
+        return {
+            "inspection_id": inspection_id,
+            "property_address": inspection.get("property_address"),
+            "reports": [],
+            "message": "No reports uploaded yet"
+        }
+    
+    # Generate pre-signed URLs for each report (valid for 1 hour)
+    from s3_service import get_report_download_url
+    
+    reports_with_urls = []
+    for report in report_files:
+        try:
+            download_url = get_report_download_url(report["s3_key"], expiration=3600)
+            reports_with_urls.append({
+                "filename": report.get("filename", "report.pdf"),
+                "uploaded_at": report.get("uploaded_at"),
+                "download_url": download_url,
+                "s3_key": report["s3_key"]
+            })
+        except Exception as e:
+            logging.error(f"Failed to generate URL for {report.get('s3_key')}: {e}")
+            # Still include the file but without URL
+            reports_with_urls.append({
+                "filename": report.get("filename", "report.pdf"),
+                "uploaded_at": report.get("uploaded_at"),
+                "download_url": None,
+                "s3_key": report["s3_key"],
+                "error": "Failed to generate download link"
+            })
+    
+    return {
+        "inspection_id": inspection_id,
+        "property_address": inspection.get("property_address"),
+        "inspector_name": inspection.get("inspector_name"),
+        "scheduled_date": inspection.get("scheduled_date"),
+        "finalized": inspection.get("finalized", False),
+        "reports": reports_with_urls
+    }
+
+
 @api_router.post("/inspections/{inspection_id}/mark-paid")
 async def mark_inspection_paid(
     inspection_id: str,
