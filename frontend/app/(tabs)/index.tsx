@@ -295,6 +295,14 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
           </View>
         )}
 
+        {/* Inspector Schedule - Inspector Only */}
+        {user?.role === 'inspector' && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>My Inspection Schedule</Text>
+            <InspectorCalendarView userId={user?.id} />
+          </View>
+        )}
+
         {/* Quick Actions for Customer & Agent */}
         {(user?.role === 'customer' || user?.role === 'agent') && (
           <View style={styles.section}>
