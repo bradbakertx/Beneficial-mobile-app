@@ -571,6 +571,13 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#fff',
   },
+  currentUserBubble: {
+    borderColor: '#FFD700', // Gold border for current user
+    borderWidth: 3,
+  },
+  currentUserBubbleNoImage: {
+    backgroundColor: '#FFD700', // Gold background for current user without image
+  },
   profileBubbleText: {
     fontSize: 22,
     fontWeight: 'bold',
