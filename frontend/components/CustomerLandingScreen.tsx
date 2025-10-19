@@ -51,71 +51,75 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Logo Section */}
-      <View style={styles.logoContainer}>
-        <View style={styles.logoBackground}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={true}
+      >
+        {/* Logo Banner - No spacing, full width */}
+        <View style={styles.logoBanner}>
           <Image
             source={{ uri: 'https://customer-assets.emergentagent.com/job_profile-update-10/artifacts/n12x5753_beneficial_inspections_inc_large-edit-20251018231819.jpg' }}
             style={styles.logo}
             resizeMode="contain"
           />
         </View>
-      </View>
 
-      {/* Background Image with Content */}
-      <ImageBackground
-        source={require('../assets/images/san-antonio-houses.jpg')}
-        style={styles.backgroundImage}
-        imageStyle={{ opacity: 0.18 }}
-      >
-        <View style={styles.contentContainer}>
-          {/* Note Card */}
-          <View style={styles.noteCard}>
-            <Text style={styles.noteText}>
-              Beneficial Inspections, Inc. realizes there are several options when choosing your
-              inspector. We are happy to serve you and help you make intelligent decisions in the
-              process of buying or selling your home or property.
-            </Text>
+        {/* Background Image with Content */}
+        <ImageBackground
+          source={require('../assets/images/san-antonio-houses.jpg')}
+          style={styles.backgroundImage}
+          imageStyle={{ opacity: 0.45 }}
+        >
+          <View style={styles.contentContainer}>
+            {/* Note Card */}
+            <View style={styles.noteCard}>
+              <Text style={styles.noteText}>
+                Beneficial Inspections, Inc. realizes there are several options when choosing your
+                inspector. We are happy to serve you and help you make intelligent decisions in the
+                process of buying or selling your home or property.
+              </Text>
+            </View>
+
+            {/* Buttons */}
+            <View style={styles.buttonsContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => openModal('inspection')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>What Does Your Inspection Cover?</Text>
+                <Ionicons name="chevron-forward" size={20} color="#1C1C1E" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => openModal('about')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>About Beneficial Inspections Inc.</Text>
+                <Ionicons name="chevron-forward" size={20} color="#1C1C1E" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => openModal('testimonials')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.buttonText}>Testimonials</Text>
+                <Ionicons name="chevron-forward" size={20} color="#1C1C1E" />
+              </TouchableOpacity>
+            </View>
           </View>
+        </ImageBackground>
 
-          {/* Buttons */}
-          <View style={styles.buttonsContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => openModal('inspection')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>What Does Your Inspection Cover?</Text>
-              <Ionicons name="chevron-forward" size={20} color="#1C1C1E" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => openModal('about')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>About Beneficial Inspections Inc.</Text>
-              <Ionicons name="chevron-forward" size={20} color="#1C1C1E" />
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => openModal('testimonials')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buttonText}>Testimonials</Text>
-              <Ionicons name="chevron-forward" size={20} color="#1C1C1E" />
-            </TouchableOpacity>
-          </View>
+        {/* Swipe Indicator */}
+        <View style={styles.indicatorContainer}>
+          <View style={styles.indicatorDot} />
+          <View style={styles.indicatorDotEmpty} />
+          <Ionicons name="chevron-forward" size={16} color="#8E8E93" style={styles.swipeIcon} />
         </View>
-      </ImageBackground>
-
-      {/* Swipe Indicator */}
-      <View style={styles.indicatorContainer}>
-        <View style={styles.indicatorDot} />
-        <View style={styles.indicatorDotEmpty} />
-        <Ionicons name="chevron-forward" size={16} color="#8E8E93" style={styles.swipeIcon} />
-      </View>
+      </ScrollView>
 
       {/* Modal for Content */}
       <Modal
