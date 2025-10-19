@@ -25,6 +25,7 @@ interface TimeSlot {
 export default function SelectTimeSlotScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [inspection, setInspection] = useState<any>(null);
