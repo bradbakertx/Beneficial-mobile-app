@@ -114,7 +114,7 @@ export default function PendingSchedulingListScreen() {
             <TouchableOpacity
               key={inspection.id}
               style={styles.inspectionCard}
-              onPress={() => router.push(`/inspections/offer-times?id=${inspection.id}`)}
+              onPress={() => handleInspectionPress(inspection)}
             >
               <View style={styles.cardHeader}>
                 <View style={styles.customerInfo}>
