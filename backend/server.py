@@ -3158,7 +3158,7 @@ async def get_conversations(
     # Inspector sees messages where they are the recipient
     # Customer sees their own sent messages (grouped by recipient)
     
-    if current_user.role in [UserRole.owner, UserRole.inspector]:
+    if current_user.role in [UserRole.owner, UserRole.inspector, UserRole.agent]:
         # Get all messages where current user is the recipient OR any owner is the recipient (for owner role)
         if current_user.role == UserRole.owner:
             # Owners see ALL messages sent to ANY owner OR sent to them as inspector
@@ -3169,6 +3169,28 @@ async def get_conversations(
                             {"recipient_role": UserRole.owner.value},  # Messages to any owner
                             {"recipient_id": current_user.id},  # Messages to them as inspector
                         ]
+                    },
+                    {
+                        "$or": [
+                            {"expires_at": {"$gt": now}},
+                            {"expires_at": None}
+                        ]
+                    }
+                ]
+            }).to_list(1000)
+        elif current_user.role == UserRole.agent:
+            # Agents see messages for inspections they are assigned to
+            # First, get all inspection IDs where this agent is assigned
+            assigned_inspections = await db.inspections.find({
+                "agent_email": current_user.email
+            }).to_list(1000)
+            assigned_inspection_ids = [insp["id"] for insp in assigned_inspections]
+            
+            # Get messages for their assigned inspections
+            messages = await db.messages.find({
+                "$and": [
+                    {
+                        "inspection_id": {"$in": assigned_inspection_ids}  # Messages for their assigned inspections
                     },
                     {
                         "$or": [
