@@ -254,23 +254,47 @@ export default function DirectScheduleScreen() {
           <Text style={styles.sectionTitle}>Schedule Request</Text>
           
           <Text style={styles.label}>Option Period End Date *</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.optionPeriodEnd}
-            onChangeText={(text) => setFormData({ ...formData, optionPeriodEnd: text })}
-            placeholder="MM/DD/YYYY"
-          />
-          <Text style={styles.helpText}>Enter the date when the option period ends</Text>
+          <TouchableOpacity 
+            style={styles.dateButton}
+            onPress={() => setShowDatePicker(true)}
+          >
+            <Ionicons name="calendar-outline" size={20} color="#007AFF" />
+            <Text style={styles.dateButtonText}>
+              {format(optionPeriodEnd, 'MMMM d, yyyy')}
+            </Text>
+          </TouchableOpacity>
+          
+          {showDatePicker && (
+            <DateTimePicker
+              value={optionPeriodEnd}
+              mode="date"
+              display="default"
+              onChange={onDateChange}
+              minimumDate={new Date()}
+            />
+          )}
 
           <Text style={styles.label}>Preferred Days of Week *</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.preferredDays}
-            onChangeText={(text) => setFormData({ ...formData, preferredDays: text })}
-            placeholder="e.g., Monday, Wednesday, Friday"
-            multiline
-          />
-          <Text style={styles.helpText}>List preferred days for the inspection</Text>
+          <Text style={styles.helpText}>Select one or more days</Text>
+          <View style={styles.daysContainer}>
+            {DAYS_OF_WEEK.map((day) => (
+              <TouchableOpacity
+                key={day.value}
+                style={[
+                  styles.dayButton,
+                  selectedDays.includes(day.value) && styles.dayButtonSelected
+                ]}
+                onPress={() => toggleDay(day.value)}
+              >
+                <Text style={[
+                  styles.dayButtonText,
+                  selectedDays.includes(day.value) && styles.dayButtonTextSelected
+                ]}>
+                  {day.name}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {/* Submit Button */}
