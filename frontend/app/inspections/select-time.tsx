@@ -92,17 +92,31 @@ export default function SelectTimeSlotScreen() {
       });
       
       console.log('API response received:', response.data);
-      console.log('Navigating to tabs...');
 
-      // Navigate to dashboard
-      router.replace('/(tabs)');
-
-      // Show success message
-      setTimeout(() => {
-        if (Platform.OS === 'web') {
-          window.alert('Inspection scheduled successfully! You will receive a confirmation.');
-        }
-      }, 500);
+      // Navigate based on user role
+      if (user?.role === 'agent') {
+        console.log('Agent user - navigating to dashboard');
+        router.replace('/(tabs)');
+        
+        setTimeout(() => {
+          if (Platform.OS === 'web') {
+            window.alert('Inspection scheduled successfully! The customer will be notified to sign the agreement.');
+          } else {
+            Alert.alert('Success', 'Inspection scheduled successfully! The customer will be notified to sign the agreement.');
+          }
+        }, 500);
+      } else {
+        console.log('Customer user - navigating to tabs (will show agreement in active inspections)');
+        router.replace('/(tabs)');
+        
+        setTimeout(() => {
+          if (Platform.OS === 'web') {
+            window.alert('Inspection scheduled successfully! Please sign the agreement in Active Inspections.');
+          } else {
+            Alert.alert('Success', 'Inspection scheduled successfully! Please sign the agreement in Active Inspections.');
+          }
+        }, 500);
+      }
 
     } catch (error: any) {
       console.error('=== ERROR confirming time slot ===');
