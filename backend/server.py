@@ -2077,13 +2077,19 @@ async def cancel_inspection(
             cancellations_sent["agent"] = agent_email
             logging.info(f"Calendar cancellation sent to agent: {agent_email}")
     
+    # Delete associated chat messages/conversations
+    # Delete all messages related to this inspection
+    messages_result = await db.messages.delete_many({"inspection_id": inspection_id})
+    logging.info(f"Deleted {messages_result.deleted_count} messages for inspection {inspection_id}")
+    
     # Delete the inspection
     await db.inspections.delete_one({"id": inspection_id})
     
     return {
         "success": True,
         "message": "Inspection cancelled successfully. Calendar cancellations have been sent.",
-        "calendar_cancellations_sent": cancellations_sent
+        "calendar_cancellations_sent": cancellations_sent,
+        "messages_deleted": messages_result.deleted_count
     }
 
 @api_router.patch("/admin/inspections/{inspection_id}/reschedule")
