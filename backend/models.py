@@ -120,6 +120,21 @@ class InspectionBase(BaseModel):
     preferred_time: Optional[str] = None
 
 
+class DirectScheduleRequest(BaseModel):
+    customer_name: str
+    customer_phone: str
+    customer_email: str
+    property_address: str
+    property_city: str
+    property_zip: str
+    square_feet: Optional[int] = None
+    year_built: Optional[int] = None
+    foundation_type: Optional[str] = None
+    property_type: str
+    option_period_end: str
+    preferred_days: str
+
+
 class InspectionCreate(InspectionBase):
     pass
 
