@@ -934,7 +934,7 @@ async def direct_schedule_inspection(
         preferred_date=None,
         preferred_time=None,
         option_period_end_date=request.option_period_end,
-        preferred_days_of_week=request.preferred_days,
+        preferred_days_of_week=request.preferred_days.split(','),  # Convert comma-separated string to list
         status=InspectionStatus.pending_scheduling,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
