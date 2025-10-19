@@ -897,6 +897,69 @@ async def schedule_inspection(
     return InspectionResponse(**inspection.dict())
 
 
+@api_router.post("/inspections/direct-schedule", response_model=InspectionResponse)
+async def direct_schedule_inspection(
+    request: DirectScheduleRequest,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Agent submits direct schedule request - skips quote flow"""
+    from push_notification_service import send_push_notification
+    
+    if current_user.role != UserRole.agent:
+        raise HTTPException(status_code=403, detail="Only agents can submit direct schedule requests")
+    
+    inspection_id = str(uuid.uuid4())
+    
+    # Build full property address
+    property_address = f"{request.property_address}, {request.property_city}, TX {request.property_zip}"
+    
+    # Create inspection directly without quote
+    inspection = InspectionInDB(
+        id=inspection_id,
+        quote_id=None,  # No quote for direct schedule
+        customer_id=None,  # Will be set when customer account is created/linked
+        customer_email=request.customer_email,
+        customer_name=request.customer_name,
+        customer_phone=request.customer_phone,
+        property_address=property_address,
+        property_city=request.property_city,
+        property_zip=request.property_zip,
+        square_feet=request.square_feet,
+        year_built=request.year_built,
+        foundation_type=request.foundation_type,
+        property_type=request.property_type,
+        agent_email=current_user.email,
+        agent_name=current_user.name,
+        fee_amount=None,  # Owner will set this when offering times
+        preferred_date=None,
+        preferred_time=None,
+        option_period_end_date=request.option_period_end,
+        preferred_days_of_week=request.preferred_days,
+        status=InspectionStatus.pending_scheduling,
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow()
+    )
+    
+    await db.inspections.insert_one(inspection.dict())
+    
+    # Send push notification to owner about new direct schedule request
+    owners = await db.users.find({"role": "owner"}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            try:
+                await send_push_notification(
+                    owner["push_token"],
+                    "New Direct Schedule Request",
+                    f"Agent {current_user.name} submitted a direct schedule request for {request.property_address}"
+                )
+            except Exception as e:
+                logging.error(f"Failed to send push notification to owner {owner.get('email')}: {e}")
+    
+    logging.info(f"Agent {current_user.email} created direct schedule request {inspection_id} for {request.customer_name}")
+    
+    return InspectionResponse(**inspection.dict())
+
+
 @api_router.get("/inspections", response_model=List[InspectionResponse])
 async def get_my_inspections(
     current_user: UserInDB = Depends(get_current_user_from_token)
