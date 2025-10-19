@@ -273,8 +273,9 @@ export default function DirectScheduleScreen() {
             />
           )}
 
-          <Text style={styles.label}>Preferred Days of Week *</Text>
-          <Text style={styles.helpText}>Select one or more days</Text>
+          <Text style={styles.label}>
+            If you plan on attending the inspection, what days of the week work best for you? *
+          </Text>
           <View style={styles.daysContainer}>
             {DAYS_OF_WEEK.map((day) => (
               <TouchableOpacity
@@ -294,6 +295,9 @@ export default function DirectScheduleScreen() {
               </TouchableOpacity>
             ))}
           </View>
+          <Text style={styles.saturdayNote}>
+            * Normal operating days are Mon-Fri, however sometimes Saturdays are available.
+          </Text>
         </View>
 
         {/* Submit Button */}
