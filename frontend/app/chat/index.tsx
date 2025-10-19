@@ -107,7 +107,8 @@ export default function ChatScreen() {
         }
       }
 
-      // Fetch inspector profile if exists
+      // Fetch inspector/owner profile
+      // CRITICAL: If inspector is Brad Baker (owner), fetch OWNER profile, not inspector profile
       if (inspection.inspector_id) {
         const inspectorRes = await api.get(`/users/${inspection.inspector_id}`);
         setInspectorProfile(inspectorRes.data);
@@ -126,8 +127,22 @@ export default function ChatScreen() {
             profile_picture: null
           });
         }
+      } else if (inspection.inspector_name && inspection.inspector_name.toLowerCase().includes('brad baker')) {
+        // If inspector is Brad Baker but no ID/email, fetch owner profile
+        try {
+          const ownerRes = await api.get('/users/owner');
+          setInspectorProfile(ownerRes.data);
+        } catch (error) {
+          console.error('Error fetching owner profile for Brad Baker:', error);
+          // Fallback to basic info
+          setInspectorProfile({
+            name: inspection.inspector_name,
+            role: 'owner', // Set role as owner, not inspector
+            profile_picture: null
+          });
+        }
       } else if (inspection.inspector_name) {
-        // If only inspector name is available (legacy case), use basic info
+        // For other inspectors with only name available (legacy case)
         setInspectorProfile({
           name: inspection.inspector_name,
           role: 'inspector',
