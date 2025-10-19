@@ -298,10 +298,27 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
 
         {/* Inspector Schedule - Inspector Only */}
         {user?.role === 'inspector' && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>My Inspection Schedule</Text>
-            <InspectorCalendarView userId={user?.id} />
-          </View>
+          <>
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>My Inspection Schedule</Text>
+              <InspectorCalendarView userId={user?.id} />
+            </View>
+
+            {/* Quick Actions for Inspector */}
+            <View style={styles.section}>
+              <Text style={styles.sectionTitle}>Quick Actions</Text>
+              <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/chat?recipientName=Owner')}>
+                <View style={styles.actionIcon}>
+                  <Ionicons name="chatbubble-ellipses" size={24} color="#34C759" />
+                </View>
+                <View style={styles.actionContent}>
+                  <Text style={styles.actionTitle}>Chat with Brad Baker</Text>
+                  <Text style={styles.actionDescription}>Ask any general questions</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
         {/* Quick Actions for Customer & Agent */}
