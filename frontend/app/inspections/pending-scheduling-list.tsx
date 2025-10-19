@@ -79,6 +79,37 @@ export default function PendingSchedulingListScreen() {
     }
   };
 
+  const handleCancelInspection = (inspection: Inspection) => {
+    Alert.alert(
+      'Cancel Inspection',
+      `Are you sure you want to cancel the inspection for ${inspection.property_address}?\n\nThis will permanently remove the inspection from the system.`,
+      [
+        {
+          text: 'No',
+          style: 'cancel'
+        },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            setCancelingId(inspection.id);
+            try {
+              await api.delete(`/admin/inspections/${inspection.id}/cancel`);
+              Alert.alert('Success', 'Inspection canceled successfully.');
+              fetchInspections();
+            } catch (error: any) {
+              console.error('Error canceling inspection:', error);
+              const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection. Please try again.';
+              Alert.alert('Error', errorMessage);
+            } finally {
+              setCancelingId(null);
+            }
+          }
+        }
+      ]
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
