@@ -913,11 +913,27 @@ async def direct_schedule_inspection(
     # Build full property address
     property_address = f"{request.property_address}, {request.property_city}, TX {request.property_zip}"
     
+    # Try to find existing customer with matching email or phone
+    existing_customer = await db.users.find_one({
+        "role": "customer",
+        "$or": [
+            {"email": request.customer_email},
+            {"phone": request.customer_phone}
+        ]
+    })
+    
+    customer_id = existing_customer["id"] if existing_customer else None
+    
+    if existing_customer:
+        logging.info(f"Found existing customer {existing_customer['id']} matching {request.customer_email}")
+    else:
+        logging.info(f"No existing customer found for {request.customer_email}, will link when they register")
+    
     # Create inspection directly without quote
     inspection = InspectionInDB(
         id=inspection_id,
         quote_id=None,  # No quote for direct schedule
-        customer_id=None,  # Will be set when customer account is created/linked
+        customer_id=customer_id,  # Set if customer exists, None if they need to register
         customer_email=request.customer_email,
         customer_name=request.customer_name,
         customer_phone=request.customer_phone,
