@@ -360,8 +360,8 @@ export default function InspectionsScreen() {
     
     const handleViewReports = () => {
       if (isUnlocked) {
-        // Reports unlocked - will implement viewer in next phase
-        Alert.alert('Reports Available', 'Report viewer will be implemented in the next phase.');
+        // Reports unlocked - navigate to report viewer
+        router.push(`/inspections/view-reports?id=${inspection.id}`);
       } else {
         // Reports locked - redirect to payment
         Alert.alert(
