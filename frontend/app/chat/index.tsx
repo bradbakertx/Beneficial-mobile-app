@@ -401,6 +401,19 @@ export default function ChatScreen() {
               {(user?.role === 'inspector' || user?.role === 'owner') && (
                 <>
                   {/* Inspector/Owner sees: Self → Customer → Agent */}
+                  {/* Show own profile */}
+                  <View style={styles.profileBubbleContainer}>
+                    {user?.profile_picture ? (
+                      <Image source={{ uri: user.profile_picture }} style={styles.profileBubbleImage} />
+                    ) : (
+                      <View style={styles.profileBubble}>
+                        <Text style={styles.profileBubbleText}>
+                          {user?.name?.charAt(0).toUpperCase()}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  
                   {customerProfile && (
                     <View style={styles.profileBubbleContainer}>
                       {customerProfile.profile_picture ? (
