@@ -80,7 +80,7 @@ export default function ChatScreen() {
       if (inspection.agent_email) {
         try {
           // Try to find agent by email
-          const agentRes = await api.get(`/users/email/${inspection.agent_email}`);
+          const agentRes = await api.get(`/users/by-email/${encodeURIComponent(inspection.agent_email)}`);
           setAgentProfile(agentRes.data);
         } catch (error) {
           console.error('Error fetching agent profile by email:', error);
