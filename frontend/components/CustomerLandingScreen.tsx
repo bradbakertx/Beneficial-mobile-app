@@ -151,28 +151,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F2F2F7',
   },
-  logoContainer: {
-    paddingHorizontal: 8,
-    paddingTop: 16,
-    paddingBottom: 8,
+  scrollView: {
+    flex: 1,
   },
-  logoBackground: {
+  scrollContent: {
+    flexGrow: 1,
+  },
+  logoBanner: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    padding: 8,
+    paddingVertical: 8,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
   },
   logo: {
-    width: width - 32,
+    width: width - 16,
     height: 200,
   },
   backgroundImage: {
-    flex: 1,
+    minHeight: height - 250,
     width: '100%',
   },
   contentContainer: {
