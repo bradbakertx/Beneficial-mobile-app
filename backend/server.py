@@ -15,7 +15,7 @@ from models import (
     UserProfileUpdate, NotificationPreferences,
     QuoteCreate, QuoteResponse, QuoteInDB, QuoteStatus,
     InspectionCreate, InspectionResponse, InspectionInDB, InspectionStatus,
-    SchedulingRequestCreate,
+    SchedulingRequestCreate, DirectScheduleRequest,
     QuotePriceUpdate, InspectionDateTimeUpdate,
     MessageCreate, MessageResponse, MessageInDB, ConversationSummary,
     ManualInspectionCreate, ManualInspectionResponse, ManualInspectionInDB
