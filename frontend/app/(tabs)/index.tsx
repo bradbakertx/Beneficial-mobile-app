@@ -435,6 +435,9 @@ const styles = StyleSheet.create({
   agentBadge: {
     backgroundColor: '#34C759', // Green for agent
   },
+  inspectorBadge: {
+    backgroundColor: '#5856D6', // Purple for inspector
+  },
   ownerBadge: {
     backgroundColor: '#FF9500', // Orange for owner
   },
