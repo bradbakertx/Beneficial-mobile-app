@@ -1616,21 +1616,27 @@ async def offer_time_slots(
         raise HTTPException(status_code=404, detail="Inspection not found")
     
     # Look up inspector email based on license or name
+    # SPECIAL CASE: Brad Baker is the Owner AND an inspector
     inspector_email = None
-    if inspector_license or inspector_name:
-        # Try to find inspector/owner by license number first
+    if inspector_name == "Brad Baker" or inspector_license == "TREC #7522":
+        # Brad Baker is the owner - use owner's email and ID
+        owner = await db.users.find_one({"role": UserRole.owner.value})
+        if owner:
+            inspector_email = owner["email"]
+            logging.info(f"Inspector is Brad Baker (Owner), using owner email: {inspector_email}")
+    else:
+        # For other inspectors (like Blake Gray), find their inspector profile
         inspector_user = None
         if inspector_license:
-            inspector_user = await db.users.find_one({"license_number": inspector_license})
+            inspector_user = await db.users.find_one({
+                "license_number": inspector_license,
+                "role": "inspector"
+            })
         
-        # If not found by license, try by name and role
         if not inspector_user and inspector_name:
             inspector_user = await db.users.find_one({
                 "name": inspector_name,
-                "$or": [
-                    {"role": "inspector"},
-                    {"role": "owner"}
-                ]
+                "role": "inspector"
             })
         
         if inspector_user:
