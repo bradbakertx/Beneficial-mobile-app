@@ -34,11 +34,49 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
     switch (type) {
       case 'inspection':
         title = 'What Does Your Inspection Cover?';
-        content = 'Your comprehensive home inspection includes a thorough evaluation of the property\'s structure, systems, and components. [Content will be provided by owner]';
+        content = `What Our Home Inspections Cover
+
+A Beneficial Home Inspection is a comprehensive, top-to-bottom evaluation of a property's structural and mechanical systems.
+We're thorough — inside and out — to help you understand the true condition of your home.
+
+Roof
+
+We always prefer to walk the roof whenever it's safe and accessible.
+If it isn't, we'll fly a drone to capture detailed photos.
+Walking the roof is always our best practice for accuracy.
+
+Attic
+
+We inspect all accessible attic spaces, evaluating:
+
+• Roof framing and structure
+• Insulation levels
+• Ductwork and ventilation
+
+Interior
+
+Inside the home, we check walls, ceilings, floors, doors, windows, and closets — looking for any signs of:
+
+• Stress or movement
+• Settling or repairs
+• Staining or moisture issues
+
+Exterior
+
+Outside, we examine siding, trim, flashings, window and door openings, grading, drainage, porches, and driveways for wear, damage, or improper installation.
+
+Foundation
+
+We give a performance-based opinion of the foundation — not just by looking at cracks or uneven floors, but by analyzing all related systems together to see the big picture of how the structure is performing.
+
+What to Expect
+
+A home inspection is not a pass/fail test.
+It's a condition report — giving you the information you need to make confident, informed decisions about your home.`;
         break;
       case 'about':
         title = 'About Beneficial Inspections Inc.';
-        content = 'Beneficial Inspections Inc. is a trusted name in home inspection services. [Content will be provided by owner]';
+        content = 'Beneficial Inspections Inc. has been serving the San Antonio area since 2004. Licensed by the Texas Real Estate Commission (TREC License #7522), we provide professional, thorough, and reliable home inspection services for buyers and sellers.';
         break;
       case 'testimonials':
         title = 'Testimonials';
