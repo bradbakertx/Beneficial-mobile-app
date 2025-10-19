@@ -1615,6 +1615,28 @@ async def offer_time_slots(
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     
+    # Look up inspector email based on license or name
+    inspector_email = None
+    if inspector_license or inspector_name:
+        # Try to find inspector/owner by license number first
+        inspector_user = None
+        if inspector_license:
+            inspector_user = await db.users.find_one({"license_number": inspector_license})
+        
+        # If not found by license, try by name and role
+        if not inspector_user and inspector_name:
+            inspector_user = await db.users.find_one({
+                "name": inspector_name,
+                "$or": [
+                    {"role": "inspector"},
+                    {"role": "owner"}
+                ]
+            })
+        
+        if inspector_user:
+            inspector_email = inspector_user["email"]
+            logging.info(f"Found inspector email {inspector_email} for {inspector_name}")
+    
     # Update inspection with offered time slots and inspector info
     update_data = {
         "offered_time_slots": offered_time_slots,
@@ -1628,6 +1650,8 @@ async def offer_time_slots(
         update_data["inspector_license"] = inspector_license
     if inspector_phone:
         update_data["inspector_phone"] = inspector_phone
+    if inspector_email:
+        update_data["inspector_email"] = inspector_email
     if inspection_fee is not None:
         update_data["fee_amount"] = float(inspection_fee)  # Set fee for direct schedule
     
