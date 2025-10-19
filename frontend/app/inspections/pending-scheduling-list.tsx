@@ -197,6 +197,27 @@ export default function PendingSchedulingListScreen() {
                 </View>
               </View>
 
+              {/* Owner Cancel Button */}
+              {(user?.role === 'owner' || user?.role === 'admin') && (
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={(e) => {
+                    e.stopPropagation();
+                    handleCancelInspection(inspection);
+                  }}
+                  disabled={cancelingId === inspection.id}
+                >
+                  {cancelingId === inspection.id ? (
+                    <ActivityIndicator size="small" color="#FF3B30" />
+                  ) : (
+                    <>
+                      <Ionicons name="close-circle" size={20} color="#FF3B30" />
+                      <Text style={styles.cancelButtonText}>Cancel Inspection</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+
               <View style={styles.cardFooter}>
                 <Text style={styles.viewDetails}>Tap to offer time slots</Text>
                 <Ionicons name="chevron-forward" size={20} color="#007AFF" />
