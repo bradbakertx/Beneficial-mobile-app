@@ -17,6 +17,7 @@ import { useRouter } from 'expo-router';
 import api from '../../services/api';
 import CalendarWeekView from '../../components/CalendarWeekView';
 import ManualInspectionEntry from '../../components/ManualInspectionEntry';
+import InspectorCalendarView from '../../components/InspectorCalendarView';
 import CustomerDashboardWrapper from '../../components/CustomerDashboardWrapper';
 
 interface DashboardStats {
