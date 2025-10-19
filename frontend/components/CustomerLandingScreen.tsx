@@ -21,9 +21,10 @@ interface LandingScreenProps {
 
 export default function CustomerLandingScreen({ onNavigateToDashboard }: LandingScreenProps) {
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalContent, setModalContent] = useState<{ title: string; content: string }>({
+  const [modalContent, setModalContent] = useState<{ title: string; content: string; type?: string }>({
     title: '',
     content: '',
+    type: '',
   });
 
   const openModal = (type: 'inspection' | 'about' | 'testimonials') => {
@@ -41,11 +42,11 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
         break;
       case 'testimonials':
         title = 'Testimonials';
-        content = '"Great service and thorough inspection!" - [Testimonials will be provided by owner]';
+        content = ''; // Content will be handled differently
         break;
     }
 
-    setModalContent({ title, content });
+    setModalContent({ title, content, type });
     setModalVisible(true);
   };
 
