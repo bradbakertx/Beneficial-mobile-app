@@ -430,6 +430,12 @@ const styles = StyleSheet.create({
   dayButtonTextSelected: {
     color: '#fff',
   },
+  saturdayNote: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 12,
+    fontStyle: 'italic',
+  },
   submitButton: {
     backgroundColor: '#007AFF',
     borderRadius: 12,
