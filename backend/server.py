@@ -199,6 +199,33 @@ async def login(credentials: UserLogin):
     # Create access token
     access_token = create_access_token({"sub": user.id, "role": user.role.value})
     
+    # If this is a customer logging in, link any unlinked inspections with matching email/phone
+    if user.role == UserRole.customer:
+        matching_inspections = await db.inspections.find({
+            "$or": [
+                {"customer_id": None},
+                {"customer_id": {"$exists": False}}
+            ],
+            "$and": [
+                {
+                    "$or": [
+                        {"customer_email": user.email},
+                        {"customer_phone": user.phone}
+                    ]
+                }
+            ]
+        }).to_list(1000)
+        
+        if matching_inspections:
+            logging.info(f"Found {len(matching_inspections)} inspections to link to existing customer {user.id} on login")
+            
+            for inspection in matching_inspections:
+                await db.inspections.update_one(
+                    {"id": inspection["id"]},
+                    {"$set": {"customer_id": user.id}}
+                )
+                logging.info(f"Linked inspection {inspection['id']} to customer {user.id}")
+    
     # Generate presigned URL for profile picture if exists
     profile_picture_url = None
     if user.profile_picture:
