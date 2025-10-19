@@ -139,6 +139,28 @@ async def register(user_data: UserCreate):
     
     await db.users.insert_one(user_in_db.dict())
     
+    # If this is a customer registration, link any inspections with matching email/phone
+    if user_data.role == UserRole.customer:
+        # Find inspections with matching email or phone where customer_id is null
+        matching_inspections = await db.inspections.find({
+            "customer_id": None,
+            "$or": [
+                {"customer_email": user_data.email},
+                {"customer_phone": user_data.phone}
+            ]
+        }).to_list(1000)
+        
+        if matching_inspections:
+            logging.info(f"Found {len(matching_inspections)} inspections to link to new customer {user_id}")
+            
+            # Update all matching inspections with the customer_id
+            for inspection in matching_inspections:
+                await db.inspections.update_one(
+                    {"id": inspection["id"]},
+                    {"$set": {"customer_id": user_id}}
+                )
+                logging.info(f"Linked inspection {inspection['id']} to customer {user_id}")
+    
     # Create access token
     access_token = create_access_token({"sub": user_id, "role": user_data.role.value})
     
