@@ -151,6 +151,8 @@ export default function DashboardScreen() {
         return 'Owner Dashboard';
       case 'agent':
         return 'Agent Dashboard';
+      case 'inspector':
+        return 'Inspector Dashboard';
       default:
         return 'Customer Dashboard';
     }
