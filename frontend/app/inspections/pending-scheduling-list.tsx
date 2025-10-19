@@ -36,6 +36,7 @@ export default function PendingSchedulingListScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [inspections, setInspections] = useState<Inspection[]>([]);
+  const [cancelingId, setCancelingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInspections();
