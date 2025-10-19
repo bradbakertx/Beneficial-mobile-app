@@ -327,34 +327,37 @@ export default function ChatScreen() {
             <View style={styles.placeholder} />
           </View>
         ) : (
-          // Group chat header for inspection chats - show all participant bubbles
+          // Group chat header for inspection chats - show exactly 3 participants (Inspector, Agent, Customer)
           <View style={styles.ownerChatHeader}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
             </TouchableOpacity>
             <View style={styles.profileBubbles}>
-              {/* Current user's profile bubble (always first) */}
-              <View style={styles.profileBubbleContainer}>
-                {user?.profile_picture ? (
-                  <Image source={{ uri: user.profile_picture }} style={styles.profileBubbleImage} />
-                ) : (
-                  <View style={styles.profileBubble}>
-                    <Text style={styles.profileBubbleText}>
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </Text>
-                  </View>
-                )}
-              </View>
+              {/* Always show exactly 3 bubbles: Inspector, Agent, Customer */}
+              {/* Each participant is shown with a border highlight if they are the current user */}
               
-              {/* Show other participants based on who is viewing */}
-              {/* Group Chat - Always show 3 bubbles: Inspector, Agent, Customer */}
               {/* Show Inspector */}
               {inspectorProfile && (
                 <View style={styles.profileBubbleContainer}>
                   {inspectorProfile.profile_picture ? (
-                    <Image source={{ uri: inspectorProfile.profile_picture }} style={styles.profileBubbleImage} />
+                    <Image 
+                      source={{ uri: inspectorProfile.profile_picture }} 
+                      style={[
+                        styles.profileBubbleImage,
+                        // Highlight current user with gold border
+                        (user?.role === 'inspector' || user?.role === 'owner') && 
+                        user?.id === inspectorProfile.id && 
+                        styles.currentUserBubble
+                      ]} 
+                    />
                   ) : (
-                    <View style={styles.profileBubble}>
+                    <View style={[
+                      styles.profileBubble,
+                      // Highlight current user with gold background
+                      (user?.role === 'inspector' || user?.role === 'owner') && 
+                      user?.id === inspectorProfile.id && 
+                      styles.currentUserBubbleNoImage
+                    ]}>
                       <Text style={styles.profileBubbleText}>
                         {inspectorProfile.name?.charAt(0).toUpperCase()}
                       </Text>
@@ -367,9 +370,24 @@ export default function ChatScreen() {
               {agentProfile && (
                 <View style={styles.profileBubbleContainer}>
                   {agentProfile.profile_picture ? (
-                    <Image source={{ uri: agentProfile.profile_picture }} style={styles.profileBubbleImage} />
+                    <Image 
+                      source={{ uri: agentProfile.profile_picture }} 
+                      style={[
+                        styles.profileBubbleImage,
+                        // Highlight current user with gold border
+                        user?.role === 'agent' && 
+                        user?.email === agentProfile.email && 
+                        styles.currentUserBubble
+                      ]} 
+                    />
                   ) : (
-                    <View style={styles.profileBubble}>
+                    <View style={[
+                      styles.profileBubble,
+                      // Highlight current user with gold background
+                      user?.role === 'agent' && 
+                      user?.email === agentProfile.email && 
+                      styles.currentUserBubbleNoImage
+                    ]}>
                       <Text style={styles.profileBubbleText}>
                         {agentProfile.name?.charAt(0).toUpperCase()}
                       </Text>
@@ -382,9 +400,24 @@ export default function ChatScreen() {
               {customerProfile && (
                 <View style={styles.profileBubbleContainer}>
                   {customerProfile.profile_picture ? (
-                    <Image source={{ uri: customerProfile.profile_picture }} style={styles.profileBubbleImage} />
+                    <Image 
+                      source={{ uri: customerProfile.profile_picture }} 
+                      style={[
+                        styles.profileBubbleImage,
+                        // Highlight current user with gold border
+                        user?.role === 'customer' && 
+                        user?.id === customerProfile.id && 
+                        styles.currentUserBubble
+                      ]} 
+                    />
                   ) : (
-                    <View style={styles.profileBubble}>
+                    <View style={[
+                      styles.profileBubble,
+                      // Highlight current user with gold background
+                      user?.role === 'customer' && 
+                      user?.id === customerProfile.id && 
+                      styles.currentUserBubbleNoImage
+                    ]}>
                       <Text style={styles.profileBubbleText}>
                         {customerProfile.name?.charAt(0).toUpperCase()}
                       </Text>
