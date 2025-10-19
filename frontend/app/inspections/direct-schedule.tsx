@@ -117,7 +117,7 @@ export default function DirectScheduleScreen() {
         [
           {
             text: 'OK',
-            onPress: () => router.back(),
+            onPress: () => router.replace('/(tabs)'),
           },
         ]
       );
