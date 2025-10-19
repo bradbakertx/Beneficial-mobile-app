@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   logoBackground: {
     backgroundColor: '#FFFFFF',
     borderRadius: 12,
-    padding: 16,
+    padding: 8,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -164,8 +164,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   logo: {
-    width: width - 48,
-    height: 80,
+    width: width - 32,
+    height: 200,
   },
   backgroundImage: {
     flex: 1,
