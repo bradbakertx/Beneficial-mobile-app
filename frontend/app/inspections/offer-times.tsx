@@ -269,6 +269,28 @@ export default function OfferTimeSlotsScreen() {
           </Text>
         </View>
 
+        {/* Inspection Fee - Only for direct schedule (no quote) */}
+        {!inspection.quote_id && (
+          <View style={styles.feeCard}>
+            <Text style={styles.feeTitle}>Inspection Fee: *</Text>
+            <Text style={styles.feeSubtext}>Enter the inspection fee amount</Text>
+            <View style={styles.feeInputContainer}>
+              <Text style={styles.dollarSign}>$</Text>
+              <TextInput
+                style={styles.feeInput}
+                value={inspectionFee}
+                onChangeText={setInspectionFee}
+                placeholder="0.00"
+                keyboardType="decimal-pad"
+                maxLength={10}
+              />
+            </View>
+            <Text style={styles.feeNote}>
+              This fee will appear on the pre-inspection agreement
+            </Text>
+          </View>
+        )}
+
         {/* Instructions */}
         <View style={styles.instructionsCard}>
           <Text style={styles.instructionsTitle}>Select Dates & Times to Offer:</Text>
