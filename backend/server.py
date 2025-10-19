@@ -3183,6 +3183,121 @@ async def mark_inspection_paid(
                 )
                 logging.info(f"Payment confirmation notification sent to agent")
         
+        # If inspection is already finalized with reports, send emails now
+        if inspection.get("finalized") and inspection.get("report_files"):
+            from s3_service import get_report_download_url
+            import smtplib
+            from email.mime.multipart import MIMEMultipart
+            from email.mime.text import MIMEText
+            from email.mime.application import MIMEApplication
+            import os
+            import requests
+            
+            try:
+                gmail_user = os.getenv("GMAIL_USER")
+                gmail_password = os.getenv("GMAIL_APP_PASSWORD")
+                
+                property_address = inspection.get("property_address")
+                inspector_name = inspection.get("inspector_name", "Brad Baker")
+                inspector_phone = "(210) 562-0673"
+                report_files = inspection.get("report_files", [])
+                
+                # Email to customer
+                if customer_id:
+                    customer = await db.users.find_one({"id": customer_id})
+                    if customer:
+                        msg = MIMEMultipart()
+                        msg['From'] = gmail_user
+                        msg['To'] = customer["email"]
+                        msg['Subject'] = f'{property_address} Inspection Reports'
+                        
+                        body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+
+Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
+
+You can reach {inspector_name} directly at {inspector_phone} voice or text.
+
+Thanks again!
+
+Brad Baker
+TREC Lic #7522
+San Antonio
+(210) 562-0673
+www.beneficialinspects.com"""
+                        
+                        msg.attach(MIMEText(body, 'plain'))
+                        
+                        # Attach all report files
+                        for report_file in report_files:
+                            try:
+                                download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                                response = requests.get(download_url)
+                                if response.status_code == 200:
+                                    part = MIMEApplication(response.content, Name=report_file["filename"])
+                                    part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                                    msg.attach(part)
+                            except Exception as e:
+                                logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+                        
+                        try:
+                            server = smtplib.SMTP('smtp.gmail.com', 587)
+                            server.starttls()
+                            server.login(gmail_user, gmail_password)
+                            server.send_message(msg)
+                            server.quit()
+                            logging.info(f"Email with reports sent to customer {customer['email']} (payment just completed)")
+                        except Exception as e:
+                            logging.error(f"Failed to send email to customer: {e}")
+                
+                # Email to agent (if exists)
+                if agent_email:
+                    agent = await db.users.find_one({"email": agent_email})
+                    if agent:
+                        msg = MIMEMultipart()
+                        msg['From'] = gmail_user
+                        msg['To'] = agent["email"]
+                        msg['Subject'] = f'{property_address} Inspection Reports'
+                        
+                        body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+
+Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
+
+You can reach {inspector_name} directly at {inspector_phone} voice or text.
+
+Thanks again!
+
+Brad Baker
+TREC Lic #7522
+San Antonio
+(210) 562-0673
+www.beneficialinspects.com"""
+                        
+                        msg.attach(MIMEText(body, 'plain'))
+                        
+                        # Attach all report files
+                        for report_file in report_files:
+                            try:
+                                download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                                response = requests.get(download_url)
+                                if response.status_code == 200:
+                                    part = MIMEApplication(response.content, Name=report_file["filename"])
+                                    part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                                    msg.attach(part)
+                            except Exception as e:
+                                logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+                        
+                        try:
+                            server = smtplib.SMTP('smtp.gmail.com', 587)
+                            server.starttls()
+                            server.login(gmail_user, gmail_password)
+                            server.send_message(msg)
+                            server.quit()
+                            logging.info(f"Email with reports sent to agent {agent['email']} (payment just completed)")
+                        except Exception as e:
+                            logging.error(f"Failed to send email to agent: {e}")
+            except Exception as e:
+                logging.error(f"Failed to send emails after payment (non-critical): {e}")
+        
         return {
             "success": True,
             "message": f"Inspection marked as paid via {payment_method}",
