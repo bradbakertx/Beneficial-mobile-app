@@ -55,7 +55,7 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
       <View style={styles.logoContainer}>
         <View style={styles.logoBackground}>
           <Image
-            source={require('../assets/images/beneficial-logo-full.jpg')}
+            source={{ uri: 'https://customer-assets.emergentagent.com/job_profile-update-10/artifacts/n12x5753_beneficial_inspections_inc_large-edit-20251018231819.jpg' }}
             style={styles.logo}
             resizeMode="contain"
           />
