@@ -228,7 +228,12 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   backButton: {
-    marginBottom: 0,
+    padding: 8,
+    marginLeft: -8,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   logo: {
     width: 600,

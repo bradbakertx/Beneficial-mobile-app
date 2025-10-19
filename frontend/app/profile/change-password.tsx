@@ -195,6 +195,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     padding: 8,
+    marginLeft: -8,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
     fontSize: 18,

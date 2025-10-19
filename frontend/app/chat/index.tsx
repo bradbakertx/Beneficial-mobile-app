@@ -599,7 +599,12 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   backButton: {
-    padding: 4,
+    padding: 8,
+    marginLeft: -8,
+    minWidth: 44,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerText: {
     flex: 1,
