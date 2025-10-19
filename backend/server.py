@@ -2322,7 +2322,9 @@ async def get_agreement(
     return {
         "agreement_text": agreement_text,
         "already_signed": inspection.get("agreement_signed", False),
-        "signed_date": inspection.get("agreement_signed_date")
+        "signed_date": inspection.get("agreement_signed_date"),
+        "agent_email": inspection.get("agent_email"),  # For direct schedule bypass
+        "agent_name": inspection.get("agent_name")
     }
 
 
