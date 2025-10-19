@@ -148,7 +148,7 @@ class SchedulingRequestCreate(BaseModel):
 
 class InspectionInDB(InspectionBase):
     id: str
-    customer_id: str
+    customer_id: Optional[str] = None  # Optional for direct schedule before customer account exists
     customer_email: str
     customer_name: str
     customer_phone: Optional[str] = None
