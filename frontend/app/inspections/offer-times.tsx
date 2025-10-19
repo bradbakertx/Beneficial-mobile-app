@@ -39,6 +39,7 @@ export default function OfferTimeSlotsScreen() {
   const [selectedDates, setSelectedDates] = useState<Date[]>([]);
   const [timeSlotSelections, setTimeSlotSelections] = useState<{ [key: string]: string[] }>({});
   const [selectedInspector, setSelectedInspector] = useState(0); // Index in INSPECTORS array
+  const [inspectionFee, setInspectionFee] = useState(''); // For direct schedule inspections
 
   useEffect(() => {
     fetchInspection();
