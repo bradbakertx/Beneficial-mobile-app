@@ -77,9 +77,21 @@ export default function ChatScreen() {
       }
 
       // Fetch agent profile if exists
-      if (inspection.agent_id) {
-        const agentRes = await api.get(`/users/${inspection.agent_id}`);
-        setAgentProfile(agentRes.data);
+      if (inspection.agent_email) {
+        try {
+          // Try to find agent by email
+          const agentRes = await api.get(`/users/email/${inspection.agent_email}`);
+          setAgentProfile(agentRes.data);
+        } catch (error) {
+          console.error('Error fetching agent profile by email:', error);
+          // If agent not found by API, use basic info from inspection
+          setAgentProfile({
+            name: inspection.agent_name,
+            email: inspection.agent_email,
+            role: 'agent',
+            profile_picture: null
+          });
+        }
       }
 
       // Fetch inspector profile if exists
