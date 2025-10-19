@@ -139,7 +139,103 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
           </View>
 
           <ScrollView style={styles.modalScroll} contentContainerStyle={styles.modalContent}>
-            <Text style={styles.modalText}>{modalContent.content}</Text>
+            {modalContent.type === 'testimonials' ? (
+              <View style={styles.testimonialsContainer}>
+                {/* Testimonial 1 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>John Russo wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Timeliness, Customer service, Quality</Text>
+                  <Text style={styles.testimonialText}>
+                    Brad was professional, informative and did a great job on the inspection. The inspection report was thorough and completed in the same day as the inspection which helped me give repair requests early. Very happy with his services.
+                  </Text>
+                </View>
+
+                {/* Testimonial 2 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Ned Wolf wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Quality, Customer service</Text>
+                  <Text style={styles.testimonialText}>
+                    Good summaries, and worth the money.
+                  </Text>
+                </View>
+
+                {/* Testimonial 3 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Shirley GodinezMartinez wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Quality, Offerings, Customer service, Timeliness</Text>
+                  <Text style={styles.testimonialText}>
+                    Brad is very professional and extremely good at inspections. Any questions you may have will be answered by him. The inspections he performs are extensive for the soon to be homeowner.
+                  </Text>
+                </View>
+
+                {/* Testimonial 4 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Darliece Green wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Timeliness, Customer service, Quality</Text>
+                  <Text style={styles.testimonialText}>
+                    Brad you're very personable, professional and knowledgeable. Thank you very much for your honesty. Darliece Green.
+                  </Text>
+                </View>
+
+                {/* Testimonial 5 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Francisca Waite wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Timeliness, Customer service, Quality</Text>
+                  <Text style={styles.testimonialText}>
+                    Brad is very friendly, communicative and thorough. We would definitely recommend Brad's services.
+                  </Text>
+                </View>
+
+                {/* Testimonial 6 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Adriana R Cabrera wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Quality, Customer service, Timeliness</Text>
+                  <Text style={styles.testimonialText}>
+                    Bo was very efficient. Very informative and kind. Really appreciate all the information he provided to us.
+                  </Text>
+                </View>
+
+                {/* Testimonial 7 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Teresa Perez wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Timeliness, Quality, Customer service</Text>
+                  <Text style={styles.testimonialText}>
+                    Very informative and professional. Honest and thorough. Great customer service and seemed to care about us as customers.
+                  </Text>
+                </View>
+
+                {/* Testimonial 8 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>William Hawk wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Quality, Customer service, Timeliness</Text>
+                  <Text style={styles.testimonialText}>
+                    Very prompt & gave great explaination when further needed. Would certainly recommend any chance given.
+                  </Text>
+                </View>
+
+                {/* Testimonial 9 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Kristina Perry wrote:</Text>
+                  <Text style={styles.testimonialCategories}>Timeliness, Customer service, Offerings, Other, Quality</Text>
+                  <Text style={styles.testimonialText}>
+                    Thorough quality inspections...Brad's the right guy if you want to have a good inspection.
+                  </Text>
+                </View>
+
+                {/* Testimonial 10 */}
+                <View style={styles.testimonialCard}>
+                  <Text style={styles.testimonialAuthor}>Ryan O wrote:</Text>
+                  <Text style={styles.testimonialText}>
+                    I could not have been more pleased with the service I received. I read tons of reviews on different inspectors before I made the decision to go with Beneficial Inspections, Inc. The reviews were mixed and usually posts from both ends of the spectrum but nothing really in the middle (I think a lot of this depends on if you are the buyer or the seller).{'\n\n'}
+                    Brad gave me the option to join him as he went through the house or let him go about it by himself and he would explain later - I chose the latter. He took photographs of everything and documented the details of the areas where there were problems in a way that I could understand. He explained to me areas that needed to be fixed, areas that were identified as "problems" but were standard practice for builders (usually for aesthetic reasons), etc. This was exceptionally helpful when putting together the work order requests for my builder (before my one year warranty was up).{'\n\n'}
+                    Before he left he reminded me that I could call him at any time if I had questions about anything, if I needed a recommendation or guidance on getting something fixed, etc.{'\n\n'}
+                    Bottom line: Great guy. Excellent service. And someone I will hire in the future when in need of an inspection.
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              <Text style={styles.modalText}>{modalContent.content}</Text>
+            )}
           </ScrollView>
         </SafeAreaView>
       </Modal>
