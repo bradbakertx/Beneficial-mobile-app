@@ -98,6 +98,28 @@ export default function ChatScreen() {
       if (inspection.inspector_id) {
         const inspectorRes = await api.get(`/users/${inspection.inspector_id}`);
         setInspectorProfile(inspectorRes.data);
+      } else if (inspection.inspector_email) {
+        // Try to fetch inspector by email (for direct schedule inspections)
+        try {
+          const inspectorRes = await api.get(`/users/by-email/${encodeURIComponent(inspection.inspector_email)}`);
+          setInspectorProfile(inspectorRes.data);
+        } catch (error) {
+          console.error('Error fetching inspector profile by email:', error);
+          // Fallback to basic info from inspection
+          setInspectorProfile({
+            name: inspection.inspector_name,
+            email: inspection.inspector_email,
+            role: 'inspector',
+            profile_picture: null
+          });
+        }
+      } else if (inspection.inspector_name) {
+        // If only inspector name is available (legacy case), use basic info
+        setInspectorProfile({
+          name: inspection.inspector_name,
+          role: 'inspector',
+          profile_picture: null
+        });
       }
     } catch (error) {
       console.error('Error fetching inspection participants:', error);
