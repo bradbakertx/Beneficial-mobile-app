@@ -50,7 +50,7 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView 
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
