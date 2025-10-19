@@ -238,14 +238,6 @@ export default function ChatTabScreen() {
           </View>
         }
       />
-      
-      {/* Floating Action Button - New Chat with Owner */}
-      <TouchableOpacity 
-        style={styles.fab}
-        onPress={() => router.push('/chat?recipientName=Owner')}
-      >
-        <Ionicons name="add" size={28} color="#fff" />
-      </TouchableOpacity>
     </SafeAreaView>
   );
 }
