@@ -1500,6 +1500,7 @@ async def offer_time_slots(
     inspector_name = request_body.get("inspector_name")
     inspector_license = request_body.get("inspector_license")
     inspector_phone = request_body.get("inspector_phone")
+    inspection_fee = request_body.get("inspection_fee")  # For direct schedule inspections
     
     inspection = await db.inspections.find_one({"id": inspection_id})
     if not inspection:
@@ -1518,6 +1519,8 @@ async def offer_time_slots(
         update_data["inspector_license"] = inspector_license
     if inspector_phone:
         update_data["inspector_phone"] = inspector_phone
+    if inspection_fee is not None:
+        update_data["fee_amount"] = float(inspection_fee)  # Set fee for direct schedule
     
     await db.inspections.update_one(
         {"id": inspection_id},
