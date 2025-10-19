@@ -3038,13 +3038,13 @@ async def get_inspection_reports(
     # Authorization check
     is_customer = current_user.role == UserRole.customer and inspection.get("customer_id") == current_user.id
     is_agent = current_user.role == UserRole.agent and inspection.get("agent_email") == current_user.email
-    is_owner_or_admin = current_user.role in [UserRole.owner, UserRole.admin]
+    is_owner = current_user.role == UserRole.owner
     
-    if not (is_customer or is_agent or is_owner_or_admin):
+    if not (is_customer or is_agent or is_owner):
         raise HTTPException(status_code=403, detail="Not authorized to view these reports")
     
     # For customers and agents, check if payment is completed
-    if not is_owner_or_admin:
+    if not is_owner:
         payment_completed = inspection.get("payment_completed", False)
         if not payment_completed:
             raise HTTPException(
