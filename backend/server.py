@@ -3510,6 +3510,10 @@ async def get_conversations(
             inspection_details = {}
             if conv_data["inspection_id"]:
                 inspection = await db.inspections.find_one({"id": conv_data["inspection_id"]})
+                if not inspection:
+                    # Skip conversations for deleted/canceled inspections
+                    logging.info(f"Skipping conversation {conv_key} - inspection {conv_data['inspection_id']} no longer exists")
+                    continue
                 if inspection:
                     inspection_details = {
                         "property_address": inspection.get("property_address"),
