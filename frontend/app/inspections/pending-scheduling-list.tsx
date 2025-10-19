@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import { format } from 'date-fns';
 import { parseDateLocal } from '../../utils/dateUtils';
@@ -25,10 +26,12 @@ interface Inspection {
   preferred_days_of_week: string[];
   created_at: string;
   status: string;
+  offered_time_slots?: any[];
 }
 
 export default function PendingSchedulingListScreen() {
   const router = useRouter();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [inspections, setInspections] = useState<Inspection[]>([]);
@@ -39,8 +42,18 @@ export default function PendingSchedulingListScreen() {
 
   const fetchInspections = async () => {
     try {
-      const response = await api.get('/admin/inspections/pending-scheduling');
-      setInspections(response.data);
+      if (user?.role === 'owner' || user?.role === 'admin') {
+        // Owner sees pending scheduling requests
+        const response = await api.get('/admin/inspections/pending-scheduling');
+        setInspections(response.data);
+      } else if (user?.role === 'agent' || user?.role === 'customer') {
+        // Agent/Customer sees inspections awaiting their selection
+        const response = await api.get('/inspections');
+        const awaitingSelection = response.data.filter(
+          (i: Inspection) => i.status === 'awaiting_customer_selection' || i.status === 'awaiting_agent_selection'
+        );
+        setInspections(awaitingSelection);
+      }
     } catch (error) {
       console.error('Error fetching inspections:', error);
     } finally {
@@ -52,6 +65,16 @@ export default function PendingSchedulingListScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     fetchInspections();
+  };
+
+  const handleInspectionPress = (inspection: Inspection) => {
+    if (user?.role === 'owner' || user?.role === 'admin') {
+      // Owner goes to offer times
+      router.push(`/inspections/offer-times?id=${inspection.id}`);
+    } else {
+      // Agent/Customer goes to select time
+      router.push(`/inspections/select-time?id=${inspection.id}`);
+    }
   };
 
   if (loading) {
