@@ -347,113 +347,50 @@ export default function ChatScreen() {
               </View>
               
               {/* Show other participants based on who is viewing */}
-              {user?.role === 'customer' && (
-                <>
-                  {/* Customer sees: Customer (self) → Agent → Inspector */}
-                  {agentProfile && (
-                    <View style={styles.profileBubbleContainer}>
-                      {agentProfile.profile_picture ? (
-                        <Image source={{ uri: agentProfile.profile_picture }} style={styles.profileBubbleImage} />
-                      ) : (
-                        <View style={styles.profileBubble}>
-                          <Text style={styles.profileBubbleText}>
-                            {agentProfile.name?.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
+              {/* Group Chat - Always show 3 bubbles: Inspector, Agent, Customer */}
+              {/* Show Inspector */}
+              {inspectorProfile && (
+                <View style={styles.profileBubbleContainer}>
+                  {inspectorProfile.profile_picture ? (
+                    <Image source={{ uri: inspectorProfile.profile_picture }} style={styles.profileBubbleImage} />
+                  ) : (
+                    <View style={styles.profileBubble}>
+                      <Text style={styles.profileBubbleText}>
+                        {inspectorProfile.name?.charAt(0).toUpperCase()}
+                      </Text>
                     </View>
                   )}
-                  {inspectorProfile && (
-                    <View style={styles.profileBubbleContainer}>
-                      {inspectorProfile.profile_picture ? (
-                        <Image source={{ uri: inspectorProfile.profile_picture }} style={styles.profileBubbleImage} />
-                      ) : (
-                        <View style={styles.profileBubble}>
-                          <Text style={styles.profileBubbleText}>
-                            {inspectorProfile.name?.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  )}
-                </>
+                </View>
               )}
               
-              {user?.role === 'agent' && (
-                <>
-                  {/* Agent sees: Agent (self) → Customer → Inspector */}
-                  {customerProfile && (
-                    <View style={styles.profileBubbleContainer}>
-                      {customerProfile.profile_picture ? (
-                        <Image source={{ uri: customerProfile.profile_picture }} style={styles.profileBubbleImage} />
-                      ) : (
-                        <View style={styles.profileBubble}>
-                          <Text style={styles.profileBubbleText}>
-                            {customerProfile.name?.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
+              {/* Show Agent */}
+              {agentProfile && (
+                <View style={styles.profileBubbleContainer}>
+                  {agentProfile.profile_picture ? (
+                    <Image source={{ uri: agentProfile.profile_picture }} style={styles.profileBubbleImage} />
+                  ) : (
+                    <View style={styles.profileBubble}>
+                      <Text style={styles.profileBubbleText}>
+                        {agentProfile.name?.charAt(0).toUpperCase()}
+                      </Text>
                     </View>
                   )}
-                  {inspectorProfile && (
-                    <View style={styles.profileBubbleContainer}>
-                      {inspectorProfile.profile_picture ? (
-                        <Image source={{ uri: inspectorProfile.profile_picture }} style={styles.profileBubbleImage} />
-                      ) : (
-                        <View style={styles.profileBubble}>
-                          <Text style={styles.profileBubbleText}>
-                            {inspectorProfile.name?.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  )}
-                </>
+                </View>
               )}
               
-              {(user?.role === 'inspector' || user?.role === 'owner') && (
-                <>
-                  {/* Inspector/Owner sees: Self → Customer → Agent */}
-                  {/* Show own profile */}
-                  <View style={styles.profileBubbleContainer}>
-                    {user?.profile_picture ? (
-                      <Image source={{ uri: user.profile_picture }} style={styles.profileBubbleImage} />
-                    ) : (
-                      <View style={styles.profileBubble}>
-                        <Text style={styles.profileBubbleText}>
-                          {user?.name?.charAt(0).toUpperCase()}
-                        </Text>
-                      </View>
-                    )}
-                  </View>
-                  
-                  {customerProfile && (
-                    <View style={styles.profileBubbleContainer}>
-                      {customerProfile.profile_picture ? (
-                        <Image source={{ uri: customerProfile.profile_picture }} style={styles.profileBubbleImage} />
-                      ) : (
-                        <View style={styles.profileBubble}>
-                          <Text style={styles.profileBubbleText}>
-                            {customerProfile.name?.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
+              {/* Show Customer */}
+              {customerProfile && (
+                <View style={styles.profileBubbleContainer}>
+                  {customerProfile.profile_picture ? (
+                    <Image source={{ uri: customerProfile.profile_picture }} style={styles.profileBubbleImage} />
+                  ) : (
+                    <View style={styles.profileBubble}>
+                      <Text style={styles.profileBubbleText}>
+                        {customerProfile.name?.charAt(0).toUpperCase()}
+                      </Text>
                     </View>
                   )}
-                  {agentProfile && (
-                    <View style={styles.profileBubbleContainer}>
-                      {agentProfile.profile_picture ? (
-                        <Image source={{ uri: agentProfile.profile_picture }} style={styles.profileBubbleImage} />
-                      ) : (
-                        <View style={styles.profileBubble}>
-                          <Text style={styles.profileBubbleText}>
-                            {agentProfile.name?.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
-                  )}
-                </>
+                </View>
               )}
             </View>
             <View style={styles.placeholder} />
