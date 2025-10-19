@@ -379,4 +379,32 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     color: '#1C1C1E',
   },
+  testimonialsContainer: {
+    gap: 16,
+  },
+  testimonialCard: {
+    borderWidth: 1,
+    borderColor: '#D1D1D6',
+    borderRadius: 12,
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  testimonialAuthor: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    marginBottom: 6,
+  },
+  testimonialCategories: {
+    fontSize: 13,
+    fontWeight: '500',
+    color: '#8E8E93',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  testimonialText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#1C1C1E',
+  },
 });
