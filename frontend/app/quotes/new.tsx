@@ -10,6 +10,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +21,8 @@ import api from '../../services/api';
 export default function RequestQuoteScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showFoundationPicker, setShowFoundationPicker] = useState(false);
+  const [showPropertyPicker, setShowPropertyPicker] = useState(false);
   const [formData, setFormData] = useState({
     property_address: '',
     property_city: '',
