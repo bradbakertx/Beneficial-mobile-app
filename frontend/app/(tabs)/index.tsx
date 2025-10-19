@@ -365,9 +365,20 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
                   <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
                 </TouchableOpacity>
 
+                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/inspections/direct-schedule')}>
+                  <View style={styles.actionIcon}>
+                    <Ionicons name="calendar" size={24} color="#FF9500" />
+                  </View>
+                  <View style={styles.actionContent}>
+                    <Text style={styles.actionTitle}>Confident to Schedule?</Text>
+                    <Text style={styles.actionDescription}>Skip the quote and get to the schedule</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color="#C7C7CC" />
+                </TouchableOpacity>
+
                 <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/chat?recipientName=Owner')}>
                   <View style={styles.actionIcon}>
-                    <Ionicons name="chatbubble-ellipses" size={24} color="#FF9500" />
+                    <Ionicons name="chatbubble-ellipses" size={24} color="#34C759" />
                   </View>
                   <View style={styles.actionContent}>
                     <Text style={styles.actionTitle}>Chat with Brad Baker</Text>
