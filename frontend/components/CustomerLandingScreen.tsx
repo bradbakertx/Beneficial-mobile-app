@@ -76,7 +76,15 @@ It's a condition report — giving you the information you need to make confiden
         break;
       case 'about':
         title = 'About Beneficial Inspections Inc.';
-        content = 'Beneficial Inspections Inc. has been serving the San Antonio area since 2004. Licensed by the Texas Real Estate Commission (TREC License #7522), we provide professional, thorough, and reliable home inspection services for buyers and sellers.';
+        content = `About Beneficial Inspections
+
+Beneficial Inspections, Inc. was founded in 2004 by Brad Baker with a simple goal — to provide homebuyers and homeowners with clear, honest, and thorough inspections they can trust.
+
+We're a family-owned and operated business. My wife, Kristi, and I started Beneficial Inspections right here in San Antonio, and from the beginning, we knew we wanted to serve more than just one city. Over the years, we've expanded to cover surrounding communities including Boerne, Spring Branch, Bulverde, New Braunfels, Seguin, La Vernia, Floresville, Pleasanton, Jourdanton, Lytle, Castroville, and Helotes.
+
+For more than two decades, we've watched the real estate industry grow, change, fall, and rise again — and through it all, we've stayed committed to one thing: helping people make confident, informed decisions about their homes.
+
+We're proud of the reputation we've built and excited to see what comes next for Beneficial Inspections and the communities we serve.`;
         break;
       case 'testimonials':
         title = 'Testimonials';
