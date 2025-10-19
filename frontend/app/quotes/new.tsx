@@ -194,38 +194,118 @@ export default function RequestQuoteScreen() {
               <Text style={styles.label}>
                 Foundation Type <Text style={styles.required}>*</Text>
               </Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.foundation_type}
-                  onValueChange={(itemValue) =>
-                    setFormData({ ...formData, foundation_type: itemValue })
-                  }
-                  style={styles.picker}
-                >
-                  {foundationTypes.map((type) => (
-                    <Picker.Item key={type} label={type} value={type} />
-                  ))}
-                </Picker>
-              </View>
+              {Platform.OS === 'ios' ? (
+                <>
+                  <TouchableOpacity
+                    style={styles.pickerButton}
+                    onPress={() => setShowFoundationPicker(true)}
+                  >
+                    <Text style={styles.pickerButtonText}>{formData.foundation_type}</Text>
+                    <Ionicons name="chevron-down" size={20} color="#8E8E93" />
+                  </TouchableOpacity>
+
+                  <Modal
+                    visible={showFoundationPicker}
+                    transparent={true}
+                    animationType="slide"
+                  >
+                    <View style={styles.modalOverlay}>
+                      <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                          <Text style={styles.modalTitle}>Select Foundation Type</Text>
+                          <TouchableOpacity onPress={() => setShowFoundationPicker(false)}>
+                            <Text style={styles.modalDone}>Done</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <Picker
+                          selectedValue={formData.foundation_type}
+                          onValueChange={(itemValue) =>
+                            setFormData({ ...formData, foundation_type: itemValue })
+                          }
+                          style={styles.iosPicker}
+                        >
+                          {foundationTypes.map((type) => (
+                            <Picker.Item key={type} label={type} value={type} />
+                          ))}
+                        </Picker>
+                      </View>
+                    </View>
+                  </Modal>
+                </>
+              ) : (
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={formData.foundation_type}
+                    onValueChange={(itemValue) =>
+                      setFormData({ ...formData, foundation_type: itemValue })
+                    }
+                    style={styles.picker}
+                  >
+                    {foundationTypes.map((type) => (
+                      <Picker.Item key={type} label={type} value={type} />
+                    ))}
+                  </Picker>
+                </View>
+              )}
             </View>
 
             <View style={styles.inputGroup}>
               <Text style={styles.label}>
                 Property Type <Text style={styles.required}>*</Text>
               </Text>
-              <View style={styles.pickerContainer}>
-                <Picker
-                  selectedValue={formData.property_type}
-                  onValueChange={(itemValue) =>
-                    setFormData({ ...formData, property_type: itemValue })
-                  }
-                  style={styles.picker}
-                >
-                  {propertyTypes.map((type) => (
-                    <Picker.Item key={type} label={type} value={type} />
-                  ))}
-                </Picker>
-              </View>
+              {Platform.OS === 'ios' ? (
+                <>
+                  <TouchableOpacity
+                    style={styles.pickerButton}
+                    onPress={() => setShowPropertyPicker(true)}
+                  >
+                    <Text style={styles.pickerButtonText}>{formData.property_type}</Text>
+                    <Ionicons name="chevron-down" size={20} color="#8E8E93" />
+                  </TouchableOpacity>
+
+                  <Modal
+                    visible={showPropertyPicker}
+                    transparent={true}
+                    animationType="slide"
+                  >
+                    <View style={styles.modalOverlay}>
+                      <View style={styles.modalContent}>
+                        <View style={styles.modalHeader}>
+                          <Text style={styles.modalTitle}>Select Property Type</Text>
+                          <TouchableOpacity onPress={() => setShowPropertyPicker(false)}>
+                            <Text style={styles.modalDone}>Done</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <Picker
+                          selectedValue={formData.property_type}
+                          onValueChange={(itemValue) =>
+                            setFormData({ ...formData, property_type: itemValue })
+                          }
+                          style={styles.iosPicker}
+                        >
+                          {propertyTypes.map((type) => (
+                            <Picker.Item key={type} label={type} value={type} />
+                          ))}
+                        </Picker>
+                      </View>
+                    </View>
+                  </Modal>
+                </>
+              ) : (
+                <View style={styles.pickerContainer}>
+                  <Picker
+                    selectedValue={formData.property_type}
+                    onValueChange={(itemValue) =>
+                      setFormData({ ...formData, property_type: itemValue })
+                    }
+                    style={styles.picker}
+                  >
+                    {propertyTypes.map((type) => (
+                      <Picker.Item key={type} label={type} value={type} />
+                    ))}
+                  </Picker>
+                </View>
+              )}
             </View>
 
             {showBuildingFields && (
