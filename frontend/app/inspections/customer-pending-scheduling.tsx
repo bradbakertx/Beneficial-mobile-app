@@ -58,25 +58,39 @@ export default function CustomerPendingSchedulingScreen() {
   };
 
   const handleCancelInspection = async (inspectionId: string, propertyAddress: string) => {
-    // Show confirmation
-    const confirmed = window.confirm(`Are you sure you want to cancel the inspection for ${propertyAddress}?`);
-    if (!confirmed) return;
-
-    setCancelingId(inspectionId);
-    try {
-      await api.delete(`/inspections/${inspectionId}`);
-      
-      // Show success message
-      window.alert('Inspection canceled successfully.');
-      
-      // Refresh the list
-      fetchInspections();
-    } catch (error: any) {
-      console.error('Error canceling inspection:', error);
-      window.alert('Failed to cancel inspection. Please try again.');
-    } finally {
-      setCancelingId(null);
-    }
+    // Show confirmation using React Native Alert
+    Alert.alert(
+      'Cancel Inspection',
+      `Are you sure you want to cancel the inspection for ${propertyAddress}?`,
+      [
+        {
+          text: 'No',
+          style: 'cancel'
+        },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            setCancelingId(inspectionId);
+            try {
+              await api.delete(`/inspections/${inspectionId}`);
+              
+              // Show success message
+              Alert.alert('Success', 'Inspection canceled successfully.');
+              
+              // Refresh the list
+              fetchInspections();
+            } catch (error: any) {
+              console.error('Error canceling inspection:', error);
+              const errorMessage = error.response?.data?.detail || 'Failed to cancel inspection. Please try again.';
+              Alert.alert('Error', errorMessage);
+            } finally {
+              setCancelingId(null);
+            }
+          }
+        }
+      ]
+    );
   };
 
   if (loading) {
