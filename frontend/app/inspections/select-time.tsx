@@ -550,6 +550,23 @@ const styles = StyleSheet.create({
   timeSlotTextSelected: {
     color: '#fff',
   },
+  timeSlotContent: {
+    flex: 1,
+    gap: 4,
+  },
+  timeSlotTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  inspectorText: {
+    fontSize: 13,
+    color: '#666',
+    marginLeft: 32,
+  },
+  inspectorTextSelected: {
+    color: '#E5E5EA',
+  },
   actionsSection: {
     padding: 16,
     gap: 12,
