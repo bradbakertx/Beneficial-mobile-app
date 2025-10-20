@@ -80,8 +80,28 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
   const getInspectionForSlot = (day: Date, hour: number) => {
     return inspections.find((inspection) => {
       const inspectionDate = parseISO(inspection.scheduled_date);
-      const [inspectionHour] = inspection.scheduled_time.split(':').map(Number);
       
+      // Parse time from format like "8am", "11am", "2pm"
+      const timeStr = inspection.scheduled_time.toLowerCase();
+      let inspectionHour = 0;
+      
+      // Extract hour and am/pm
+      const match = timeStr.match(/(\d+)(am|pm)/);
+      if (match) {
+        let parsedHour = parseInt(match[1]);
+        const period = match[2];
+        
+        // Convert to 24-hour format
+        if (period === 'pm' && parsedHour !== 12) {
+          inspectionHour = parsedHour + 12;
+        } else if (period === 'am' && parsedHour === 12) {
+          inspectionHour = 0;
+        } else {
+          inspectionHour = parsedHour;
+        }
+      }
+      
+      // Check if inspection falls within this 2-hour time slot
       return isSameDay(inspectionDate, day) && 
              inspectionHour >= hour && 
              inspectionHour < hour + 2;
