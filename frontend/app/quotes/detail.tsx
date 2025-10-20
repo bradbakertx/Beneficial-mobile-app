@@ -208,6 +208,53 @@ export default function QuoteDetailScreen() {
                   </View>
                 </>
               )}
+              
+              {/* Additional Information */}
+              {quote.wdi_report !== undefined && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>WDI Report</Text>
+                    <Text style={styles.value}>{quote.wdi_report ? 'Yes' : 'No'}</Text>
+                  </View>
+                </>
+              )}
+              {quote.sprinkler_system !== undefined && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Sprinkler System</Text>
+                    <Text style={styles.value}>{quote.sprinkler_system ? 'Yes' : 'No'}</Text>
+                  </View>
+                </>
+              )}
+              {quote.detached_building && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Detached Building</Text>
+                    <Text style={styles.value}>Yes</Text>
+                  </View>
+                  {quote.detached_building_type && quote.detached_building_type !== 'Please Choose' && (
+                    <>
+                      <View style={styles.divider} />
+                      <View style={styles.infoRow}>
+                        <Text style={styles.label}>Building Type</Text>
+                        <Text style={styles.value}>{quote.detached_building_type}</Text>
+                      </View>
+                    </>
+                  )}
+                  {quote.detached_building_sqft && (
+                    <>
+                      <View style={styles.divider} />
+                      <View style={styles.infoRow}>
+                        <Text style={styles.label}>Building Square Feet</Text>
+                        <Text style={styles.value}>{quote.detached_building_sqft} sq ft</Text>
+                      </View>
+                    </>
+                  )}
+                </>
+              )}
             </View>
           </View>
 
@@ -224,6 +271,15 @@ export default function QuoteDetailScreen() {
                 <Text style={styles.label}>Email</Text>
                 <Text style={styles.value}>{quote.customer_email}</Text>
               </View>
+              {quote.customer_phone && (
+                <>
+                  <View style={styles.divider} />
+                  <View style={styles.infoRow}>
+                    <Text style={styles.label}>Phone</Text>
+                    <Text style={styles.value}>{quote.customer_phone}</Text>
+                  </View>
+                </>
+              )}
             </View>
           </View>
 
