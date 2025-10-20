@@ -174,7 +174,17 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
               </View>
               
               {weekDays.map((day, dayIndex) => {
-                const inspection = getInspectionForSlot(day, slot.start);
+                const inspection = getInspectionForSlot(day, slot.hour);
+                
+                // Calculate block height based on inspection duration
+                let blockHeight = 60; // Default single hour height
+                if (inspection) {
+                  const block = getInspectionBlockForTime(inspection.scheduled_time);
+                  if (block) {
+                    const durationHours = block.end - block.start;
+                    blockHeight = durationHours * 60; // 60px per hour
+                  }
+                }
                 
                 return (
                   <View 
@@ -185,12 +195,12 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
                     ]}
                   >
                     {inspection && (
-                      <View style={styles.inspectionBlock}>
+                      <View style={[styles.inspectionBlock, { height: blockHeight }]}>
                         <Text style={styles.inspectionAddress} numberOfLines={2}>
                           {inspection.property_address}
                         </Text>
                         <Text style={styles.inspectionTime}>
-                          {inspection.scheduled_time}
+                          {getInspectionBlockForTime(inspection.scheduled_time)?.label}
                         </Text>
                       </View>
                     )}
