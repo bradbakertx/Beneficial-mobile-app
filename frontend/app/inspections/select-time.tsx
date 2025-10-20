@@ -60,8 +60,14 @@ export default function SelectTimeSlotScreen() {
     }
   };
 
-  const handleSelectSlot = (date: string, time: string) => {
-    setSelectedSlot({ date, time });
+  const handleSelectSlot = (date: string, time: string, inspector?: string, inspectorLicense?: string, inspectorPhone?: string) => {
+    setSelectedSlot({ 
+      date, 
+      time,
+      inspector,
+      inspectorLicense,
+      inspectorPhone
+    });
   };
 
   const handleConfirmSelection = async () => {
