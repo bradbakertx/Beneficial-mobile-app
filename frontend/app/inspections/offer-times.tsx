@@ -122,58 +122,49 @@ export default function OfferTimeSlotsScreen() {
   const handleSubmit = async () => {
     // Validation
     if (selectedDates.length === 0) {
-      if (Platform.OS === 'web') {
-        window.alert('Please select at least one date to offer');
-      }
+      Alert.alert('Error', 'Please select at least one date to offer');
       return;
     }
 
-    // Check that all selected dates have at least one time slot
-    for (const date of selectedDates) {
-      const dateKey = format(date, 'yyyy-MM-dd');
-      const times = timeSlotSelections[dateKey] || [];
-      if (times.length === 0) {
-        if (Platform.OS === 'web') {
-          window.alert(`Please select at least one time slot for ${format(date, 'MMM dd, yyyy')}`);
-        }
-        return;
-      }
+    // Check that we have at least one time slot with inspector assigned
+    if (Object.keys(timeSlotInspectors).length === 0) {
+      Alert.alert('Error', 'Please select at least one time slot and assign an inspector');
+      return;
     }
 
     // Validate inspection fee for direct schedule (no quote)
     if (!inspection.quote_id) {
       if (!inspectionFee || parseFloat(inspectionFee) <= 0) {
-        if (Platform.OS === 'web') {
-          window.alert('Please enter a valid inspection fee amount');
-        }
+        Alert.alert('Error', 'Please enter a valid inspection fee amount');
         return;
       }
     }
 
     setSubmitting(true);
     try {
-      // Build offered time slots array
-      // Use formatDateLocal utility to avoid timezone issues
-      const offeredTimeSlots: TimeSlotOffer[] = selectedDates.map(date => {
-        const dateString = formatDateLocal(date);
+      // Build offered time slots array from timeSlotInspectors
+      // Format: { date: "2025-10-21", time: "8am", inspector: "Brad Baker", inspectorLicense: "TREC #7522", inspectorPhone: "(210) 562-0673" }
+      const offeredTimeSlots: TimeSlotOffer[] = Object.keys(timeSlotInspectors).map(slotKey => {
+        const parts = slotKey.split('-');
+        const time = parts[parts.length - 1];
+        const dateStr = parts.slice(0, 3).join('-'); // yyyy-MM-dd
+        const inspectorIndex = timeSlotInspectors[slotKey];
+        const inspector = INSPECTORS[inspectorIndex];
         
         return {
-          date: dateString,
-          times: timeSlotSelections[format(date, 'yyyy-MM-dd')] || []
+          date: dateStr,
+          time: time,
+          inspector: inspector.name,
+          inspectorLicense: inspector.license,
+          inspectorPhone: inspector.phone
         };
       });
 
-      console.log('Submitting time slot offers:', offeredTimeSlots);
-      
-      // Get selected inspector details
-      const inspector = INSPECTORS[selectedInspector];
+      console.log('Submitting time slot offers with inspectors:', offeredTimeSlots);
       
       // Prepare request payload
       const payload: any = {
-        offered_time_slots: offeredTimeSlots,
-        inspector_name: inspector.name,
-        inspector_license: inspector.license,
-        inspector_phone: inspector.phone
+        offered_time_slots: offeredTimeSlots
       };
 
       // Include inspection fee for direct schedule (no quote)
@@ -190,18 +181,13 @@ export default function OfferTimeSlotsScreen() {
 
       // Show success message
       setTimeout(() => {
-        if (Platform.OS === 'web') {
-          window.alert('Time slots offered successfully! The customer will be notified.');
-        }
+        Alert.alert('Success', 'Time slots offered successfully! The customer will be notified.');
       }, 500);
 
     } catch (error: any) {
       console.error('Error offering time slots:', error);
       setSubmitting(false);
-      
-      if (Platform.OS === 'web') {
-        window.alert(error.response?.data?.detail || 'Failed to offer time slots. Please try again.');
-      }
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to offer time slots. Please try again.');
     }
   };
 
