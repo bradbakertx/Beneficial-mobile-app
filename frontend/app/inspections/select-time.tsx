@@ -227,7 +227,7 @@ export default function SelectTimeSlotScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Available Time Slots:</Text>
           
-          {offeredTimeSlots.length === 0 ? (
+          {!offeredTimeSlots || offeredTimeSlots.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyText}>No time slots available</Text>
             </View>
