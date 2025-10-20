@@ -218,10 +218,13 @@ export default function OfferTimeSlotsScreen() {
     return isSameDay(date, optionDate);
   };
 
-  if (loading) {
+  if (loading || loadingInspectors) {
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#007AFF" />
+        <Text style={styles.loadingText}>
+          {loading ? 'Loading inspection...' : 'Loading inspectors...'}
+        </Text>
       </View>
     );
   }
