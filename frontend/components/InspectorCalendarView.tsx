@@ -76,7 +76,7 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
     return slots;
   };
 
-  // Define the actual inspection blocks: 8-10, 11-2, 2-4
+  // Define the actual inspection blocks: 8-10, 11-1, 2-4
   const getInspectionBlockForTime = (scheduledTime: string) => {
     const timeStr = scheduledTime.toLowerCase();
     const match = timeStr.match(/(\d+)(am|pm)/);
@@ -98,7 +98,7 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
     if (hour24 === 8) {
       return { start: 8, end: 10, label: '8-10 AM' };
     } else if (hour24 === 11) {
-      return { start: 11, end: 14, label: '11 AM-2 PM' };
+      return { start: 11, end: 13, label: '11 AM-1 PM' };
     } else if (hour24 === 14) {
       return { start: 14, end: 16, label: '2-4 PM' };
     }
