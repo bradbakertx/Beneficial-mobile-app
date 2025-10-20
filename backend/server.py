@@ -1185,8 +1185,11 @@ async def confirm_time_slot(
     inspector_license = selected_inspector_license or inspection.get("inspector_license")
     inspector_phone = selected_inspector_phone or inspection.get("inspector_phone")
     
-    # Get inspector email by matching the name
-    inspector_email = None
+    # Get inspector email and ID by matching the name
+    inspector_email = inspection.get("inspector_email")  # Default to existing
+    inspector_id = inspection.get("inspector_id")  # Default to existing
+    inspector_user = None
+    
     if inspector_name:
         # Try to find inspector user by name
         inspector_user = await db.users.find_one({
@@ -1195,6 +1198,10 @@ async def confirm_time_slot(
         })
         if inspector_user:
             inspector_email = inspector_user.get("email")
+            inspector_id = inspector_user.get("id")
+            logging.info(f"Found inspector user: {inspector_name}, email: {inspector_email}, id: {inspector_id}")
+        else:
+            logging.warning(f"Could not find user for inspector name: {inspector_name}")
     
     # Check for double-booking with same inspector
     if inspector_name:
