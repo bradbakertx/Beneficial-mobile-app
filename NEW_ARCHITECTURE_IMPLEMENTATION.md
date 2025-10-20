@@ -115,7 +115,7 @@ async def get_user_details(user_id: str, include_profile_picture: bool = True):
 
 ### 1. Test Owner Login
 ```
-URL: https://inspect-pro-2.preview.emergentagent.com
+URL: https://beneficial-mobile.preview.emergentagent.com
 Email: bradbakertx@gmail.com
 Password: Beneficial1!
 ```

@@ -12,7 +12,7 @@ from datetime import datetime
 import time
 
 # Configuration
-BACKEND_URL = "https://inspect-pro-2.preview.emergentagent.com/api"
+BACKEND_URL = "https://beneficial-mobile.preview.emergentagent.com/api"
 
 # Test credentials
 OWNER_EMAIL = "bradbakertx@gmail.com"

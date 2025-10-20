@@ -117,8 +117,8 @@ profileBubble: {
 - Chat grouping by customer fixed and tested
 
 ## Preview URL
-- Web Preview: https://inspect-pro-2.preview.emergentagent.com
-- Backend API: https://inspect-pro-2.preview.emergentagent.com/api
+- Web Preview: https://beneficial-mobile.preview.emergentagent.com
+- Backend API: https://beneficial-mobile.preview.emergentagent.com/api
 
 ## Next Steps
 
