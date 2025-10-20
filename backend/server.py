@@ -964,6 +964,12 @@ async def schedule_inspection(
         option_period_end_date=scheduling_data.option_period_end_date,
         option_period_unsure=scheduling_data.option_period_unsure,
         preferred_days_of_week=scheduling_data.preferred_days_of_week,
+        # Copy additional information from quote
+        wdi_report=quote.get("wdi_report"),
+        sprinkler_system=quote.get("sprinkler_system"),
+        detached_building=quote.get("detached_building"),
+        detached_building_type=quote.get("detached_building_type"),
+        detached_building_sqft=quote.get("detached_building_sqft"),
         status=InspectionStatus.pending_scheduling,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
