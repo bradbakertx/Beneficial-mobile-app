@@ -152,19 +152,40 @@ export default function CustomerPendingSchedulingScreen() {
                   
                   {inspection.offered_time_slots && inspection.offered_time_slots.length > 0 ? (
                     <View style={styles.timeSlotPreview}>
-                      {inspection.offered_time_slots.slice(0, 2).map((slot, index) => (
-                        <View key={index} style={styles.previewSlot}>
-                          <Text style={styles.previewDate}>
-                            {format(new Date(slot.date), 'MMM dd')}
-                          </Text>
-                          <Text style={styles.previewTimes}>
-                            {slot.times.join(', ')}
-                          </Text>
-                        </View>
-                      ))}
-                      {inspection.offered_time_slots.length > 2 && (
+                      {/* Group slots by date for display */}
+                      {(() => {
+                        // Group by date
+                        const groupedSlots: { [key: string]: any[] } = {};
+                        inspection.offered_time_slots.forEach((slot: any) => {
+                          if (!groupedSlots[slot.date]) {
+                            groupedSlots[slot.date] = [];
+                          }
+                          groupedSlots[slot.date].push(slot);
+                        });
+                        
+                        // Get first 2 dates
+                        const dates = Object.keys(groupedSlots).sort().slice(0, 2);
+                        
+                        return dates.map((date, index) => (
+                          <View key={index} style={styles.previewSlot}>
+                            <Text style={styles.previewDate}>
+                              {format(new Date(date), 'MMM dd')}
+                            </Text>
+                            <Text style={styles.previewTimes}>
+                              {groupedSlots[date].map(s => s.time).join(', ')}
+                            </Text>
+                          </View>
+                        ));
+                      })()}
+                      {Object.keys(inspection.offered_time_slots.reduce((acc: any, slot: any) => {
+                        acc[slot.date] = true;
+                        return acc;
+                      }, {})).length > 2 && (
                         <Text style={styles.moreSlots}>
-                          +{inspection.offered_time_slots.length - 2} more date(s)
+                          +{Object.keys(inspection.offered_time_slots.reduce((acc: any, slot: any) => {
+                            acc[slot.date] = true;
+                            return acc;
+                          }, {})).length - 2} more date(s)
                         </Text>
                       )}
                     </View>
