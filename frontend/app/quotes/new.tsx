@@ -23,6 +23,7 @@ export default function RequestQuoteScreen() {
   const [loading, setLoading] = useState(false);
   const [showFoundationPicker, setShowFoundationPicker] = useState(false);
   const [showPropertyPicker, setShowPropertyPicker] = useState(false);
+  const [showDetachedBuildingTypePicker, setShowDetachedBuildingTypePicker] = useState(false);
   const [formData, setFormData] = useState({
     property_address: '',
     property_city: '',
@@ -34,6 +35,11 @@ export default function RequestQuoteScreen() {
     num_buildings: '',
     num_units: '',
     additional_notes: '',
+    wdi_report: true,  // Pre-checked
+    sprinkler_system: false,
+    detached_building: false,
+    detached_building_type: 'Garage',
+    detached_building_sqft: '',
   });
 
   const foundationTypes = ['Slab', 'Pier & Beam'];
@@ -43,6 +49,13 @@ export default function RequestQuoteScreen() {
     'Single family seller\'s pre-list inspection',
     'Multi-family building inspection',
     'Commercial inspection',
+  ];
+
+  const detachedBuildingTypes = [
+    'Garage',
+    'Garage Apartment',
+    'Casita',
+    '2nd House',
   ];
 
   const showBuildingFields = 
