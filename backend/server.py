@@ -1244,9 +1244,10 @@ async def confirm_time_slot(
         update_fields["inspector_phone"] = inspector_phone
     if inspector_email:
         update_fields["inspector_email"] = inspector_email
-        # Also set inspector_id if we found a matching user
-        if inspector_user:
-            update_fields["inspector_id"] = inspector_user.get("id")
+    if inspector_id:
+        update_fields["inspector_id"] = inspector_id
+    
+    logging.info(f"Updating inspection {inspection_id} with fields: {update_fields}")
     
     await db.inspections.update_one(
         {"id": inspection_id},
