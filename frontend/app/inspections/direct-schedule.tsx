@@ -148,7 +148,7 @@ export default function DirectScheduleScreen() {
           <TextInput
             style={styles.input}
             value={formData.customerName}
-            onChangeText={(text) => setFormData({ ...formData, customerName: text })}s full name"
+            onChangeText={(text) => setFormData({ ...formData, customerName: text })}
           />
 
           <Text style={styles.label}>Phone Number *</Text>
