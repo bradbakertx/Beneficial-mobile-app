@@ -64,47 +64,61 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
     return Array.from({ length: 7 }, (_, i) => addDays(startOfDay(currentWeekStart), i));
   };
 
-  // Generate time slots (8 AM to 4 PM in 2-hour blocks)
+  // Generate hourly time labels from 8 AM to 4 PM
   const getTimeSlots = () => {
     const slots = [];
-    for (let hour = 8; hour <= 14; hour += 2) {
+    for (let hour = 8; hour <= 16; hour++) {
       slots.push({
-        start: hour,
-        label: format(new Date().setHours(hour, 0), 'h:mm a'),
+        hour: hour,
+        label: format(new Date().setHours(hour, 0), 'h:00 a'),
       });
     }
     return slots;
   };
 
-  // Find inspection for a specific day and time slot
+  // Define the actual inspection blocks: 8-10, 11-2, 2-4
+  const getInspectionBlockForTime = (scheduledTime: string) => {
+    const timeStr = scheduledTime.toLowerCase();
+    const match = timeStr.match(/(\d+)(am|pm)/);
+    
+    if (!match) return null;
+    
+    let parsedHour = parseInt(match[1]);
+    const period = match[2];
+    
+    // Convert to 24-hour format
+    let hour24 = parsedHour;
+    if (period === 'pm' && parsedHour !== 12) {
+      hour24 = parsedHour + 12;
+    } else if (period === 'am' && parsedHour === 12) {
+      hour24 = 0;
+    }
+    
+    // Map to inspection blocks
+    if (hour24 === 8) {
+      return { start: 8, end: 10, label: '8-10 AM' };
+    } else if (hour24 === 11) {
+      return { start: 11, end: 14, label: '11 AM-2 PM' };
+    } else if (hour24 === 14) {
+      return { start: 14, end: 16, label: '2-4 PM' };
+    }
+    
+    return null;
+  };
+
+  // Find inspection for a specific day that should be displayed at this hour
   const getInspectionForSlot = (day: Date, hour: number) => {
     return inspections.find((inspection) => {
       const inspectionDate = parseISO(inspection.scheduled_date);
       
-      // Parse time from format like "8am", "11am", "2pm"
-      const timeStr = inspection.scheduled_time.toLowerCase();
-      let inspectionHour = 0;
+      if (!isSameDay(inspectionDate, day)) return false;
       
-      // Extract hour and am/pm
-      const match = timeStr.match(/(\d+)(am|pm)/);
-      if (match) {
-        let parsedHour = parseInt(match[1]);
-        const period = match[2];
-        
-        // Convert to 24-hour format
-        if (period === 'pm' && parsedHour !== 12) {
-          inspectionHour = parsedHour + 12;
-        } else if (period === 'am' && parsedHour === 12) {
-          inspectionHour = 0;
-        } else {
-          inspectionHour = parsedHour;
-        }
-      }
+      const block = getInspectionBlockForTime(inspection.scheduled_time);
       
-      // Check if inspection falls within this 2-hour time slot
-      return isSameDay(inspectionDate, day) && 
-             inspectionHour >= hour && 
-             inspectionHour < hour + 2;
+      if (!block) return false;
+      
+      // Show the inspection at its start hour only
+      return hour === block.start;
     });
   };
 
