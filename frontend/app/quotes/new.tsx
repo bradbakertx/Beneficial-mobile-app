@@ -349,8 +349,126 @@ export default function RequestQuoteScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Additional Notes</Text>
+            <Text style={styles.sectionTitle}>Additional</Text>
+            <Text style={styles.subText}>
+              We include a WDI inspection at no charge when we do a home inspection. WDI inspections are performed under Sergeants Termite and Pest Control - TDA SPCS #5940
+            </Text>
+            
+            {/* WDI Report Checkbox */}
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() => setFormData({ ...formData, wdi_report: !formData.wdi_report })}
+            >
+              <View style={styles.checkbox}>
+                {formData.wdi_report && (
+                  <Ionicons name="checkmark" size={18} color="#007AFF" />
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>WDI (wood destroying insect) Report</Text>
+            </TouchableOpacity>
+            
+            {/* Sprinkler System Checkbox */}
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() => setFormData({ ...formData, sprinkler_system: !formData.sprinkler_system })}
+            >
+              <View style={styles.checkbox}>
+                {formData.sprinkler_system && (
+                  <Ionicons name="checkmark" size={18} color="#007AFF" />
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>Sprinkler System</Text>
+            </TouchableOpacity>
+            
+            {/* Detached Building Checkbox */}
+            <TouchableOpacity
+              style={styles.checkboxRow}
+              onPress={() => setFormData({ ...formData, detached_building: !formData.detached_building })}
+            >
+              <View style={styles.checkbox}>
+                {formData.detached_building && (
+                  <Ionicons name="checkmark" size={18} color="#007AFF" />
+                )}
+              </View>
+              <Text style={styles.checkboxLabel}>Detached Building</Text>
+            </TouchableOpacity>
+            
+            {/* Detached Building Details - Show only if checked */}
+            {formData.detached_building && (
+              <View style={styles.detachedBuildingDetails}>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Detached Building Type</Text>
+                  {Platform.OS === 'ios' ? (
+                    <>
+                      <TouchableOpacity
+                        style={styles.pickerButton}
+                        onPress={() => setShowDetachedBuildingTypePicker(true)}
+                      >
+                        <Text style={styles.pickerButtonText}>{formData.detached_building_type}</Text>
+                        <Ionicons name="chevron-down" size={20} color="#8E8E93" />
+                      </TouchableOpacity>
+
+                      <Modal
+                        visible={showDetachedBuildingTypePicker}
+                        transparent={true}
+                        animationType="slide"
+                      >
+                        <View style={styles.modalOverlay}>
+                          <View style={styles.modalContent}>
+                            <View style={styles.modalHeader}>
+                              <Text style={styles.modalTitle}>Select Building Type</Text>
+                              <TouchableOpacity onPress={() => setShowDetachedBuildingTypePicker(false)}>
+                                <Text style={styles.modalDone}>Done</Text>
+                              </TouchableOpacity>
+                            </View>
+                            <Picker
+                              selectedValue={formData.detached_building_type}
+                              onValueChange={(itemValue) =>
+                                setFormData({ ...formData, detached_building_type: itemValue })
+                              }
+                              style={styles.iosPicker}
+                            >
+                              {detachedBuildingTypes.map((type) => (
+                                <Picker.Item key={type} label={type} value={type} />
+                              ))}
+                            </Picker>
+                          </View>
+                        </View>
+                      </Modal>
+                    </>
+                  ) : (
+                    <View style={styles.pickerContainer}>
+                      <Picker
+                        selectedValue={formData.detached_building_type}
+                        onValueChange={(itemValue) =>
+                          setFormData({ ...formData, detached_building_type: itemValue })
+                        }
+                        style={styles.picker}
+                      >
+                        {detachedBuildingTypes.map((type) => (
+                          <Picker.Item key={type} label={type} value={type} />
+                        ))}
+                      </Picker>
+                    </View>
+                  )}
+                </View>
+                
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Detached Building Square Feet</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter square feet"
+                    value={formData.detached_building_sqft}
+                    onChangeText={(text) => setFormData({ ...formData, detached_building_sqft: text })}
+                    keyboardType="numeric"
+                  />
+                </View>
+              </View>
+            )}
+            
+            {/* Additional Notes Text Area */}
             <View style={styles.inputGroup}>
+              <Text style={styles.label}>Additional Notes (Optional)</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
                 placeholder="Any specific concerns or requirements..."
