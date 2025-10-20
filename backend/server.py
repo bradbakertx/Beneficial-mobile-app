@@ -1220,17 +1220,30 @@ async def confirm_time_slot(
                     detail=f"Inspector {inspector_name} is already scheduled for another inspection at {scheduled_date} {scheduled_time}. Please select a different time slot or assign a different inspector."
                 )
     
-    # Update inspection to scheduled status
+    # Update inspection to scheduled status with inspector info
+    update_fields = {
+        "scheduled_date": scheduled_date,
+        "scheduled_time": scheduled_time,
+        "status": InspectionStatus.scheduled.value,
+        "updated_at": datetime.utcnow()
+    }
+    
+    # Add inspector info if provided from selected slot
+    if inspector_name:
+        update_fields["inspector_name"] = inspector_name
+    if inspector_license:
+        update_fields["inspector_license"] = inspector_license
+    if inspector_phone:
+        update_fields["inspector_phone"] = inspector_phone
+    if inspector_email:
+        update_fields["inspector_email"] = inspector_email
+        # Also set inspector_id if we found a matching user
+        if inspector_user:
+            update_fields["inspector_id"] = inspector_user.get("id")
+    
     await db.inspections.update_one(
         {"id": inspection_id},
-        {
-            "$set": {
-                "scheduled_date": scheduled_date,
-                "scheduled_time": scheduled_time,
-                "status": InspectionStatus.scheduled.value,
-                "updated_at": datetime.utcnow()
-            }
-        }
+        {"$set": update_fields}
     )
     
     # Get all owners
