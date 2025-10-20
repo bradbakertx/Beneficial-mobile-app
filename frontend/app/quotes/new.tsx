@@ -30,21 +30,22 @@ export default function RequestQuoteScreen() {
     property_zip: '',
     square_feet: '',
     year_built: '',
-    foundation_type: 'Slab',
-    property_type: 'Single family buyer\'s inspection',
+    foundation_type: 'Please Choose',
+    property_type: 'Please Choose',
     num_buildings: '',
     num_units: '',
     additional_notes: '',
     wdi_report: true,  // Pre-checked
     sprinkler_system: false,
     detached_building: false,
-    detached_building_type: 'Garage',
+    detached_building_type: 'Please Choose',
     detached_building_sqft: '',
   });
 
-  const foundationTypes = ['Slab', 'Pier & Beam'];
+  const foundationTypes = ['Please Choose', 'Slab', 'Pier & Beam'];
   
   const propertyTypes = [
+    'Please Choose',
     'Single family buyer\'s inspection',
     'Single family seller\'s pre-list inspection',
     'Multi-family building inspection',
@@ -52,6 +53,7 @@ export default function RequestQuoteScreen() {
   ];
 
   const detachedBuildingTypes = [
+    'Please Choose',
     'Garage',
     'Garage Apartment',
     'Casita',
