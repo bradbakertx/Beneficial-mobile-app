@@ -71,6 +71,7 @@ export default function LoginScreen() {
                 onChangeText={setEmail}
                 autoCapitalize="none"
                 keyboardType="email-address"
+                placeholder="Email Address"
                 placeholderTextColor="#999"
               />
             </View>
@@ -82,6 +83,7 @@ export default function LoginScreen() {
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
+                placeholder="Password"
                 placeholderTextColor="#999"
               />
               <TouchableOpacity
