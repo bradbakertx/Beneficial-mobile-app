@@ -115,31 +115,20 @@ export default function OfferTimeSlotsScreen() {
     }
   };
 
-  const handleTimeSlotToggle = (date: Date, time: string, inspectorIndex: number) => {
+  const handleTimeSlotToggle = (date: Date, time: string) => {
     const dateKey = format(date, 'yyyy-MM-dd');
-    const slotKey = `${dateKey}-${time}`;
-    const inspector = INSPECTORS[inspectorIndex];
+    const currentTimes = timeSlotSelections[dateKey] || [];
     
-    // Check if this slot already exists
-    const existingSlotIndex = timeSlotOffers.findIndex(
-      offer => offer.date === dateKey && offer.time === time
-    );
-    
-    if (existingSlotIndex >= 0) {
-      // Remove the slot
-      setTimeSlotOffers(timeSlotOffers.filter((_, idx) => idx !== existingSlotIndex));
+    if (currentTimes.includes(time)) {
+      setTimeSlotSelections({
+        ...timeSlotSelections,
+        [dateKey]: currentTimes.filter(t => t !== time)
+      });
     } else {
-      // Add new slot with inspector
-      setTimeSlotOffers([
-        ...timeSlotOffers,
-        {
-          date: dateKey,
-          time: time,
-          inspector: inspector.name,
-          inspectorLicense: inspector.license,
-          inspectorPhone: inspector.phone
-        }
-      ]);
+      setTimeSlotSelections({
+        ...timeSlotSelections,
+        [dateKey]: [...currentTimes, time]
+      });
     }
   };
 
