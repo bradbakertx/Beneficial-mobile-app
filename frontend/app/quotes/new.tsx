@@ -92,6 +92,11 @@ export default function RequestQuoteScreen() {
         num_buildings: showBuildingFields && formData.num_buildings ? parseInt(formData.num_buildings) : null,
         num_units: showBuildingFields && formData.num_units ? parseInt(formData.num_units) : null,
         additional_notes: formData.additional_notes.trim() || null,
+        wdi_report: formData.wdi_report,
+        sprinkler_system: formData.sprinkler_system,
+        detached_building: formData.detached_building,
+        detached_building_type: formData.detached_building && formData.detached_building_type !== 'Please Choose' ? formData.detached_building_type : null,
+        detached_building_sqft: formData.detached_building && formData.detached_building_sqft ? formData.detached_building_sqft : null,
       };
 
       console.log('Submitting quote request:', payload);
