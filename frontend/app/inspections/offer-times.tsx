@@ -406,10 +406,10 @@ export default function OfferTimeSlotsScreen() {
                             style={styles.timeSlotPicker}
                           >
                             <Picker.Item label="-- Select Inspector --" value={-1} />
-                            {INSPECTORS.map((insp, idx) => (
+                            {inspectors.map((insp, idx) => (
                               <Picker.Item 
                                 key={idx} 
-                                label={`${insp.name} - ${insp.license}`} 
+                                label={`${insp.name}${insp.license_number ? ' - ' + insp.license_number : ''}`} 
                                 value={idx} 
                               />
                             ))}
