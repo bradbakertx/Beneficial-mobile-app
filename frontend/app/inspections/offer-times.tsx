@@ -170,14 +170,14 @@ export default function OfferTimeSlotsScreen() {
         const time = parts[parts.length - 1];
         const dateStr = parts.slice(0, 3).join('-'); // yyyy-MM-dd
         const inspectorIndex = timeSlotInspectors[slotKey];
-        const inspector = INSPECTORS[inspectorIndex];
+        const inspector = inspectors[inspectorIndex];
         
         return {
           date: dateStr,
           time: time,
           inspector: inspector.name,
-          inspectorLicense: inspector.license,
-          inspectorPhone: inspector.phone
+          inspectorLicense: inspector.license_number || '',
+          inspectorPhone: inspector.phone || ''
         };
       });
 
