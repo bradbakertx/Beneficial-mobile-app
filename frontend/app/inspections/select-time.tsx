@@ -226,45 +226,66 @@ export default function SelectTimeSlotScreen() {
               <Text style={styles.emptyText}>No time slots available</Text>
             </View>
           ) : (
-            offeredTimeSlots.map((slot, index) => (
-              <View key={index} style={styles.dateCard}>
-                <View style={styles.dateHeader}>
-                  <Ionicons name="calendar" size={20} color="#007AFF" />
-                  <Text style={styles.dateText}>
-                    {format(parseDateLocal(slot.date), 'EEEE, MMMM dd, yyyy')}
-                  </Text>
+            (() => {
+              // Group slots by date for display
+              const groupedSlots: { [key: string]: any[] } = {};
+              offeredTimeSlots.forEach((slot: any) => {
+                if (!groupedSlots[slot.date]) {
+                  groupedSlots[slot.date] = [];
+                }
+                groupedSlots[slot.date].push(slot);
+              });
+              
+              return Object.keys(groupedSlots).sort().map((date, index) => (
+                <View key={index} style={styles.dateCard}>
+                  <View style={styles.dateHeader}>
+                    <Ionicons name="calendar" size={20} color="#007AFF" />
+                    <Text style={styles.dateText}>
+                      {format(parseDateLocal(date), 'EEEE, MMMM dd, yyyy')}
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.timeSlots}>
+                    {groupedSlots[date].map((slot) => {
+                      const isSelected = selectedSlot?.date === slot.date && selectedSlot?.time === slot.time;
+                      
+                      return (
+                        <TouchableOpacity
+                          key={slot.time}
+                          style={[
+                            styles.timeSlotButton,
+                            isSelected && styles.timeSlotButtonSelected
+                          ]}
+                          onPress={() => handleSelectSlot(slot.date, slot.time, slot.inspector, slot.inspectorLicense, slot.inspectorPhone)}
+                        >
+                          <View style={styles.timeSlotContent}>
+                            <View style={styles.timeSlotTop}>
+                              <Ionicons 
+                                name={isSelected ? "checkmark-circle" : "time-outline"} 
+                                size={20} 
+                                color={isSelected ? "#fff" : "#007AFF"} 
+                              />
+                              <Text style={[
+                                styles.timeSlotText,
+                                isSelected && styles.timeSlotTextSelected
+                              ]}>
+                                {slot.time}
+                              </Text>
+                            </View>
+                            <Text style={[
+                              styles.inspectorText,
+                              isSelected && styles.inspectorTextSelected
+                            ]}>
+                              Inspector: {slot.inspector}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
                 </View>
-                
-                <View style={styles.timeSlots}>
-                  {slot.times.map((time) => {
-                    const isSelected = selectedSlot?.date === slot.date && selectedSlot?.time === time;
-                    
-                    return (
-                      <TouchableOpacity
-                        key={time}
-                        style={[
-                          styles.timeSlotButton,
-                          isSelected && styles.timeSlotButtonSelected
-                        ]}
-                        onPress={() => handleSelectSlot(slot.date, time)}
-                      >
-                        <Ionicons 
-                          name={isSelected ? "checkmark-circle" : "time-outline"} 
-                          size={20} 
-                          color={isSelected ? "#fff" : "#007AFF"} 
-                        />
-                        <Text style={[
-                          styles.timeSlotText,
-                          isSelected && styles.timeSlotTextSelected
-                        ]}>
-                          {time}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-            ))
+              ));
+            })()
           )}
         </View>
 
