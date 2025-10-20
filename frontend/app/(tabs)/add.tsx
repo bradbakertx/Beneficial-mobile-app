@@ -126,7 +126,6 @@ export default function AddUserScreen() {
               <Ionicons name="person-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Full Name"
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
                 autoCapitalize="words"
@@ -137,7 +136,6 @@ export default function AddUserScreen() {
               <Ionicons name="mail-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Email"
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
                 keyboardType="email-address"
@@ -149,7 +147,6 @@ export default function AddUserScreen() {
               <Ionicons name="call-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Phone"
                 value={formData.phone}
                 onChangeText={(text) => setFormData({ ...formData, phone: text })}
                 keyboardType="phone-pad"
@@ -187,7 +184,6 @@ export default function AddUserScreen() {
                 <Ionicons name="card-outline" size={20} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
-                  placeholder="Inspector License Number *"
                   value={formData.license_number}
                   onChangeText={(text) => setFormData({ ...formData, license_number: text })}
                   autoCapitalize="characters"
@@ -199,7 +195,6 @@ export default function AddUserScreen() {
               <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Password"
                 value={formData.password}
                 onChangeText={(text) => setFormData({ ...formData, password: text })}
                 secureTextEntry={!showPassword}
@@ -221,7 +216,6 @@ export default function AddUserScreen() {
               <Ionicons name="lock-closed-outline" size={20} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.input}
-                placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
                 secureTextEntry={!showConfirmPassword}

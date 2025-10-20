@@ -503,7 +503,6 @@ export default function ChatScreen() {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Type your message..."
             value={message}
             onChangeText={setMessage}
             multiline

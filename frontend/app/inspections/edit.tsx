@@ -251,7 +251,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Name *</Text>
           <TextInput
             style={styles.input}
-            placeholder="John Doe"
             value={clientName}
             onChangeText={setClientName}
           />
@@ -259,7 +258,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Phone Number</Text>
           <TextInput
             style={styles.input}
-            placeholder="(555) 123-4567"
             value={clientPhone}
             onChangeText={setClientPhone}
             keyboardType="phone-pad"
@@ -268,7 +266,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Email Address</Text>
           <TextInput
             style={styles.input}
-            placeholder="john@example.com"
             value={clientEmail}
             onChangeText={setClientEmail}
             keyboardType="email-address"
@@ -280,7 +277,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Name</Text>
           <TextInput
             style={styles.input}
-            placeholder="Jane Smith"
             value={agentName}
             onChangeText={setAgentName}
           />
@@ -288,7 +284,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Phone Number</Text>
           <TextInput
             style={styles.input}
-            placeholder="(555) 987-6543"
             value={agentPhone}
             onChangeText={setAgentPhone}
             keyboardType="phone-pad"
@@ -297,7 +292,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Email Address</Text>
           <TextInput
             style={styles.input}
-            placeholder="jane@realty.com"
             value={agentEmail}
             onChangeText={setAgentEmail}
             keyboardType="email-address"
@@ -334,7 +328,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Address</Text>
           <TextInput
             style={styles.input}
-            placeholder="123 Main St, Austin, TX 78701"
             value={propertyAddress}
             onChangeText={setPropertyAddress}
           />
@@ -344,7 +337,6 @@ export default function EditInspectionScreen() {
               <Text style={styles.label}>Square Feet</Text>
               <TextInput
                 style={styles.input}
-                placeholder="2000"
                 value={squareFeet}
                 onChangeText={setSquareFeet}
                 keyboardType="numeric"
@@ -355,7 +347,6 @@ export default function EditInspectionScreen() {
               <Text style={styles.label}>Year Built</Text>
               <TextInput
                 style={styles.input}
-                placeholder="2010"
                 value={yearBuilt}
                 onChangeText={setYearBuilt}
                 keyboardType="numeric"
@@ -396,7 +387,6 @@ export default function EditInspectionScreen() {
                   <Text style={styles.label}>Number of Buildings</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="1"
                     value={numBuildings}
                     onChangeText={setNumBuildings}
                     keyboardType="numeric"
@@ -407,7 +397,6 @@ export default function EditInspectionScreen() {
                   <Text style={styles.label}>Number of Units</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="4"
                     value={numUnits}
                     onChangeText={setNumUnits}
                     keyboardType="numeric"
@@ -422,7 +411,6 @@ export default function EditInspectionScreen() {
           <Text style={styles.label}>Fee Amount</Text>
           <TextInput
             style={styles.input}
-            placeholder="450.00"
             value={feeAmount}
             onChangeText={setFeeAmount}
             keyboardType="decimal-pad"
@@ -433,7 +421,6 @@ export default function EditInspectionScreen() {
               <Text style={styles.label}>Inspection Date</Text>
               <TextInput
                 style={styles.input}
-                placeholder="2025-06-15"
                 value={inspectionDate}
                 onChangeText={setInspectionDate}
               />
@@ -443,7 +430,6 @@ export default function EditInspectionScreen() {
               <Text style={styles.label}>Inspection Time</Text>
               <TextInput
                 style={styles.input}
-                placeholder="10:00 AM"
                 value={inspectionTime}
                 onChangeText={setInspectionTime}
               />

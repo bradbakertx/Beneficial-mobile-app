@@ -148,7 +148,6 @@ export default function RequestQuoteScreen() {
               </Text>
               <TextInput
                 style={styles.input}
-                placeholder="123 Main St"
                 value={formData.property_address}
                 onChangeText={(text) => setFormData({ ...formData, property_address: text })}
               />
@@ -160,7 +159,6 @@ export default function RequestQuoteScreen() {
               </Text>
               <TextInput
                 style={styles.input}
-                placeholder="Austin"
                 value={formData.property_city}
                 onChangeText={(text) => setFormData({ ...formData, property_city: text })}
               />
@@ -172,7 +170,6 @@ export default function RequestQuoteScreen() {
               </Text>
               <TextInput
                 style={styles.input}
-                placeholder="78701"
                 value={formData.property_zip}
                 onChangeText={(text) => setFormData({ ...formData, property_zip: text })}
                 keyboardType="numeric"
@@ -184,7 +181,6 @@ export default function RequestQuoteScreen() {
               <Text style={styles.label}>Square Feet</Text>
               <TextInput
                 style={styles.input}
-                placeholder="2000"
                 value={formData.square_feet}
                 onChangeText={(text) => setFormData({ ...formData, square_feet: text })}
                 keyboardType="numeric"
@@ -195,7 +191,6 @@ export default function RequestQuoteScreen() {
               <Text style={styles.label}>Year Built</Text>
               <TextInput
                 style={styles.input}
-                placeholder="2010"
                 value={formData.year_built}
                 onChangeText={(text) => setFormData({ ...formData, year_built: text })}
                 keyboardType="numeric"
@@ -327,7 +322,6 @@ export default function RequestQuoteScreen() {
                   <Text style={styles.label}>Number of Buildings</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="1"
                     value={formData.num_buildings}
                     onChangeText={(text) => setFormData({ ...formData, num_buildings: text })}
                     keyboardType="numeric"
@@ -338,7 +332,6 @@ export default function RequestQuoteScreen() {
                   <Text style={styles.label}>Number of Units</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="4"
                     value={formData.num_units}
                     onChangeText={(text) => setFormData({ ...formData, num_units: text })}
                     keyboardType="numeric"
@@ -457,7 +450,6 @@ export default function RequestQuoteScreen() {
                   <Text style={styles.label}>Detached Building Square Feet</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter square feet"
                     value={formData.detached_building_sqft}
                     onChangeText={(text) => setFormData({ ...formData, detached_building_sqft: text })}
                     keyboardType="numeric"
@@ -471,7 +463,6 @@ export default function RequestQuoteScreen() {
               <Text style={styles.label}>Additional Notes (Optional)</Text>
               <TextInput
                 style={[styles.input, styles.textArea]}
-                placeholder="Any specific concerns or requirements..."
                 value={formData.additional_notes}
                 onChangeText={(text) => setFormData({ ...formData, additional_notes: text })}
                 multiline

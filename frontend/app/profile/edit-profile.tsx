@@ -81,7 +81,6 @@ export default function EditProfileScreen() {
             style={styles.input}
             value={formData.name}
             onChangeText={(text) => setFormData({ ...formData, name: text })}
-            placeholder="Enter your full name"
             autoCapitalize="words"
           />
         </View>
@@ -92,7 +91,6 @@ export default function EditProfileScreen() {
             style={styles.input}
             value={formData.email}
             onChangeText={(text) => setFormData({ ...formData, email: text })}
-            placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -104,7 +102,6 @@ export default function EditProfileScreen() {
             style={styles.input}
             value={formData.phone}
             onChangeText={(text) => setFormData({ ...formData, phone: text })}
-            placeholder="Enter your phone number"
             keyboardType="phone-pad"
           />
         </View>

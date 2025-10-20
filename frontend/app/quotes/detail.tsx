@@ -242,7 +242,6 @@ export default function QuoteDetailScreen() {
                   value={quoteAmount}
                   onChangeText={setQuoteAmount}
                   keyboardType="decimal-pad"
-                  placeholder="Enter quote amount"
                   placeholderTextColor="#C7C7CC"
                 />
               </View>

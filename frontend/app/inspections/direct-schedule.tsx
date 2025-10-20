@@ -148,8 +148,7 @@ export default function DirectScheduleScreen() {
           <TextInput
             style={styles.input}
             value={formData.customerName}
-            onChangeText={(text) => setFormData({ ...formData, customerName: text })}
-            placeholder="Enter client's full name"
+            onChangeText={(text) => setFormData({ ...formData, customerName: text })}s full name"
           />
 
           <Text style={styles.label}>Phone Number *</Text>
@@ -157,7 +156,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.customerPhone}
             onChangeText={(text) => setFormData({ ...formData, customerPhone: text })}
-            placeholder="(210) 555-1234"
             keyboardType="phone-pad"
           />
 
@@ -166,7 +164,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.customerEmail}
             onChangeText={(text) => setFormData({ ...formData, customerEmail: text })}
-            placeholder="client@example.com"
             keyboardType="email-address"
             autoCapitalize="none"
           />
@@ -181,7 +178,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.propertyAddress}
             onChangeText={(text) => setFormData({ ...formData, propertyAddress: text })}
-            placeholder="Enter property address"
           />
 
           <Text style={styles.label}>City *</Text>
@@ -189,7 +185,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.propertyCity}
             onChangeText={(text) => setFormData({ ...formData, propertyCity: text })}
-            placeholder="San Antonio"
           />
 
           <Text style={styles.label}>Zip Code *</Text>
@@ -197,7 +192,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.propertyZip}
             onChangeText={(text) => setFormData({ ...formData, propertyZip: text })}
-            placeholder="78258"
             keyboardType="number-pad"
             maxLength={5}
           />
@@ -207,7 +201,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.squareFeet}
             onChangeText={(text) => setFormData({ ...formData, squareFeet: text })}
-            placeholder="e.g., 2500"
             keyboardType="number-pad"
           />
 
@@ -216,7 +209,6 @@ export default function DirectScheduleScreen() {
             style={styles.input}
             value={formData.yearBuilt}
             onChangeText={(text) => setFormData({ ...formData, yearBuilt: text })}
-            placeholder="e.g., 2010"
             keyboardType="number-pad"
             maxLength={4}
           />

@@ -148,7 +148,6 @@ export default function AgentInfoScreen() {
                 <Text style={styles.label}>Agent Name *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="John Smith"
                   value={agentName}
                   onChangeText={setAgentName}
                   autoCapitalize="words"
@@ -159,7 +158,6 @@ export default function AgentInfoScreen() {
                 <Text style={styles.label}>Agent Email *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="agent@realty.com"
                   value={agentEmail}
                   onChangeText={setAgentEmail}
                   keyboardType="email-address"
@@ -171,7 +169,6 @@ export default function AgentInfoScreen() {
                 <Text style={styles.label}>Agent Phone *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="(210) 555-1234"
                   value={agentPhone}
                   onChangeText={setAgentPhone}
                   keyboardType="phone-pad"

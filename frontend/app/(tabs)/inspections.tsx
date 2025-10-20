@@ -467,7 +467,6 @@ export default function InspectionsScreen() {
               <Ionicons name="search-outline" size={20} color="#8E8E93" style={styles.searchIcon} />
               <TextInput
                 style={styles.searchInput}
-                placeholder="Search by customer name or address..."
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholderTextColor="#8E8E93"

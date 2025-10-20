@@ -97,7 +97,6 @@ export default function ChangePasswordScreen() {
               style={styles.passwordInput}
               value={formData.oldPassword}
               onChangeText={(text) => setFormData({ ...formData, oldPassword: text })}
-              placeholder="Enter current password"
               secureTextEntry={!showOldPassword}
               autoCapitalize="none"
             />
@@ -121,7 +120,6 @@ export default function ChangePasswordScreen() {
               style={styles.passwordInput}
               value={formData.newPassword}
               onChangeText={(text) => setFormData({ ...formData, newPassword: text })}
-              placeholder="Enter new password"
               secureTextEntry={!showNewPassword}
               autoCapitalize="none"
             />
@@ -146,7 +144,6 @@ export default function ChangePasswordScreen() {
               style={styles.passwordInput}
               value={formData.confirmPassword}
               onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
-              placeholder="Confirm new password"
               secureTextEntry={!showConfirmPassword}
               autoCapitalize="none"
             />

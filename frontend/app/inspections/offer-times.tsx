@@ -299,7 +299,6 @@ export default function OfferTimeSlotsScreen() {
                 style={styles.feeInput}
                 value={inspectionFee}
                 onChangeText={setInspectionFee}
-                placeholder="0.00"
                 keyboardType="decimal-pad"
                 maxLength={10}
               />
