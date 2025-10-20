@@ -579,13 +579,15 @@ async def get_inspectors(
         "role": {"$in": [UserRole.inspector.value, UserRole.owner.value]}
     }).to_list(100)
     
-    # Return simplified inspector info
+    # Return inspector info including license and phone
     inspector_list = [
         {
             "id": insp["id"],
             "name": insp["name"],
             "email": insp["email"],
-            "role": insp["role"]
+            "role": insp["role"],
+            "license_number": insp.get("license_number"),
+            "phone": insp.get("phone")
         }
         for insp in inspectors
     ]
