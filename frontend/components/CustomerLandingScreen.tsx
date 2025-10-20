@@ -34,45 +34,61 @@ export default function CustomerLandingScreen({ onNavigateToDashboard }: Landing
     switch (type) {
       case 'inspection':
         title = 'What Does Your Inspection Cover?';
-        content = `What Our Home Inspections Cover
+        content = `What a Beneficial Home Inspection Covers
 
-A Beneficial Home Inspection is a comprehensive, top-to-bottom evaluation of a property's structural and mechanical systems.
-We're thorough — inside and out — to help you understand the true condition of your home.
+A Beneficial Home Inspection is a comprehensive, top-to-bottom evaluation of a property's structural and mechanical systems. We inspect every major component — inside and out — to give you a clear picture of the home's condition.
 
 Roof
 
-We always prefer to walk the roof whenever it's safe and accessible.
-If it isn't, we'll fly a drone to capture detailed photos.
-Walking the roof is always our best practice for accuracy.
+We always prefer to walk the roof for a close, hands-on inspection.
+If the roof is unsafe or inaccessible, we'll fly a drone to capture detailed photos.
+Walking the roof is always our best practice whenever possible.
 
 Attic
 
-We inspect all accessible attic spaces, evaluating:
+We enter accessible attic spaces to evaluate:
 
 • Roof framing and structure
 • Insulation levels
-• Ductwork and ventilation
+• Ductwork
+• Ventilation and moisture control
 
-Interior
+Structure
 
-Inside the home, we check walls, ceilings, floors, doors, windows, and closets — looking for any signs of:
+Inside the home, we check walls, ceilings, floors, doors, windows, and closets for signs of:
 
 • Stress or movement
-• Settling or repairs
-• Staining or moisture issues
+• Settlement or structural repairs
+• Moisture stains or damage
 
-Exterior
+Outside the home, we examine siding, trim, window and door openings, flashings, grading, drainage, porches, and driveways for issues that could affect performance or durability.
 
-Outside, we examine siding, trim, flashings, window and door openings, grading, drainage, porches, and driveways for wear, damage, or improper installation.
+HVAC (Heating & Cooling)
+
+We inspect the installation, operation, and performance of the HVAC system.
+This includes checking for proper airflow, temperature control, and equipment condition.
+
+Plumbing
+
+We run a lot of water during our inspections — not just to test faucets, but to evaluate the entire drainage system.
+We look for leaks, slow drains, and any signs of backup or poor flow.
+
+Electrical
+
+We perform a detailed inspection of the electrical system, including:
+
+• Removing panel box covers to check wire and breaker sizes for proper matching
+• Testing every accessible outlet for correct polarity and grounding
+• Reviewing visible junction boxes and connections for proper installation and safety
 
 Foundation
 
-We give a performance-based opinion of the foundation — not just by looking at cracks or uneven floors, but by analyzing all related systems together to see the big picture of how the structure is performing.
+Our foundation evaluation is based on the big picture, not just one sign.
+We look for indications of movement, settlement, or performance issues by assessing all related systems and symptoms throughout the home.
 
-What to Expect
+The Purpose of a Home Inspection
 
-A home inspection is not a pass/fail test.
-It's a condition report — giving you the information you need to make confident, informed decisions about your home.`;
+A home inspection is not a pass/fail test — it's a condition report designed to give you the knowledge and confidence to make informed decisions about your home purchase or maintenance.`;
         break;
       case 'about':
         title = 'About Beneficial Inspections Inc.';
