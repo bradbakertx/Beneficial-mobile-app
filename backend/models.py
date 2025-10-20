@@ -92,6 +92,12 @@ class QuoteBase(BaseModel):
     additional_notes: Optional[str] = None
     # Keep property_size for backwards compatibility
     property_size: Optional[int] = None
+    # Additional fields
+    wdi_report: Optional[bool] = None
+    sprinkler_system: Optional[bool] = None
+    detached_building: Optional[bool] = None
+    detached_building_type: Optional[str] = None
+    detached_building_sqft: Optional[str] = None
 
 
 class QuoteCreate(QuoteBase):
