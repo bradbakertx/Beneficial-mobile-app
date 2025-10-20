@@ -109,6 +109,7 @@ class QuoteInDB(QuoteBase):
     customer_id: str
     customer_email: str
     customer_name: str
+    customer_phone: Optional[str] = None
     status: QuoteStatus = QuoteStatus.pending
     quote_amount: Optional[float] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
