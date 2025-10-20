@@ -37,6 +37,12 @@ interface InspectionInfo {
   payment_completed?: boolean;
   payment_method?: string;
   created_at: string;
+  // Additional information fields
+  wdi_report?: boolean;
+  sprinkler_system?: boolean;
+  detached_building?: boolean;
+  detached_building_type?: string;
+  detached_building_sqft?: string;
 }
 
 interface ManualInspectionInfo {
