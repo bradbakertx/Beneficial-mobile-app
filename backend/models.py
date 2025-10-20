@@ -207,6 +207,12 @@ class InspectionInDB(InspectionBase):
     payment_transaction_id: Optional[str] = None  # Square transaction ID
     payment_amount: Optional[float] = None  # Amount paid
     payment_method: Optional[str] = None  # Payment method: Cash, Check, Card/Mobile Tap, Square
+    # Additional information fields
+    wdi_report: Optional[bool] = None
+    sprinkler_system: Optional[bool] = None
+    detached_building: Optional[bool] = None
+    detached_building_type: Optional[str] = None
+    detached_building_sqft: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
