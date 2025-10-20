@@ -64,10 +64,10 @@ export default function InspectorCalendarView({ userId }: InspectorCalendarViewP
     return Array.from({ length: 7 }, (_, i) => addDays(startOfDay(currentWeekStart), i));
   };
 
-  // Generate time slots (6 AM to 8 PM in 2-hour blocks)
+  // Generate time slots (8 AM to 4 PM in 2-hour blocks)
   const getTimeSlots = () => {
     const slots = [];
-    for (let hour = 6; hour <= 18; hour += 2) {
+    for (let hour = 8; hour <= 14; hour += 2) {
       slots.push({
         start: hour,
         label: format(new Date().setHours(hour, 0), 'h:mm a'),
