@@ -1171,12 +1171,32 @@ async def confirm_time_slot(
     
     scheduled_date = request_body.get("scheduled_date")
     scheduled_time = request_body.get("scheduled_time")
+    # Get inspector info from the selected slot (new per-slot inspector feature)
+    selected_inspector = request_body.get("inspector")
+    selected_inspector_license = request_body.get("inspectorLicense")
+    selected_inspector_phone = request_body.get("inspectorPhone")
     
     if not scheduled_date or not scheduled_time:
         raise HTTPException(status_code=400, detail="scheduled_date and scheduled_time are required")
     
+    # If inspector info is provided in selection, use it (new per-slot feature)
+    # Otherwise, use existing inspector from inspection record (backward compatibility)
+    inspector_name = selected_inspector or inspection.get("inspector_name")
+    inspector_license = selected_inspector_license or inspection.get("inspector_license")
+    inspector_phone = selected_inspector_phone or inspection.get("inspector_phone")
+    
+    # Get inspector email by matching the name
+    inspector_email = None
+    if inspector_name:
+        # Try to find inspector user by name
+        inspector_user = await db.users.find_one({
+            "role": {"$in": ["inspector", "owner"]},
+            "name": inspector_name
+        })
+        if inspector_user:
+            inspector_email = inspector_user.get("email")
+    
     # Check for double-booking with same inspector
-    inspector_name = inspection.get("inspector_name")
     if inspector_name:
         # Get all scheduled inspections for the same date
         potential_conflicts = await db.inspections.find({
