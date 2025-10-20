@@ -718,6 +718,7 @@ async def create_quote(
         customer_id=current_user.id,
         customer_email=current_user.email,
         customer_name=current_user.name,
+        customer_phone=current_user.phone,
         property_address=quote_data.property_address,
         property_city=quote_data.property_city,
         property_zip=quote_data.property_zip,
@@ -729,6 +730,11 @@ async def create_quote(
         num_units=quote_data.num_units,
         property_size=quote_data.property_size,  # Keep for backwards compatibility
         additional_notes=quote_data.additional_notes,
+        wdi_report=quote_data.wdi_report,
+        sprinkler_system=quote_data.sprinkler_system,
+        detached_building=quote_data.detached_building,
+        detached_building_type=quote_data.detached_building_type,
+        detached_building_sqft=quote_data.detached_building_sqft,
         status=QuoteStatus.pending,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
