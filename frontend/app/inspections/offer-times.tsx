@@ -21,10 +21,14 @@ import CalendarWeekView from '../../components/CalendarWeekView';
 
 const TIME_SLOTS = ['8am', '11am', '2pm'];
 
-const INSPECTORS = [
-  { name: 'Brad Baker', license: 'TREC #7522', phone: '2105620673' },
-  { name: 'Blake Gray', license: 'TREC #20798', phone: '2108378878' },
-];
+interface Inspector {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  license_number?: string;
+  phone?: string;
+}
 
 interface TimeSlotOffer {
   date: string;
@@ -45,10 +49,26 @@ export default function OfferTimeSlotsScreen() {
   // New structure: Track inspector for each date+time slot
   const [timeSlotInspectors, setTimeSlotInspectors] = useState<{ [key: string]: number }>({}); // key format: "2025-10-21-8am" -> inspectorIndex
   const [inspectionFee, setInspectionFee] = useState(''); // For direct schedule inspections
+  const [inspectors, setInspectors] = useState<Inspector[]>([]);
+  const [loadingInspectors, setLoadingInspectors] = useState(true);
 
   useEffect(() => {
     fetchInspection();
+    fetchInspectors();
   }, [id]);
+
+  const fetchInspectors = async () => {
+    try {
+      setLoadingInspectors(true);
+      const response = await api.get('/users/inspectors');
+      setInspectors(response.data.inspectors || []);
+    } catch (error) {
+      console.error('Error fetching inspectors:', error);
+      Alert.alert('Error', 'Failed to load inspectors list');
+    } finally {
+      setLoadingInspectors(false);
+    }
+  };
 
   const fetchInspection = async () => {
     try {
