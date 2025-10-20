@@ -175,14 +175,16 @@ We're proud of the reputation we've built and excited to see what comes next for
             </View>
           </View>
         </ImageBackground>
+      </ScrollView>
 
-        {/* Swipe Indicator */}
-        <View style={styles.indicatorContainer}>
+      {/* Floating Swipe Indicator - Always visible at bottom */}
+      <View style={styles.floatingIndicatorContainer}>
+        <View style={styles.indicatorOvalBackground}>
           <View style={styles.indicatorDot} />
           <View style={styles.indicatorDotEmpty} />
-          <Ionicons name="chevron-forward" size={16} color="#8E8E93" style={styles.swipeIcon} />
+          <Ionicons name="chevron-forward" size={16} color="#007AFF" style={styles.swipeIcon} />
         </View>
-      </ScrollView>
+      </View>
 
       {/* Modal for Content */}
       <Modal
