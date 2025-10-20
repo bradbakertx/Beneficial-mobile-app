@@ -102,32 +102,20 @@ export default function OfferTimeSlotsScreen() {
     const isSelected = selectedDates.some(d => isSameDay(d, date));
     
     if (isSelected) {
-      // Remove date and its time selections
+      // Remove date and all its time slot inspector assignments
       setSelectedDates(selectedDates.filter(d => !isSameDay(d, date)));
       const dateKey = format(date, 'yyyy-MM-dd');
-      const newSelections = { ...timeSlotSelections };
-      delete newSelections[dateKey];
-      setTimeSlotSelections(newSelections);
+      // Remove all time slot assignments for this date
+      const newInspectors = { ...timeSlotInspectors };
+      Object.keys(newInspectors).forEach(key => {
+        if (key.startsWith(dateKey)) {
+          delete newInspectors[key];
+        }
+      });
+      setTimeSlotInspectors(newInspectors);
     } else {
       // Add date
       setSelectedDates([...selectedDates, date]);
-    }
-  };
-
-  const handleTimeSlotToggle = (date: Date, time: string) => {
-    const dateKey = format(date, 'yyyy-MM-dd');
-    const currentTimes = timeSlotSelections[dateKey] || [];
-    
-    if (currentTimes.includes(time)) {
-      setTimeSlotSelections({
-        ...timeSlotSelections,
-        [dateKey]: currentTimes.filter(t => t !== time)
-      });
-    } else {
-      setTimeSlotSelections({
-        ...timeSlotSelections,
-        [dateKey]: [...currentTimes, time]
-      });
     }
   };
 
