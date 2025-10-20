@@ -28,9 +28,15 @@ interface Quote {
   foundation_type?: string;
   customer_name: string;
   customer_email: string;
+  customer_phone?: string;
   num_units?: number;
   num_buildings?: number;
   additional_notes?: string;
+  wdi_report?: boolean;
+  sprinkler_system?: boolean;
+  detached_building?: boolean;
+  detached_building_type?: string;
+  detached_building_sqft?: string;
   status: string;
   quote_amount?: number;
   created_at: string;
