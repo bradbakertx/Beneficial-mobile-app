@@ -351,35 +351,52 @@ export default function OfferTimeSlotsScreen() {
         {/* Time Slot Selection for Selected Dates */}
         {selectedDates.length > 0 && (
           <View style={styles.timeSlotSection}>
-            <Text style={styles.sectionTitle}>Select Time Slots for Each Date:</Text>
+            <Text style={styles.sectionTitle}>Select Time Slots and Assign Inspectors:</Text>
             {selectedDates.sort((a, b) => a.getTime() - b.getTime()).map(date => {
               const dateKey = format(date, 'yyyy-MM-dd');
-              const selectedTimes = timeSlotSelections[dateKey] || [];
               
               return (
                 <View key={dateKey} style={styles.dateTimeCard}>
                   <Text style={styles.dateTimeCardTitle}>
                     {format(date, 'EEEE, MMMM dd, yyyy')}
                   </Text>
-                  <View style={styles.timeSlotButtons}>
-                    {TIME_SLOTS.map(time => (
-                      <TouchableOpacity
-                        key={time}
-                        style={[
-                          styles.timeSlotButton,
-                          selectedTimes.includes(time) && styles.timeSlotButtonSelected
-                        ]}
-                        onPress={() => handleTimeSlotToggle(date, time)}
-                      >
-                        <Text style={[
-                          styles.timeSlotButtonText,
-                          selectedTimes.includes(time) && styles.timeSlotButtonTextSelected
-                        ]}>
-                          {time}
-                        </Text>
-                      </TouchableOpacity>
-                    ))}
-                  </View>
+                  {TIME_SLOTS.map(time => {
+                    const slotKey = `${dateKey}-${time}`;
+                    const inspectorIndex = timeSlotInspectors[slotKey];
+                    const hasInspector = inspectorIndex !== undefined;
+                    
+                    return (
+                      <View key={time} style={styles.timeSlotRow}>
+                        <Text style={styles.timeLabel}>{time}</Text>
+                        <View style={styles.timeSlotPickerContainer}>
+                          <Picker
+                            selectedValue={hasInspector ? inspectorIndex : -1}
+                            onValueChange={(value) => {
+                              if (value === -1) {
+                                // Remove slot
+                                const newSlots = {...timeSlotInspectors};
+                                delete newSlots[slotKey];
+                                setTimeSlotInspectors(newSlots);
+                              } else {
+                                // Add/update slot
+                                setTimeSlotInspectors({...timeSlotInspectors, [slotKey]: value});
+                              }
+                            }}
+                            style={styles.timeSlotPicker}
+                          >
+                            <Picker.Item label="-- Select Inspector --" value={-1} />
+                            {INSPECTORS.map((insp, idx) => (
+                              <Picker.Item 
+                                key={idx} 
+                                label={`${insp.name} - ${insp.license}`} 
+                                value={idx} 
+                              />
+                            ))}
+                          </Picker>
+                        </View>
+                      </View>
+                    );
+                  })}
                 </View>
               );
             })}
