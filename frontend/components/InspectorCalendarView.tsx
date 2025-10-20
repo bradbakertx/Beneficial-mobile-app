@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
   },
   timeRow: {
     flexDirection: 'row',
-    minHeight: 80,
+    height: 60,
     borderBottomWidth: 1,
     borderBottomColor: '#F2F2F7',
   },
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   timeCell: {
-    minHeight: 80,
+    height: 60,
     borderLeftWidth: 1,
     borderLeftColor: '#F2F2F7',
     padding: 4,
@@ -298,8 +298,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#007AFF',
     borderRadius: 6,
     padding: 8,
-    height: '100%',
     justifyContent: 'center',
+    position: 'absolute',
+    left: 4,
+    right: 4,
+    top: 4,
+    zIndex: 10,
   },
   inspectionAddress: {
     fontSize: 11,
