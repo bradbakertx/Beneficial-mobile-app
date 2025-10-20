@@ -745,4 +745,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  timeSlotRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F2F2F7',
+  },
+  timeLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1C1C1E',
+    width: 70,
+  },
+  timeSlotPickerContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    overflow: 'hidden',
+  },
+  timeSlotPicker: {
+    height: 50,
+  },
 });
