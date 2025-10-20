@@ -206,6 +206,25 @@ export default function InspectionDetailScreen() {
         {inspection!.scheduled_time && <InfoRow label="Scheduled Time" value={inspection!.scheduled_time} />}
         {inspection!.fee_amount && <InfoRow label="Inspection Fee" value={`$${inspection!.fee_amount.toFixed(2)}`} />}
         <InfoRow label="Status" value={inspection!.status} />
+        
+        {/* Additional Information */}
+        {inspection!.wdi_report !== undefined && inspection!.wdi_report !== null && (
+          <InfoRow label="WDI Report" value={inspection!.wdi_report ? 'Yes' : 'No'} />
+        )}
+        {inspection!.sprinkler_system !== undefined && inspection!.sprinkler_system !== null && (
+          <InfoRow label="Sprinkler System" value={inspection!.sprinkler_system ? 'Yes' : 'No'} />
+        )}
+        {inspection!.detached_building && (
+          <>
+            <InfoRow label="Detached Building" value="Yes" />
+            {inspection!.detached_building_type && inspection!.detached_building_type !== 'Please Choose' && (
+              <InfoRow label="Building Type" value={inspection!.detached_building_type} />
+            )}
+            {inspection!.detached_building_sqft && (
+              <InfoRow label="Building Square Feet" value={`${inspection!.detached_building_sqft} sq ft`} />
+            )}
+          </>
+        )}
       </View>
 
       {inspection!.customer_name && (
