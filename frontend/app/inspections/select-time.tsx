@@ -92,11 +92,17 @@ export default function SelectTimeSlotScreen() {
       console.log('Payload:', {
         scheduled_date: selectedSlot.date,
         scheduled_time: selectedSlot.time,
+        inspector: selectedSlot.inspector,
+        inspectorLicense: selectedSlot.inspectorLicense,
+        inspectorPhone: selectedSlot.inspectorPhone,
       });
       
       const response = await api.patch(`/inspections/${id}/confirm-time`, {
         scheduled_date: selectedSlot.date,
         scheduled_time: selectedSlot.time,
+        inspector: selectedSlot.inspector,
+        inspectorLicense: selectedSlot.inspectorLicense,
+        inspectorPhone: selectedSlot.inspectorPhone,
       });
       
       console.log('API response received:', response.data);
