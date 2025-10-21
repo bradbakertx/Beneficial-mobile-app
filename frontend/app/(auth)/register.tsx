@@ -27,7 +27,6 @@ export default function RegisterScreen() {
     role: 'customer' as 'customer' | 'agent',
     termsAccepted: false,
     privacyPolicyAccepted: false,
-    marketingConsent: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,7 +65,7 @@ export default function RegisterScreen() {
         role: formData.role,
         terms_accepted: formData.termsAccepted,
         privacy_policy_accepted: formData.privacyPolicyAccepted,
-        marketing_consent: formData.marketingConsent,
+        marketing_consent: false, // No marketing communications
       });
       router.replace('/(tabs)');
     } catch (error: any) {
