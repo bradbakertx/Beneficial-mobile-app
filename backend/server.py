@@ -215,6 +215,9 @@ async def login(credentials: UserLogin):
     # Create access token
     access_token = create_access_token({"sub": user.id, "role": user.role.value})
     
+    # Check if user needs to accept terms/privacy (for users created via Owner Add menu)
+    needs_consent = not user.terms_accepted or not user.privacy_policy_accepted
+    
     # If this is a customer logging in, link any unlinked inspections with matching email/phone
     if user.role == UserRole.customer:
         matching_inspections = await db.inspections.find({
