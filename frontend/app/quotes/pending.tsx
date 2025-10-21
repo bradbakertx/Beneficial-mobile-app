@@ -91,16 +91,30 @@ export default function PendingQuotesScreen() {
           quotes.map((quote) => (
             <TouchableOpacity
               key={quote.id}
-              style={styles.quoteCard}
+              style={[
+                styles.quoteCard,
+                quote.is_agent_quote && styles.agentQuoteCard
+              ]}
               onPress={() => router.push(`/quotes/detail?id=${quote.id}`)}
             >
               <View style={styles.cardHeader}>
                 <View style={styles.customerInfo}>
-                  <Ionicons name="person" size={20} color="#007AFF" />
-                  <Text style={styles.customerName}>{quote.customer_name}</Text>
+                  <Ionicons 
+                    name={quote.is_agent_quote ? "briefcase" : "person"} 
+                    size={20} 
+                    color={quote.is_agent_quote ? "#FF9500" : "#007AFF"} 
+                  />
+                  <Text style={styles.customerName}>
+                    {quote.is_agent_quote ? quote.agent_name : quote.customer_name}
+                  </Text>
                 </View>
-                <View style={styles.statusBadge}>
-                  <Text style={styles.statusText}>PENDING</Text>
+                <View style={[
+                  styles.statusBadge,
+                  quote.is_agent_quote && styles.agentStatusBadge
+                ]}>
+                  <Text style={styles.statusText}>
+                    {quote.is_agent_quote ? 'AGENT' : 'PENDING'}
+                  </Text>
                 </View>
               </View>
 
@@ -117,10 +131,25 @@ export default function PendingQuotesScreen() {
                   <Text style={styles.infoText}>{quote.property_type}</Text>
                 </View>
 
-                <View style={styles.infoRow}>
-                  <Ionicons name="mail" size={16} color="#8E8E93" />
-                  <Text style={styles.infoText}>{quote.customer_email}</Text>
-                </View>
+                {quote.is_agent_quote ? (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Ionicons name="mail" size={16} color="#8E8E93" />
+                      <Text style={styles.infoText}>{quote.agent_email}</Text>
+                    </View>
+                    {quote.agent_phone && (
+                      <View style={styles.infoRow}>
+                        <Ionicons name="call" size={16} color="#8E8E93" />
+                        <Text style={styles.infoText}>{quote.agent_phone}</Text>
+                      </View>
+                    )}
+                  </>
+                ) : (
+                  <View style={styles.infoRow}>
+                    <Ionicons name="mail" size={16} color="#8E8E93" />
+                    <Text style={styles.infoText}>{quote.customer_email}</Text>
+                  </View>
+                )}
 
                 <View style={styles.infoRow}>
                   <Ionicons name="time" size={16} color="#8E8E93" />
@@ -132,7 +161,7 @@ export default function PendingQuotesScreen() {
 
               <View style={styles.cardFooter}>
                 <Text style={styles.viewDetails}>Tap to set quote amount</Text>
-                <Ionicons name="chevron-forward" size={20} color="#007AFF" />
+                <Ionicons name="chevron-forward" size={20} color={quote.is_agent_quote ? "#FF9500" : "#007AFF"} />
               </View>
             </TouchableOpacity>
           ))
