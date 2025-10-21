@@ -242,7 +242,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Phone Number *</Text>
         <TextInput
           style={styles.input}
-          placeholder="(555) 123-4567"
+          placeholder=""
           value={clientPhone}
           onChangeText={setClientPhone}
           keyboardType="phone-pad"
@@ -251,7 +251,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Email Address *</Text>
         <TextInput
           style={styles.input}
-          placeholder="john@example.com"
+          placeholder=""
           value={clientEmail}
           onChangeText={setClientEmail}
           keyboardType="email-address"
@@ -264,7 +264,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Name</Text>
         <TextInput
           style={styles.input}
-          placeholder="Jane Smith"
+          placeholder=""
           value={agentName}
           onChangeText={setAgentName}
         />
@@ -272,7 +272,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Phone Number</Text>
         <TextInput
           style={styles.input}
-          placeholder="(555) 987-6543"
+          placeholder=""
           value={agentPhone}
           onChangeText={setAgentPhone}
           keyboardType="phone-pad"
@@ -281,7 +281,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Email Address</Text>
         <TextInput
           style={styles.input}
-          placeholder="jane@realty.com"
+          placeholder=""
           value={agentEmail}
           onChangeText={setAgentEmail}
           keyboardType="email-address"
@@ -294,7 +294,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Address *</Text>
         <TextInput
           style={styles.input}
-          placeholder="123 Main St"
+          placeholder=""
           value={propertyAddress}
           onChangeText={setPropertyAddress}
         />
@@ -304,7 +304,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>City *</Text>
             <TextInput
               style={styles.input}
-              placeholder="Austin"
+              placeholder=""
               value={propertyCity}
               onChangeText={setPropertyCity}
             />
@@ -314,7 +314,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Zip Code *</Text>
             <TextInput
               style={styles.input}
-              placeholder="78701"
+              placeholder=""
               value={propertyZip}
               onChangeText={setPropertyZip}
               keyboardType="numeric"
@@ -327,7 +327,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Square Feet</Text>
             <TextInput
               style={styles.input}
-              placeholder="2000"
+              placeholder=""
               value={squareFeet}
               onChangeText={setSquareFeet}
               keyboardType="numeric"
@@ -338,7 +338,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Year Built</Text>
             <TextInput
               style={styles.input}
-              placeholder="2010"
+              placeholder=""
               value={yearBuilt}
               onChangeText={setYearBuilt}
               keyboardType="numeric"
@@ -379,7 +379,7 @@ export default function ManualInspectionEntry() {
                 <Text style={styles.label}>Number of Buildings *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="1"
+                  placeholder=""
                   value={numBuildings}
                   onChangeText={setNumBuildings}
                   keyboardType="numeric"
@@ -390,7 +390,7 @@ export default function ManualInspectionEntry() {
                 <Text style={styles.label}>Number of Units *</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="4"
+                  placeholder=""
                   value={numUnits}
                   onChangeText={setNumUnits}
                   keyboardType="numeric"
@@ -444,7 +444,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Detached Building Type</Text>
             <TextInput
               style={styles.input}
-              placeholder="Garage, Workshop, etc."
+              placeholder=""
               value={detachedBuildingType}
               onChangeText={setDetachedBuildingType}
             />
@@ -452,7 +452,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Detached Building Sq Ft</Text>
             <TextInput
               style={styles.input}
-              placeholder="500"
+              placeholder=""
               value={detachedBuildingSqFt}
               onChangeText={setDetachedBuildingSqFt}
               keyboardType="numeric"
@@ -484,7 +484,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Fee Amount *</Text>
         <TextInput
           style={styles.input}
-          placeholder="450.00"
+          placeholder=""
           value={feeAmount}
           onChangeText={setFeeAmount}
           keyboardType="decimal-pad"
@@ -495,7 +495,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Inspection Date *</Text>
             <TextInput
               style={styles.input}
-              placeholder="2025-06-15"
+              placeholder=""
               value={inspectionDate}
               onChangeText={setInspectionDate}
             />
@@ -505,7 +505,7 @@ export default function ManualInspectionEntry() {
             <Text style={styles.label}>Inspection Time *</Text>
             <TextInput
               style={styles.input}
-              placeholder="10:00 AM"
+              placeholder=""
               value={inspectionTime}
               onChangeText={setInspectionTime}
             />
