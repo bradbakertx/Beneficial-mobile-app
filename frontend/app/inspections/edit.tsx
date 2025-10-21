@@ -122,6 +122,7 @@ export default function EditInspectionScreen() {
         }
         setInspectionDate(data.scheduled_date || '');
         setInspectionTime(data.scheduled_time || '');
+        setAdditionalReportEmails(data.additional_report_emails || '');
       }
     } catch (error) {
       console.error('Error fetching inspection:', error);
