@@ -4051,6 +4051,232 @@ async def get_dashboard_stats(
     }
 
 
+
+# ============= PRIVACY & COMPLIANCE ENDPOINTS =============
+
+@api_router.get("/users/export-data")
+async def export_user_data(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """
+    Export all user data in JSON format (GDPR Article 20 - Right to Data Portability)
+    Returns complete user information including profile, quotes, inspections, and messages
+    """
+    user_id = current_user.id
+    
+    try:
+        # Fetch user profile
+        user_doc = await db.users.find_one({"id": user_id})
+        if not user_doc:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Remove sensitive fields
+        user_data = {
+            "id": user_doc.get("id"),
+            "name": user_doc.get("name"),
+            "email": user_doc.get("email"),
+            "phone": user_doc.get("phone"),
+            "role": user_doc.get("role"),
+            "profile_picture": user_doc.get("profile_picture"),
+            "license_number": user_doc.get("license_number"),
+            "created_at": user_doc.get("created_at"),
+            "notification_preferences": user_doc.get("notification_preferences"),
+            "terms_accepted": user_doc.get("terms_accepted"),
+            "terms_accepted_at": user_doc.get("terms_accepted_at"),
+            "privacy_policy_accepted": user_doc.get("privacy_policy_accepted"),
+            "privacy_policy_accepted_at": user_doc.get("privacy_policy_accepted_at"),
+            "marketing_consent": user_doc.get("marketing_consent"),
+        }
+        
+        # Fetch quotes (if customer or agent)
+        quotes = []
+        if current_user.role in [UserRole.customer, UserRole.agent]:
+            quotes_cursor = db.quotes.find({"customer_email": current_user.email})
+            quotes = await quotes_cursor.to_list(length=1000)
+            # Remove internal MongoDB _id
+            quotes = [{k: v for k, v in quote.items() if k != '_id'} for quote in quotes]
+        
+        # Fetch inspections
+        inspections = []
+        if current_user.role == UserRole.customer:
+            inspections_cursor = db.inspections.find({"customer_id": user_id})
+            inspections = await inspections_cursor.to_list(length=1000)
+        elif current_user.role == UserRole.inspector:
+            inspections_cursor = db.inspections.find({"assigned_inspector_id": user_id})
+            inspections = await inspections_cursor.to_list(length=1000)
+        elif current_user.role == UserRole.owner:
+            inspections_cursor = db.inspections.find({})
+            inspections = await inspections_cursor.to_list(length=1000)
+        
+        # Remove internal MongoDB _id
+        inspections = [{k: v for k, v in insp.items() if k != '_id'} for insp in inspections]
+        
+        # Fetch messages
+        messages = []
+        messages_cursor = db.messages.find({
+            "$or": [
+                {"sender_id": user_id},
+                {"recipient_id": user_id}
+            ]
+        })
+        messages = await messages_cursor.to_list(length=10000)
+        messages = [{k: v for k, v in msg.items() if k != '_id'} for msg in messages]
+        
+        # Compile complete data export
+        export_data = {
+            "export_date": datetime.utcnow().isoformat(),
+            "user_profile": user_data,
+            "quotes": quotes,
+            "inspections": inspections,
+            "messages": messages,
+            "export_format": "JSON",
+            "data_subject_rights": "This export includes all personal data stored in accordance with GDPR Article 20"
+        }
+        
+        logging.info(f"Data export requested by user {user_id}")
+        
+        return export_data
+        
+    except Exception as e:
+        logging.error(f"Error exporting user data: {e}")
+        raise HTTPException(status_code=500, detail="Failed to export user data")
+
+
+@api_router.delete("/users/delete-account")
+async def delete_user_account(
+    password: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """
+    Permanently delete user account and all associated data (GDPR Article 17 - Right to Erasure)
+    Requires password confirmation for security
+    
+    This will:
+    - Delete user profile
+    - Anonymize messages (replace with "Deleted User")
+    - Delete associated quotes
+    - Cancel and anonymize inspections
+    - Remove profile pictures from S3
+    - Send confirmation email
+    """
+    user_id = current_user.id
+    
+    # Verify password for security
+    user_doc = await db.users.find_one({"id": user_id})
+    if not user_doc or not verify_password(password, user_doc["hashed_password"]):
+        raise HTTPException(status_code=401, detail="Invalid password")
+    
+    try:
+        logging.info(f"Account deletion initiated for user {user_id}")
+        
+        # 1. Anonymize messages (preserve chat history for other users)
+        await db.messages.update_many(
+            {"sender_id": user_id},
+            {"$set": {
+                "sender_id": "deleted_user",
+                "sender_name": "Deleted User",
+                "message": "[Message deleted - User account removed]"
+            }}
+        )
+        
+        # 2. Delete or anonymize quotes
+        if current_user.role in [UserRole.customer, UserRole.agent]:
+            await db.quotes.delete_many({"customer_email": current_user.email})
+        
+        # 3. Handle inspections
+        if current_user.role == UserRole.customer:
+            # Cancel active inspections
+            await db.inspections.update_many(
+                {"customer_id": user_id, "status": {"$in": ["pending_scheduling", "awaiting_customer_selection", "scheduled"]}},
+                {"$set": {"status": InspectionStatus.cancelled.value}}
+            )
+            # Anonymize completed inspections
+            await db.inspections.update_many(
+                {"customer_id": user_id},
+                {"$set": {
+                    "customer_id": "deleted_user",
+                    "customer_name": "Deleted User",
+                    "customer_email": f"deleted_{user_id}@deleted.com",
+                    "customer_phone": "Deleted"
+                }}
+            )
+        
+        # 4. Delete profile picture from S3 (if exists)
+        if user_doc.get("profile_picture"):
+            try:
+                # Extract S3 key from URL
+                s3_url = user_doc["profile_picture"]
+                if "amazonaws.com/" in s3_url:
+                    s3_key = s3_url.split("amazonaws.com/")[1]
+                    s3_client.delete_object(Bucket=S3_BUCKET, Key=s3_key)
+                    logging.info(f"Deleted profile picture from S3: {s3_key}")
+            except Exception as e:
+                logging.error(f"Error deleting profile picture from S3: {e}")
+        
+        # 5. Delete user profile
+        result = await db.users.delete_one({"id": user_id})
+        
+        if result.deleted_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        logging.info(f"Account deleted successfully for user {user_id}")
+        
+        # 6. TODO: Send confirmation email
+        # await send_email(
+        #     to=current_user.email,
+        #     subject="Account Deletion Confirmation",
+        #     body="Your Beneficial Inspections account has been permanently deleted."
+        # )
+        
+        return {
+            "message": "Account deleted successfully",
+            "deleted_at": datetime.utcnow().isoformat(),
+            "user_id": user_id,
+            "data_retention": "Some anonymized data may be retained for legal compliance purposes"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error deleting user account: {e}")
+        raise HTTPException(status_code=500, detail="Failed to delete account")
+
+
+@api_router.patch("/users/consent")
+async def update_consent(
+    marketing_consent: Optional[bool] = None,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """
+    Update user consent preferences (e.g., marketing communications)
+    Terms and Privacy Policy acceptance cannot be revoked (account must be deleted instead)
+    """
+    update_fields = {}
+    
+    if marketing_consent is not None:
+        update_fields["marketing_consent"] = marketing_consent
+    
+    if not update_fields:
+        raise HTTPException(status_code=400, detail="No consent updates provided")
+    
+    try:
+        await db.users.update_one(
+            {"id": current_user.id},
+            {"$set": update_fields}
+        )
+        
+        logging.info(f"Consent updated for user {current_user.id}: {update_fields}")
+        
+        return {
+            "message": "Consent preferences updated successfully",
+            "updated_fields": update_fields
+        }
+        
+    except Exception as e:
+        logging.error(f"Error updating consent: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update consent")
+
+
 # ============= LEGACY ENDPOINTS (for compatibility) =============
 
 @api_router.get("/")
