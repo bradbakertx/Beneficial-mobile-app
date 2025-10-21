@@ -118,6 +118,13 @@ async def register(user_data: UserCreate):
             detail="Owner account registration is not allowed. Only customer, agent, and inspector accounts can be created."
         )
     
+    # PRIVACY & COMPLIANCE: Enforce consent requirements
+    if not user_data.terms_accepted or not user_data.privacy_policy_accepted:
+        raise HTTPException(
+            status_code=400, 
+            detail="You must accept the Terms of Service and Privacy Policy to register"
+        )
+    
     # Check if user already exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
@@ -126,6 +133,7 @@ async def register(user_data: UserCreate):
     # Create new user
     user_id = str(uuid.uuid4())
     hashed_password = get_password_hash(user_data.password)
+    current_time = datetime.utcnow()
     
     user_in_db = UserInDB(
         id=user_id,
@@ -134,7 +142,15 @@ async def register(user_data: UserCreate):
         role=user_data.role,
         phone=user_data.phone,
         hashed_password=hashed_password,
-        created_at=datetime.utcnow()
+        created_at=current_time,
+        # Privacy & Compliance: Record consent with timestamps
+        terms_accepted=user_data.terms_accepted,
+        terms_accepted_at=current_time if user_data.terms_accepted else None,
+        privacy_policy_accepted=user_data.privacy_policy_accepted,
+        privacy_policy_accepted_at=current_time if user_data.privacy_policy_accepted else None,
+        marketing_consent=user_data.marketing_consent,
+        data_processing_consent=True,  # Required for app functionality
+        ip_address_at_registration=None  # Could be captured from request headers if needed
     )
     
     await db.users.insert_one(user_in_db.dict())
