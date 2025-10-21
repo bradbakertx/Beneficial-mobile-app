@@ -10,19 +10,23 @@
     "preview": {
       "distribution": "internal",
       "android": {
+        "image": "latest",
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease"
       },
       "ios": {
+        "image": "latest",
         "simulator": false,
         "buildConfiguration": "Release"
       }
     },
     "production": {
       "android": {
+        "image": "latest",
         "buildType": "apk"
       },
       "ios": {
+        "image": "latest",
         "buildConfiguration": "Release"
       }
     }
