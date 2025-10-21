@@ -956,11 +956,11 @@ async def schedule_inspection(
     scheduling_data: SchedulingRequestCreate,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Schedule an inspection (Customer only) - with scheduling preferences"""
+    """Schedule an inspection (Customer or Agent) - with scheduling preferences"""
     from push_notification_service import send_push_notification
     
-    if current_user.role != UserRole.customer:
-        raise HTTPException(status_code=403, detail="Only customers can schedule inspections")
+    if current_user.role not in [UserRole.customer, UserRole.agent]:
+        raise HTTPException(status_code=403, detail="Only customers and agents can schedule inspections")
     
     # Verify quote exists and belongs to customer
     quote = await db.quotes.find_one({"id": scheduling_data.quote_id, "customer_id": current_user.id})
