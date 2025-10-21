@@ -1,207 +1,183 @@
 {
   "total_tests": 25,
-  "passed_tests": 21,
-  "failed_tests": 4,
-  "success_rate": 84.0,
-  "duration": 5.394021034240723,
+  "passed_tests": 18,
+  "failed_tests": 7,
+  "success_rate": 72.0,
+  "duration": 6.5143773555755615,
   "results": [
     {
       "test": "Owner Login",
       "success": true,
       "details": "Token received, role: owner",
-      "timestamp": "2025-10-21T00:07:06.906345",
+      "timestamp": "2025-10-21T18:06:49.948267",
       "response_data": null
     },
     {
       "test": "JWT Token Validation",
       "success": true,
       "details": "User: Brad Baker, Role: owner",
-      "timestamp": "2025-10-21T00:07:06.918598",
+      "timestamp": "2025-10-21T18:06:49.960758",
       "response_data": null
     },
     {
       "test": "Customer Registration",
-      "success": true,
-      "details": "Customer registered: test_customer_1761005226@example.com",
-      "timestamp": "2025-10-21T00:07:07.202230",
-      "response_data": null
+      "success": false,
+      "details": "Status: 400",
+      "timestamp": "2025-10-21T18:06:49.970940",
+      "response_data": "{\"detail\":\"You must accept the Terms of Service and Privacy Policy to register\"}"
     },
     {
       "test": "Inspector Registration",
-      "success": true,
-      "details": "Inspector registered: test_inspector_1761005227@example.com",
-      "timestamp": "2025-10-21T00:07:07.437166",
-      "response_data": null
+      "success": false,
+      "details": "Status: 400",
+      "timestamp": "2025-10-21T18:06:50.020460",
+      "response_data": "{\"detail\":\"You must accept the Terms of Service and Privacy Policy to register\"}"
     },
     {
       "test": "Owner Registration Prevention",
       "success": true,
       "details": "Owner registration correctly blocked",
-      "timestamp": "2025-10-21T00:07:07.448997",
+      "timestamp": "2025-10-21T18:06:50.028772",
       "response_data": null
     },
     {
       "test": "GET /users/inspectors (Owner)",
       "success": true,
       "details": "Found 3 inspectors with correct structure",
-      "timestamp": "2025-10-21T00:07:07.458309",
+      "timestamp": "2025-10-21T18:06:50.078784",
       "response_data": null
     },
     {
-      "test": "GET /users/inspectors (Customer - 403)",
-      "success": true,
-      "details": "Customer correctly blocked from inspector list",
-      "timestamp": "2025-10-21T00:07:07.507291",
-      "response_data": null
-    },
-    {
-      "test": "Customer Create Quote",
-      "success": true,
-      "details": "Quote created: 526450ab-c429-4313-ae6f-06a970d6c429",
-      "timestamp": "2025-10-21T00:07:07.528038",
-      "response_data": null
-    },
-    {
-      "test": "Owner View All Quotes",
-      "success": true,
-      "details": "Found 11 quotes including test quote",
-      "timestamp": "2025-10-21T00:07:07.540074",
-      "response_data": null
-    },
-    {
-      "test": "Owner Set Quote Price",
-      "success": true,
-      "details": "Quote priced at $450.00, status: quoted",
-      "timestamp": "2025-10-21T00:07:07.683111",
-      "response_data": null
-    },
-    {
-      "test": "Customer Schedule Inspection",
-      "success": true,
-      "details": "Inspection scheduled: 53eaa9d8-1cd4-4977-bba3-e82504521240",
-      "timestamp": "2025-10-21T00:07:07.708772",
-      "response_data": null
-    },
-    {
-      "test": "Owner Offer Time Slots",
-      "success": true,
-      "details": "Time slots offered, status: awaiting_customer_selection",
-      "timestamp": "2025-10-21T00:07:07.719148",
-      "response_data": null
-    },
-    {
-      "test": "Customer Confirm Time Slot",
-      "success": true,
-      "details": "Time slot confirmed, status: scheduled",
-      "timestamp": "2025-10-21T00:07:11.337646",
-      "response_data": null
-    },
-    {
-      "test": "GET /conversations (Owner)",
-      "success": true,
-      "details": "Retrieved 1 conversations",
-      "timestamp": "2025-10-21T00:07:11.349124",
-      "response_data": null
-    },
-    {
-      "test": "POST /messages (Owner Chat)",
+      "test": "Quote Workflow",
       "success": false,
-      "details": "Missing message ID",
-      "timestamp": "2025-10-21T00:07:11.406951",
-      "response_data": {
-        "id": "b4759f1e-6d4a-48d5-b742-49a336ea88d2",
-        "inspection_id": null,
-        "sender_id": "48ee93ad-d02f-42ee-b318-4c3f02e4a2f2",
-        "sender_name": "Brad Baker",
-        "sender_role": "owner",
-        "recipient_id": "48ee93ad-d02f-42ee-b318-4c3f02e4a2f2",
-        "recipient_role": "owner",
-        "message_text": "Test message from backend testing",
-        "is_read": false,
-        "created_at": "2025-10-21T00:07:11.354590",
-        "expires_at": "2025-11-20T00:07:11.354567"
-      }
+      "details": "Missing required tokens",
+      "timestamp": "2025-10-21T18:06:50.078821",
+      "response_data": null
     },
     {
-      "test": "POST /messages (Inspector Chat)",
+      "test": "Inspection Workflow",
       "success": false,
-      "details": "Missing message ID",
-      "timestamp": "2025-10-21T00:07:11.417025",
-      "response_data": {
-        "id": "4f95b171-6a3f-4c51-96ec-60e81c1ac82b",
-        "inspection_id": "53eaa9d8-1cd4-4977-bba3-e82504521240",
-        "sender_id": "de000d8a-6051-4081-b479-2c2bf8322892",
-        "sender_name": "Test Customer",
-        "sender_role": "customer",
-        "recipient_id": "48ee93ad-d02f-42ee-b318-4c3f02e4a2f2",
-        "recipient_role": "inspector",
-        "message_text": "Test inspector message from backend testing",
-        "is_read": false,
-        "created_at": "2025-10-21T00:07:11.413450",
-        "expires_at": "2025-10-25T09:00:00"
-      }
+      "details": "Missing quote ID or tokens",
+      "timestamp": "2025-10-21T18:06:50.078830",
+      "response_data": null
     },
     {
-      "test": "GET /messages/{inspection_id}",
-      "success": true,
-      "details": "Retrieved 1 messages for inspection",
-      "timestamp": "2025-10-21T00:07:11.425796",
+      "test": "Chat System",
+      "success": false,
+      "details": "Missing required tokens",
+      "timestamp": "2025-10-21T18:06:50.078840",
       "response_data": null
     },
     {
       "test": "Inspector Assignment",
-      "success": true,
-      "details": "Inspector assigned: Brad Baker",
-      "timestamp": "2025-10-21T00:07:11.443621",
+      "success": false,
+      "details": "Missing inspection ID or owner token",
+      "timestamp": "2025-10-21T18:06:50.078847",
       "response_data": null
     },
     {
       "test": "Manual Inspection Edit",
       "success": false,
-      "details": "Status: 404",
-      "timestamp": "2025-10-21T00:07:11.466305",
-      "response_data": "{\"detail\":\"Manual inspection not found\"}"
+      "details": "No existing inspections to test manual edits",
+      "timestamp": "2025-10-21T18:06:50.089761",
+      "response_data": null
     },
     {
       "test": "Invalid Token Handling",
-      "success": false,
-      "details": "Status: 500 (should be 401)",
-      "timestamp": "2025-10-21T00:07:11.474456",
-      "response_data": "Internal Server Error"
-    },
-    {
-      "test": "Missing Fields Validation",
       "success": true,
-      "details": "Missing fields correctly rejected",
-      "timestamp": "2025-10-21T00:07:11.550915",
+      "details": "Invalid token correctly rejected",
+      "timestamp": "2025-10-21T18:06:50.097223",
       "response_data": null
     },
     {
       "test": "Invalid Inspection ID (404)",
       "success": true,
       "details": "Invalid inspection ID correctly returns 404",
-      "timestamp": "2025-10-21T00:07:11.558562",
-      "response_data": null
-    },
-    {
-      "test": "Role-based Access Control (403)",
-      "success": true,
-      "details": "Customer correctly blocked from admin endpoints",
-      "timestamp": "2025-10-21T00:07:11.567547",
+      "timestamp": "2025-10-21T18:06:50.147440",
       "response_data": null
     },
     {
       "test": "Backend Health Check",
       "success": true,
       "details": "Backend is responding",
-      "timestamp": "2025-10-21T00:07:11.615151",
+      "timestamp": "2025-10-21T18:06:50.155083",
       "response_data": null
     },
     {
       "test": "Concurrent Requests",
       "success": true,
       "details": "Success rate: 100.0%",
-      "timestamp": "2025-10-21T00:07:11.810499",
+      "timestamp": "2025-10-21T18:06:50.355897",
+      "response_data": null
+    },
+    {
+      "test": "Agent Registration",
+      "success": true,
+      "details": "Test agent created and logged in",
+      "timestamp": "2025-10-21T18:06:50.642702",
+      "response_data": null
+    },
+    {
+      "test": "Agent Quote Creation",
+      "success": true,
+      "details": "Agent quote created with correct fields: 75d03b8b-1b73-4e9e-bd12-69a2a72c2550",
+      "timestamp": "2025-10-21T18:06:50.660152",
+      "response_data": null
+    },
+    {
+      "test": "Owner View Agent Quote",
+      "success": true,
+      "details": "Owner can see agent quote with is_agent_quote=True",
+      "timestamp": "2025-10-21T18:06:50.670823",
+      "response_data": null
+    },
+    {
+      "test": "Owner Set Agent Quote Price",
+      "success": true,
+      "details": "Agent quote priced at $475.00",
+      "timestamp": "2025-10-21T18:06:50.802529",
+      "response_data": null
+    },
+    {
+      "test": "Agent View Quoted Price",
+      "success": true,
+      "details": "Agent can see quoted price: $475.00",
+      "timestamp": "2025-10-21T18:06:50.853466",
+      "response_data": null
+    },
+    {
+      "test": "Agent Schedule Inspection",
+      "success": true,
+      "details": "Agent inspection scheduled: 7da8a09a-c34f-4360-8a81-6efc489ce27e",
+      "timestamp": "2025-10-21T18:06:50.870130",
+      "response_data": null
+    },
+    {
+      "test": "Owner Offer Times to Agent",
+      "success": true,
+      "details": "Time slots offered to agent",
+      "timestamp": "2025-10-21T18:06:50.882968",
+      "response_data": null
+    },
+    {
+      "test": "Agent Confirm Time Slot",
+      "success": true,
+      "details": "Agent confirmed time slot successfully",
+      "timestamp": "2025-10-21T18:06:55.847904",
+      "response_data": null
+    },
+    {
+      "test": "Agent Add Client Info",
+      "success": true,
+      "details": "Client info added: Jane Doe (jane.doe@example.com)",
+      "timestamp": "2025-10-21T18:06:55.866343",
+      "response_data": null
+    },
+    {
+      "test": "Agent Workflow Final State",
+      "success": true,
+      "details": "All fields populated, inspection scheduled",
+      "timestamp": "2025-10-21T18:06:55.879758",
       "response_data": null
     }
   ]
