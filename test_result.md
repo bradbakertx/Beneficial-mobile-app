@@ -105,17 +105,17 @@
 user_problem_statement: Redesign Agent workflow for "Request a Quote". Agents should only fill out Property Information and Additional section. Agent quotes should appear on Owner's Pending Quotes list as orange cards. After Agent accepts quote and selects time slot, a form should open to enter Client (Customer) information. When Customer logs in, Pre-Inspection Agreement should automatically open for signature.
 
 backend:
-  - task: "Agent Workflow Redesign - Quote Creation"
+  - task: "Agent Workflow Redesign - Complete"
     implemented: true
     working: "NA"
-    file: "backend/server.py, backend/models.py"
+    file: "backend/server.py, backend/models.py, frontend/app/(tabs)/index.tsx, frontend/app/quotes/pending.tsx, frontend/app/inspections/select-time.tsx, frontend/app/inspections/agent-client-info.tsx"
     stuck_count: 0
     priority: "high"
     needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "PHASE 1 & 2 COMPLETE: Removed 'Already Got a Quote?' button from Agent dashboard. Updated backend models to add is_agent_quote, agent_name, agent_email, agent_phone fields to QuoteInDB model. Modified POST /quotes endpoint to allow agents to create quotes and automatically mark them with is_agent_quote=true. Agent quotes are created with empty customer fields (to be filled later when agent provides client info). Push notifications differentiate between agent and customer quotes."
+        comment: "ALL PHASES COMPLETE: PHASE 1 - Removed 'Already Got a Quote?' button from Agent dashboard. PHASE 2 - Updated QuoteInDB model with is_agent_quote, agent_name, agent_email, agent_phone fields. Modified POST /quotes to allow agents, marking agent quotes with is_agent_quote=true. Updated GET /quotes to allow agents to view their quotes. PHASE 3 - Updated pending quotes screen to display agent quotes with orange background, border, briefcase icon, and AGENT badge. PHASE 4 - Created PATCH /inspections/{id}/client-info endpoint for agents to add client info. Updated POST /inspections/schedule to allow agents. Created agent-client-info.tsx screen for entering client details. Modified select-time.tsx to navigate agents to client info form after time confirmation. Agents now enter client name, email, phone and an invitation email is sent to client to login/register. PHASE 5 - Existing functionality: When customer with matching email logs in and navigates to Active Inspections, agreement auto-opens (already implemented). Backend and frontend restarted successfully."
 
   - task: "Backend API Integration"
     implemented: true
