@@ -105,6 +105,18 @@
 user_problem_statement: Redesign Agent workflow for "Request a Quote". Agents should only fill out Property Information and Additional section. Agent quotes should appear on Owner's Pending Quotes list as orange cards. After Agent accepts quote and selects time slot, a form should open to enter Client (Customer) information. When Customer logs in, Pre-Inspection Agreement should automatically open for signature.
 
 backend:
+  - task: "Agent Workflow Redesign - Quote Creation"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, backend/models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "PHASE 1 & 2 COMPLETE: Removed 'Already Got a Quote?' button from Agent dashboard. Updated backend models to add is_agent_quote, agent_name, agent_email, agent_phone fields to QuoteInDB model. Modified POST /quotes endpoint to allow agents to create quotes and automatically mark them with is_agent_quote=true. Agent quotes are created with empty customer fields (to be filled later when agent provides client info). Push notifications differentiate between agent and customer quotes."
+
   - task: "Backend API Integration"
     implemented: true
     working: true
