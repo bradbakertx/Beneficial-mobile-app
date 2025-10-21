@@ -659,6 +659,323 @@ class BackendTester:
             except Exception as e:
                 self.log_result("Concurrent Requests", False, f"Exception: {str(e)}")
 
+    def test_agent_workflow_redesign(self):
+        """Test Agent Workflow Redesign - Complete End-to-End Flow"""
+        print("=== Testing Agent Workflow Redesign ===")
+        
+        # Test Agent Credentials
+        TEST_AGENT_EMAIL = "test.agent@example.com"
+        TEST_AGENT_PASSWORD = "TestAgent123!"
+        
+        agent_token = None
+        agent_quote_id = None
+        agent_inspection_id = None
+        
+        # Step 1: Agent login or create test agent
+        try:
+            # Try login first
+            response = self.make_request('POST', '/auth/login', json={
+                "email": TEST_AGENT_EMAIL,
+                "password": TEST_AGENT_PASSWORD
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                agent_token = data.get('session_token')
+                user = data.get('user', {})
+                if user.get('role') == 'agent':
+                    self.log_result("Agent Login", True, f"Agent logged in: {user.get('name')}")
+                else:
+                    self.log_result("Agent Login", False, f"User role is {user.get('role')}, not agent")
+            else:
+                # Try to create agent if login failed
+                response = self.make_request('POST', '/auth/register', json={
+                    "email": TEST_AGENT_EMAIL,
+                    "password": TEST_AGENT_PASSWORD,
+                    "name": "Test Agent",
+                    "role": "agent",
+                    "phone": "555-0123",
+                    "terms_accepted": True,
+                    "privacy_policy_accepted": True,
+                    "marketing_consent": False
+                })
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    agent_token = data.get('session_token')
+                    self.log_result("Agent Registration", True, f"Test agent created and logged in")
+                else:
+                    self.log_result("Agent Authentication", False, f"Failed to login or create agent: {response.status_code}")
+        except Exception as e:
+            self.log_result("Agent Authentication", False, f"Exception: {str(e)}")
+        
+        if not agent_token:
+            self.log_result("Agent Workflow", False, "Cannot proceed without agent token")
+            return
+        
+        # Step 2: Agent creates quote with is_agent_quote=true
+        try:
+            quote_data = {
+                "property_address": "789 Agent Test Property",
+                "property_city": "Austin",
+                "property_zip": "78701",
+                "property_type": "Single Family",
+                "square_feet": 2200,
+                "year_built": 2015,
+                "foundation_type": "Slab",
+                "num_buildings": 1,
+                "num_units": 1,
+                "additional_notes": "Agent workflow redesign test - client property inspection",
+                "wdi_report": True,
+                "sprinkler_system": False,
+                "detached_building": False,
+                "detached_building_type": None,
+                "detached_building_sqft": None
+            }
+            
+            response = self.make_request('POST', '/quotes', token=agent_token, json=quote_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                agent_quote_id = data.get('id')
+                
+                # Verify agent quote fields
+                is_agent_quote = data.get('is_agent_quote')
+                agent_name = data.get('agent_name')
+                agent_email = data.get('agent_email')
+                customer_email = data.get('customer_email')
+                customer_name = data.get('customer_name')
+                
+                if (is_agent_quote == True and agent_name and agent_email == TEST_AGENT_EMAIL and 
+                    customer_email == "" and customer_name == ""):
+                    self.log_result("Agent Quote Creation", True, f"Agent quote created with correct fields: {agent_quote_id}")
+                else:
+                    self.log_result("Agent Quote Creation", False, f"Quote validation failed", {
+                        "is_agent_quote": is_agent_quote,
+                        "agent_email": agent_email,
+                        "customer_email": customer_email
+                    })
+            else:
+                self.log_result("Agent Quote Creation", False, f"Status: {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Agent Quote Creation", False, f"Exception: {str(e)}")
+        
+        # Step 3: Owner views pending quotes (should see agent quote as orange card)
+        if agent_quote_id and self.owner_token:
+            try:
+                response = self.make_request('GET', '/admin/quotes', token=self.owner_token)
+                
+                if response.status_code == 200:
+                    quotes = response.json()
+                    agent_quote = next((q for q in quotes if q.get('id') == agent_quote_id), None)
+                    
+                    if agent_quote and agent_quote.get('is_agent_quote') == True:
+                        self.log_result("Owner View Agent Quote", True, f"Owner can see agent quote with is_agent_quote=True")
+                    else:
+                        self.log_result("Owner View Agent Quote", False, f"Agent quote not found or missing is_agent_quote flag")
+                else:
+                    self.log_result("Owner View Agent Quote", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Owner View Agent Quote", False, f"Exception: {str(e)}")
+        
+        # Step 4: Owner sets quote price
+        if agent_quote_id and self.owner_token:
+            try:
+                response = self.make_request('PATCH', f'/admin/quotes/{agent_quote_id}/price', 
+                                           token=self.owner_token, 
+                                           params={'quote_amount': 475.00})
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get('quote_amount') == 475.0 and data.get('status') == 'quoted':
+                        self.log_result("Owner Set Agent Quote Price", True, f"Agent quote priced at $475.00")
+                    else:
+                        self.log_result("Owner Set Agent Quote Price", False, "Price/status validation failed", data)
+                else:
+                    self.log_result("Owner Set Agent Quote Price", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Owner Set Agent Quote Price", False, f"Exception: {str(e)}")
+        
+        # Step 5: Agent views their quotes and sees quoted price
+        if agent_quote_id and agent_token:
+            try:
+                response = self.make_request('GET', '/quotes', token=agent_token)
+                
+                if response.status_code == 200:
+                    quotes = response.json()
+                    agent_quote = next((q for q in quotes if q.get('id') == agent_quote_id), None)
+                    
+                    if agent_quote and agent_quote.get('quote_amount') == 475.0 and agent_quote.get('status') == 'quoted':
+                        self.log_result("Agent View Quoted Price", True, f"Agent can see quoted price: $475.00")
+                    else:
+                        self.log_result("Agent View Quoted Price", False, "Quote price/status not correct", agent_quote)
+                else:
+                    self.log_result("Agent View Quoted Price", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Agent View Quoted Price", False, f"Exception: {str(e)}")
+        
+        # Step 6: Agent schedules inspection from quote
+        if agent_quote_id and agent_token:
+            try:
+                from datetime import datetime, timedelta
+                option_end = (datetime.now() + timedelta(days=7)).strftime("%Y-%m-%d")
+                
+                scheduling_data = {
+                    "quote_id": agent_quote_id,
+                    "option_period_end_date": option_end,
+                    "option_period_unsure": False,
+                    "preferred_days_of_week": ["Monday", "Tuesday", "Wednesday"]
+                }
+                
+                response = self.make_request('POST', '/inspections', token=agent_token, json=scheduling_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    agent_inspection_id = data.get('id')
+                    
+                    # Verify agent inspection fields
+                    agent_name = data.get('agent_name')
+                    agent_email = data.get('agent_email')
+                    customer_id = data.get('customer_id')
+                    customer_email = data.get('customer_email')
+                    
+                    if (agent_name and agent_email == TEST_AGENT_EMAIL and 
+                        customer_id is None and customer_email == ""):
+                        self.log_result("Agent Schedule Inspection", True, f"Agent inspection scheduled: {agent_inspection_id}")
+                    else:
+                        self.log_result("Agent Schedule Inspection", False, "Inspection field validation failed", data)
+                else:
+                    self.log_result("Agent Schedule Inspection", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Agent Schedule Inspection", False, f"Exception: {str(e)}")
+        
+        # Step 7: Owner offers time slots
+        if agent_inspection_id and self.owner_token:
+            try:
+                from datetime import datetime, timedelta
+                tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+                day_after = (datetime.now() + timedelta(days=2)).strftime("%Y-%m-%d")
+                
+                time_slots_data = {
+                    "offered_time_slots": [
+                        {
+                            "date": tomorrow,
+                            "time": "09:00 AM",
+                            "inspector": "Brad Baker",
+                            "inspectorLicense": "TREC-12345",
+                            "inspectorPhone": "512-555-0100"
+                        },
+                        {
+                            "date": day_after,
+                            "time": "02:00 PM",
+                            "inspector": "Brad Baker",
+                            "inspectorLicense": "TREC-12345",
+                            "inspectorPhone": "512-555-0100"
+                        }
+                    ],
+                    "fee_amount": 475.00
+                }
+                
+                response = self.make_request('PATCH', f'/admin/inspections/{agent_inspection_id}/offer-times', 
+                                           token=self.owner_token, json=time_slots_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get('status') == 'awaiting_customer_selection':
+                        self.log_result("Owner Offer Times to Agent", True, f"Time slots offered to agent")
+                    else:
+                        self.log_result("Owner Offer Times to Agent", False, "Status not correct after offering times", data)
+                else:
+                    self.log_result("Owner Offer Times to Agent", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Owner Offer Times to Agent", False, f"Exception: {str(e)}")
+        
+        # Step 8: Agent confirms time slot
+        if agent_inspection_id and agent_token:
+            try:
+                from datetime import datetime, timedelta
+                tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+                
+                confirm_data = {
+                    "scheduled_date": tomorrow,
+                    "scheduled_time": "09:00 AM",
+                    "inspector": "Brad Baker",
+                    "inspectorLicense": "TREC-12345",
+                    "inspectorPhone": "512-555-0100"
+                }
+                
+                response = self.make_request('PATCH', f'/inspections/{agent_inspection_id}/confirm-time', 
+                                           token=agent_token, json=confirm_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get('status') == 'scheduled':
+                        self.log_result("Agent Confirm Time Slot", True, f"Agent confirmed time slot successfully")
+                    else:
+                        self.log_result("Agent Confirm Time Slot", False, "Status not scheduled after confirmation", data)
+                else:
+                    self.log_result("Agent Confirm Time Slot", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Agent Confirm Time Slot", False, f"Exception: {str(e)}")
+        
+        # Step 9: Agent adds client information
+        if agent_inspection_id and agent_token:
+            try:
+                client_data = {
+                    "client_name": "Jane Doe",
+                    "client_email": "jane.doe@example.com",
+                    "client_phone": "555-0188"
+                }
+                
+                response = self.make_request('PATCH', f'/inspections/{agent_inspection_id}/client-info', 
+                                           token=agent_token, json=client_data)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    customer_name = data.get('customer_name')
+                    customer_email = data.get('customer_email')
+                    customer_phone = data.get('customer_phone')
+                    agent_name = data.get('agent_name')
+                    
+                    if (customer_name == "Jane Doe" and customer_email == "jane.doe@example.com" and 
+                        customer_phone == "555-0188" and agent_name):
+                        self.log_result("Agent Add Client Info", True, f"Client info added: {customer_name} ({customer_email})")
+                    else:
+                        self.log_result("Agent Add Client Info", False, "Client info validation failed", data)
+                else:
+                    self.log_result("Agent Add Client Info", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Agent Add Client Info", False, f"Exception: {str(e)}")
+        
+        # Step 10: Verify final inspection state
+        if agent_inspection_id and agent_token:
+            try:
+                response = self.make_request('GET', f'/inspections/{agent_inspection_id}', token=agent_token)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    
+                    required_fields = {
+                        "agent_name": data.get("agent_name"),
+                        "agent_email": data.get("agent_email"),
+                        "customer_name": data.get("customer_name"),
+                        "customer_email": data.get("customer_email"),
+                        "scheduled_date": data.get("scheduled_date"),
+                        "scheduled_time": data.get("scheduled_time"),
+                        "status": data.get("status")
+                    }
+                    
+                    missing_fields = [field for field, value in required_fields.items() if not value]
+                    
+                    if not missing_fields and data.get("status") == "scheduled":
+                        self.log_result("Agent Workflow Final State", True, f"All fields populated, inspection scheduled")
+                    else:
+                        self.log_result("Agent Workflow Final State", False, f"Missing fields: {missing_fields}", required_fields)
+                else:
+                    self.log_result("Agent Workflow Final State", False, f"Status: {response.status_code}")
+            except Exception as e:
+                self.log_result("Agent Workflow Final State", False, f"Exception: {str(e)}")
+
     def run_comprehensive_tests(self):
         """Run all comprehensive backend tests"""
         print("🚀 Starting Comprehensive Backend Testing for Beneficial Inspections")
@@ -678,6 +995,9 @@ class BackendTester:
         self.test_manual_inspection_edits()
         self.test_edge_cases_and_errors()
         self.test_backend_stability()
+        
+        # NEW: Test Agent Workflow Redesign
+        self.test_agent_workflow_redesign()
         
         # Generate summary
         end_time = time.time()
