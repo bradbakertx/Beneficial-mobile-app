@@ -234,6 +234,8 @@ class InspectionInDB(InspectionBase):
     detached_building: Optional[bool] = None
     detached_building_type: Optional[str] = None
     detached_building_sqft: Optional[str] = None
+    # Additional email recipients for report delivery
+    additional_report_emails: Optional[str] = None  # Comma-separated email addresses
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
