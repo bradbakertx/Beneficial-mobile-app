@@ -336,11 +336,12 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Phase 4: Customer Time Slot Confirmation"
+    - "Agent Workflow Redesign - Complete"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
   critical_blocker: "None"
+  notes: "Test agent workflow: Agent creates quote → Owner sets price → Agent schedules inspection → Agent confirms time → Agent enters client info → Verify invitation email sent → Verify inspection created with agent and client info"
 
 backend:
   - task: "Inspector Selection Feature"
