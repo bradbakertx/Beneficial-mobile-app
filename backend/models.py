@@ -128,6 +128,11 @@ class QuoteInDB(QuoteBase):
     customer_phone: Optional[str] = None
     status: QuoteStatus = QuoteStatus.pending
     quote_amount: Optional[float] = None
+    # Agent indicator - True if quote was created by an agent
+    is_agent_quote: bool = False
+    agent_name: Optional[str] = None
+    agent_email: Optional[str] = None
+    agent_phone: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
