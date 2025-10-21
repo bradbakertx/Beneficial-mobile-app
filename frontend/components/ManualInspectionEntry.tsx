@@ -379,8 +379,86 @@ export default function ManualInspectionEntry() {
           </>
         )}
 
+        {/* Additional Section */}
+        <Text style={styles.sectionTitle}>Additional</Text>
+        <Text style={styles.additionalSubtext}>
+          Termite inspections (WDI reports) include only that service to accompany your home inspection, and do not include treatments or re-inspections.
+        </Text>
+
+        <TouchableOpacity 
+          style={styles.checkboxRow}
+          onPress={() => setWdiReport(!wdiReport)}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.checkbox, wdiReport && styles.checkboxChecked]}>
+            {wdiReport && <Ionicons name="checkmark" size={16} color="#fff" />}
+          </View>
+          <Text style={styles.checkboxLabel}>WDI Report</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.checkboxRow}
+          onPress={() => setSprinklerSystem(!sprinklerSystem)}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.checkbox, sprinklerSystem && styles.checkboxChecked]}>
+            {sprinklerSystem && <Ionicons name="checkmark" size={16} color="#fff" />}
+          </View>
+          <Text style={styles.checkboxLabel}>Sprinkler System</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={styles.checkboxRow}
+          onPress={() => setDetachedBuilding(!detachedBuilding)}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.checkbox, detachedBuilding && styles.checkboxChecked]}>
+            {detachedBuilding && <Ionicons name="checkmark" size={16} color="#fff" />}
+          </View>
+          <Text style={styles.checkboxLabel}>Detached Building</Text>
+        </TouchableOpacity>
+
+        {detachedBuilding && (
+          <>
+            <Text style={styles.label}>Detached Building Type</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Garage, Workshop, etc."
+              value={detachedBuildingType}
+              onChangeText={setDetachedBuildingType}
+            />
+
+            <Text style={styles.label}>Detached Building Sq Ft</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="500"
+              value={detachedBuildingSqFt}
+              onChangeText={setDetachedBuildingSqFt}
+              keyboardType="numeric"
+            />
+          </>
+        )}
+
         {/* Inspection Details */}
         <Text style={styles.sectionTitle}>Inspection Details</Text>
+        
+        <Text style={styles.label}>Inspector *</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={selectedInspector}
+            onValueChange={(value) => setSelectedInspector(value)}
+            style={styles.picker}
+          >
+            <Picker.Item label="Please Choose" value={-1} />
+            {inspectors.map((inspector, idx) => (
+              <Picker.Item 
+                key={idx} 
+                label={`${inspector.name}${inspector.license_number ? ' - ' + inspector.license_number : ''}`} 
+                value={idx} 
+              />
+            ))}
+          </Picker>
+        </View>
         
         <Text style={styles.label}>Fee Amount *</Text>
         <TextInput
