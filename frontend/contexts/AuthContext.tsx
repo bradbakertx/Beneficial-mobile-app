@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import authService, { User } from '../services/auth.service';
 import { useAuthStore } from '../store/authStore';
 import { registerForPushNotificationsAsync, setupNotificationListeners } from '../services/notifications.service';
+import ConsentModal from '../components/ConsentModal';
 
 interface AuthContextType {
   user: User | null;
@@ -17,6 +18,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isLoading, isAuthenticated, setUser, setLoading, logout: storeLogout } = useAuthStore();
+  const [showConsentModal, setShowConsentModal] = useState(false);
 
   useEffect(() => {
     checkAuth();
