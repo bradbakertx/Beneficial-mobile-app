@@ -12,7 +12,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, Optional
 
 # Configuration
-BASE_URL = "https://beneficial-mobile.preview.emergentagent.com/api"
+BASE_URL = "https://inspect-flow-3.preview.emergentagent.com/api"
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
 
