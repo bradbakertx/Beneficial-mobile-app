@@ -50,11 +50,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (email: string, password: string, stayLoggedIn: boolean = true) => {
     try {
       const { user } = await authService.login({ email, password }, stayLoggedIn);
+      console.log('Login successful, user data:', JSON.stringify(user, null, 2));
+      console.log('User needs_consent:', user.needs_consent);
+      
       setUser(user);
       
       // Check if user needs to accept terms/privacy
       if (user.needs_consent) {
+        console.log('Setting showConsentModal to true');
         setShowConsentModal(true);
+      } else {
+        console.log('User does not need consent, skipping modal');
       }
       
       // Register for push notifications after successful login
