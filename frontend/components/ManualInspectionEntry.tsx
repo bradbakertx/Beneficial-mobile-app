@@ -144,6 +144,8 @@ export default function ManualInspectionEntry() {
 
     setLoading(true);
     try {
+      const selectedInspectorData = inspectors[selectedInspector];
+      
       const payload = {
         client_name: clientName.trim(),
         customer_phone: clientPhone.trim(),
@@ -160,6 +162,14 @@ export default function ManualInspectionEntry() {
         property_type: propertyType,
         num_buildings: isMultiFamilyOrCommercial() && numBuildings ? parseInt(numBuildings) : null,
         num_units: isMultiFamilyOrCommercial() && numUnits ? parseInt(numUnits) : null,
+        wdi_report: wdiReport,
+        sprinkler_system: sprinklerSystem,
+        detached_building: detachedBuilding,
+        detached_building_type: detachedBuilding ? detachedBuildingType.trim() : null,
+        detached_building_sqft: detachedBuilding && detachedBuildingSqFt ? detachedBuildingSqFt.trim() : null,
+        inspector_name: selectedInspectorData.name,
+        inspector_email: selectedInspectorData.email,
+        inspector_license: selectedInspectorData.license_number || '',
         fee_amount: parseFloat(feeAmount),
         inspection_date: inspectionDate.trim(),
         inspection_time: inspectionTime.trim(),
