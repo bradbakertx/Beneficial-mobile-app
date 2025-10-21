@@ -394,7 +394,37 @@ frontend:
         agent: "main"
         comment: "IMPLEMENTED: Custom chat header with profile bubbles for all owner chats (Customer/Agent chatting with Brad Baker). Header displays at the top of the chat window with: 1) User's profile bubble (with profile picture if available, or initials), 2) Brad Baker's profile bubble (BB with green background), 3) Back arrow on the left, 4) Bubbles centered with proper spacing and shadows. Logic: Header appears when !inspectionId (all owner chats don't have inspectionId, only customerId). Works for both Customer→Owner and Agent→Owner scenarios. Replaces 'Message Owner' text with visual profile representation. Frontend needs testing to verify UI appearance and profile picture loading."
 
+backend:
+  - task: "Inspector Calendar View Time Range"
+    implemented: true
+    working: true
+    file: "frontend/components/InspectorCalendarView.tsx"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Updated Inspector Calendar View to display times from 8:00 AM through 4:00 PM (hourly labels on left side). Inspection blocks span their actual duration: 8-10 AM (2 hours), 11 AM-1 PM (2 hours), 2-4 PM (2 hours)."
+      - working: true
+        agent: "main"
+        comment: "Corrected middle time slot from 11-2 to 11-1 as per user correction. Calendar now shows proper time blocks."
+
+  - task: "Dynamic Inspector Selection in Offer Times"
+    implemented: true
+    working: "NA"
+    file: "backend/server.py, frontend/app/inspections/offer-times.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "IMPLEMENTED: Removed hardcoded inspector list from frontend. Backend - Enhanced GET /api/users/inspectors endpoint to return license_number and phone fields. Frontend - Added dynamic fetchInspectors() function to fetch all registered inspectors from database, displays inspector name and license number in dropdown, handles optional fields gracefully. Now any new inspector registered will appear in the options automatically."
+
 agent_communication:
+  - agent: "main"
+    message: "COMPREHENSIVE PRE-DEPLOYMENT TESTING REQUEST: User has requested thorough testing of entire application before deployment to catch any problems or problematic sequences. Updated test_result.md with latest implementations: 1) Inspector Calendar View time range corrections (8 AM - 4 PM with proper time blocks), 2) Dynamic Inspector Selection in Offer Times screen (fetches inspectors from database instead of hardcoded list). Backend stopped earlier due to unknown issue (users couldn't login) - restarted successfully. Request comprehensive backend testing of all critical paths including: authentication, inspector selection/assignment, calendar features, chat system, inspection workflows, quote workflows, and especially any edge cases or error conditions. Priority is HIGH - this is pre-deployment verification."
   - agent: "main"
     message: "OWNER CHAT CUSTOM HEADER COMPLETE: Implemented custom chat header with profile bubbles for all owner chats. When Customer or Agent clicks 'Chat with Brad Baker', the chat window now displays a centered bar at the top with both user's profile bubble and owner's profile bubble (BB). Header automatically appears for all owner chats (identified by !inspectionId condition). Profile pictures load from user.profile_picture if available, otherwise shows user initials. Styling includes proper shadows, centered alignment, and 56px bubble size. Backend restarted. Frontend needs visual testing to confirm UI appearance."
   - agent: "main"
