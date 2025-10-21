@@ -580,6 +580,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     borderWidth: 1,
     borderColor: '#E5E5EA',
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
