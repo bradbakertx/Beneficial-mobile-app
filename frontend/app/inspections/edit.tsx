@@ -50,6 +50,7 @@ export default function EditInspectionScreen() {
   const [inspectionTime, setInspectionTime] = useState('');
   const [inspectors, setInspectors] = useState<Array<{id: string, name: string, email: string}>>([]);
   const [selectedInspectorId, setSelectedInspectorId] = useState('');
+  const [additionalReportEmails, setAdditionalReportEmails] = useState('');
 
   useEffect(() => {
     fetchInspectionData();
