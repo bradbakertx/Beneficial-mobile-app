@@ -174,6 +174,7 @@ export default function EditInspectionScreen() {
         fee_amount: feeAmount.trim() ? parseFloat(feeAmount) : null,
         inspection_date: inspectionDate.trim() || null,
         inspection_time: inspectionTime.trim() || null,
+        additional_report_emails: additionalReportEmails.trim() || null,
       };
 
       // Add inspector data for regular inspections
