@@ -117,6 +117,7 @@ export default function ManualInspectionEntry() {
     if (!propertyAddress.trim()) return 'Property address is required';
     if (!propertyCity.trim()) return 'City is required';
     if (!propertyZip.trim()) return 'Zip code is required';
+    if (selectedInspector === -1) return 'Please select an inspector';
     if (!feeAmount.trim()) return 'Fee amount is required';
     if (!inspectionDate.trim()) return 'Inspection date is required';
     if (!inspectionTime.trim()) return 'Inspection time is required';
@@ -124,6 +125,11 @@ export default function ManualInspectionEntry() {
     if (isMultiFamilyOrCommercial()) {
       if (!numBuildings.trim()) return 'Number of buildings is required';
       if (!numUnits.trim()) return 'Number of units is required';
+    }
+    
+    if (detachedBuilding) {
+      if (!detachedBuildingType.trim()) return 'Detached building type is required';
+      if (!detachedBuildingSqFt.trim()) return 'Detached building sq ft is required';
     }
     
     return null;
