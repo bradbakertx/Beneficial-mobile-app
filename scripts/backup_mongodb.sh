@@ -11,7 +11,7 @@ set -e  # Exit on error
 # Configuration
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_DIR="/app/backups/mongodb"
-DB_NAME="test_db"
+DB_NAME="test_database"
 RETENTION_DAYS=7
 MAX_BACKUPS=10
 
