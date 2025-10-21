@@ -402,9 +402,6 @@ export default function ManualInspectionEntry() {
 
         {/* Additional Section */}
         <Text style={styles.sectionTitle}>Additional</Text>
-        <Text style={styles.additionalSubtext}>
-          Termite inspections (WDI reports) include only that service to accompany your home inspection, and do not include treatments or re-inspections.
-        </Text>
 
         <TouchableOpacity 
           style={styles.checkboxRow}
