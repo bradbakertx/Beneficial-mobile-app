@@ -39,6 +39,10 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    # Privacy & Compliance consents (required for registration)
+    terms_accepted: bool = False
+    privacy_policy_accepted: bool = False
+    marketing_consent: bool = False  # Optional
 
 
 class UserLogin(BaseModel):
