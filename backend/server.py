@@ -3878,18 +3878,33 @@ async def get_unread_count(
         ]
     }).to_list(1000)
     
+    logging.info(f"User {current_user.email} ({current_user.role}): Found {len(unread_messages)} total unread messages")
+    
     # Filter out messages from deleted, finalized, or cancelled inspections
     valid_count = 0
+    filtered_out = 0
     for msg in unread_messages:
-        if msg.get("inspection_id"):
+        msg_id = msg.get("id", "unknown")
+        inspection_id = msg.get("inspection_id")
+        
+        if inspection_id:
             # Check if inspection still exists AND is not finalized/cancelled
-            inspection = await db.inspections.find_one({"id": msg["inspection_id"]})
-            if inspection and inspection.get("status") not in [InspectionStatus.finalized.value, InspectionStatus.cancelled.value]:
+            inspection = await db.inspections.find_one({"id": inspection_id})
+            if not inspection:
+                logging.info(f"  Message {msg_id}: FILTERED - inspection {inspection_id} not found")
+                filtered_out += 1
+            elif inspection.get("status") in [InspectionStatus.finalized.value, InspectionStatus.cancelled.value]:
+                logging.info(f"  Message {msg_id}: FILTERED - inspection {inspection_id} status is {inspection.get('status')}")
+                filtered_out += 1
+            else:
+                logging.info(f"  Message {msg_id}: COUNTED - inspection {inspection_id} status is {inspection.get('status')}")
                 valid_count += 1
         else:
             # Non-inspection messages (owner chats) are always valid
+            logging.info(f"  Message {msg_id}: COUNTED - owner chat (no inspection_id)")
             valid_count += 1
     
+    logging.info(f"User {current_user.email}: Returning {valid_count} valid unread messages (filtered {filtered_out})")
     return {"unread_count": valid_count}
 
 
