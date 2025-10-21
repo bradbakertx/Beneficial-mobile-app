@@ -440,6 +440,21 @@ export default function EditInspectionScreen() {
             </View>
           </View>
 
+          <Text style={styles.label}>Additional Emails for Reports</Text>
+          <TextInput
+            style={[styles.input, styles.textArea]}
+            value={additionalReportEmails}
+            onChangeText={setAdditionalReportEmails}
+            placeholder="email1@example.com, email2@example.com"
+            placeholderTextColor="#C7C7CC"
+            multiline
+            numberOfLines={2}
+            textAlignVertical="top"
+          />
+          <Text style={styles.helperText}>
+            Enter comma-separated email addresses to receive inspection reports when finalized and payment is made
+          </Text>
+
           <TouchableOpacity
             style={[styles.saveButton, saving && styles.saveButtonDisabled]}
             onPress={handleSave}
