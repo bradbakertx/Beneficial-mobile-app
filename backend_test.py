@@ -20,32 +20,44 @@ class BackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.owner_token = None
-        self.test_customers = []
-        self.test_messages = []
+        self.customer_token = None
+        self.inspector_token = None
+        self.test_results = []
         
-    def log(self, message):
-        """Log test messages with timestamp"""
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}] {message}")
+    def log_result(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
+        """Log test result"""
+        result = {
+            "test": test_name,
+            "success": success,
+            "details": details,
+            "timestamp": datetime.now().isoformat(),
+            "response_data": response_data
+        }
+        self.test_results.append(result)
+        status = "✅ PASS" if success else "❌ FAIL"
+        print(f"{status}: {test_name}")
+        if details:
+            print(f"   Details: {details}")
+        if not success and response_data:
+            print(f"   Response: {response_data}")
+        print()
+
+    def make_request(self, method: str, endpoint: str, token: str = None, **kwargs) -> requests.Response:
+        """Make HTTP request with optional authentication"""
+        url = f"{BASE_URL}{endpoint}"
+        headers = kwargs.get('headers', {})
         
-    def login_owner(self):
-        """Login as owner and get JWT token"""
-        self.log("🔐 Logging in as owner...")
+        if token:
+            headers['Authorization'] = f'Bearer {token}'
         
-        response = self.session.post(f"{BACKEND_URL}/auth/login", json={
-            "email": OWNER_EMAIL,
-            "password": OWNER_PASSWORD
-        })
+        kwargs['headers'] = headers
         
-        if response.status_code != 200:
-            raise Exception(f"Owner login failed: {response.status_code} - {response.text}")
-            
-        data = response.json()
-        self.owner_token = data["session_token"]
-        self.session.headers.update({"Authorization": f"Bearer {self.owner_token}"})
-        
-        self.log(f"✅ Owner login successful. User: {data['user']['name']} ({data['user']['role']})")
-        return data["user"]
+        try:
+            response = self.session.request(method, url, **kwargs)
+            return response
+        except Exception as e:
+            print(f"Request failed: {method} {url} - {str(e)}")
+            raise
         
     def create_test_customer(self, name, email):
         """Create a test customer account"""
