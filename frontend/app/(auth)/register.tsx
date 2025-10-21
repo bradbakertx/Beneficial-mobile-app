@@ -25,6 +25,9 @@ export default function RegisterScreen() {
     password: '',
     confirmPassword: '',
     role: 'customer' as 'customer' | 'agent',
+    termsAccepted: false,
+    privacyPolicyAccepted: false,
+    marketingConsent: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -47,6 +50,12 @@ export default function RegisterScreen() {
       return;
     }
 
+    // Validate consent requirements
+    if (!formData.termsAccepted || !formData.privacyPolicyAccepted) {
+      Alert.alert('Consent Required', 'You must accept the Terms of Service and Privacy Policy to register');
+      return;
+    }
+
     setLoading(true);
     try {
       await register({
@@ -55,6 +64,9 @@ export default function RegisterScreen() {
         phone: formData.phone,
         password: formData.password,
         role: formData.role,
+        terms_accepted: formData.termsAccepted,
+        privacy_policy_accepted: formData.privacyPolicyAccepted,
+        marketing_consent: formData.marketingConsent,
       });
       router.replace('/(tabs)');
     } catch (error: any) {
