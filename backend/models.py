@@ -76,6 +76,10 @@ class UserInDB(UserBase):
 class UserResponse(UserBase):
     id: str
     created_at: datetime
+    # Privacy & Compliance status (for frontend to check)
+    terms_accepted: bool = False
+    privacy_policy_accepted: bool = False
+    needs_consent: bool = False  # Helper field to indicate if user needs to accept terms
 
 
 class TokenResponse(BaseModel):
