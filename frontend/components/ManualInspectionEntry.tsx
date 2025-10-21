@@ -490,12 +490,31 @@ export default function ManualInspectionEntry() {
         <View style={styles.row}>
           <View style={styles.halfWidth}>
             <Text style={styles.label}>Inspection Date *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder=""
-              value={inspectionDate}
-              onChangeText={setInspectionDate}
-            />
+            <TouchableOpacity 
+              style={styles.datePickerButton}
+              onPress={() => setShowDatePicker(true)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="calendar-outline" size={24} color="#007AFF" />
+              <Text style={styles.dateText}>
+                {inspectionDate || 'Select Date'}
+              </Text>
+            </TouchableOpacity>
+
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={(event, date) => {
+                  setShowDatePicker(Platform.OS === 'ios' ? showDatePicker : false);
+                  if (date) {
+                    setSelectedDate(date);
+                    setInspectionDate(format(date, 'yyyy-MM-dd'));
+                  }
+                }}
+              />
+            )}
           </View>
 
           <View style={styles.halfWidth}>
