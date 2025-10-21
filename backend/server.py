@@ -730,19 +730,22 @@ async def create_quote(
     quote_data: QuoteCreate,
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Create a new quote request (Customer only)"""
+    """Create a new quote request (Customer or Agent)"""
     from push_notification_service import send_push_notification
     
-    if current_user.role != UserRole.customer:
-        raise HTTPException(status_code=403, detail="Only customers can request quotes")
+    if current_user.role not in [UserRole.customer, UserRole.agent]:
+        raise HTTPException(status_code=403, detail="Only customers and agents can request quotes")
+    
+    # Determine if this is an agent quote
+    is_agent_quote = current_user.role == UserRole.agent
     
     quote_id = str(uuid.uuid4())
     quote = QuoteInDB(
         id=quote_id,
-        customer_id=current_user.id,
-        customer_email=current_user.email,
-        customer_name=current_user.name,
-        customer_phone=current_user.phone,
+        customer_id=current_user.id,  # Will be updated when client info is added for agent quotes
+        customer_email=current_user.email if not is_agent_quote else "",  # Empty for agent quotes until client info is added
+        customer_name=current_user.name if not is_agent_quote else "",  # Empty for agent quotes until client info is added
+        customer_phone=current_user.phone if not is_agent_quote else None,
         property_address=quote_data.property_address,
         property_city=quote_data.property_city,
         property_zip=quote_data.property_zip,
@@ -759,6 +762,10 @@ async def create_quote(
         detached_building=quote_data.detached_building,
         detached_building_type=quote_data.detached_building_type,
         detached_building_sqft=quote_data.detached_building_sqft,
+        is_agent_quote=is_agent_quote,
+        agent_name=current_user.name if is_agent_quote else None,
+        agent_email=current_user.email if is_agent_quote else None,
+        agent_phone=current_user.phone if is_agent_quote else None,
         status=QuoteStatus.pending,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
@@ -770,11 +777,13 @@ async def create_quote(
     owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
     for owner in owners:
         if owner.get("push_token"):
+            notification_title = "New Agent Quote Request" if is_agent_quote else "New Quote Request"
+            notification_body = f"New quote request from Agent {current_user.name} for {quote_data.property_address}" if is_agent_quote else f"New quote request from {current_user.name} for {quote_data.property_address}"
             send_push_notification(
                 push_token=owner["push_token"],
-                title="New Quote Request",
-                body=f"New quote request from {current_user.name} for {quote_data.property_address}",
-                data={"type": "new_quote", "quote_id": quote_id}
+                title=notification_title,
+                body=notification_body,
+                data={"type": "new_quote", "quote_id": quote_id, "is_agent_quote": str(is_agent_quote)}
             )
     
     return QuoteResponse(**quote.dict())
