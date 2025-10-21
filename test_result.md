@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: Build React Native mobile app for home inspection business with push notifications, quotes, inspections, payments, reports, and real-time chat. Backend API already deployed at https://inspect-flow-3.preview.emergentagent.com/api
+user_problem_statement: Redesign Agent workflow for "Request a Quote". Agents should only fill out Property Information and Additional section. Agent quotes should appear on Owner's Pending Quotes list as orange cards. After Agent accepts quote and selects time slot, a form should open to enter Client (Customer) information. When Customer logs in, Pre-Inspection Agreement should automatically open for signature.
 
 backend:
   - task: "Backend API Integration"
