@@ -536,6 +536,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#1C1C1E',
   },
+  textArea: {
+    minHeight: 60,
+    paddingTop: 12,
+  },
+  helperText: {
+    fontSize: 12,
+    color: '#8E8E93',
+    marginTop: 4,
+    marginBottom: 8,
+  },
   row: {
     flexDirection: 'row',
     gap: 12,
