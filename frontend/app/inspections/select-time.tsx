@@ -109,16 +109,9 @@ export default function SelectTimeSlotScreen() {
 
       // Navigate based on user role
       if (user?.role === 'agent') {
-        console.log('Agent user - navigating to dashboard');
-        router.replace('/(tabs)');
-        
-        setTimeout(() => {
-          if (Platform.OS === 'web') {
-            window.alert('Inspection scheduled successfully! The customer will be notified to sign the agreement.');
-          } else {
-            Alert.alert('Success', 'Inspection scheduled successfully! The customer will be notified to sign the agreement.');
-          }
-        }, 500);
+        console.log('Agent user - navigating to client info form');
+        // Navigate to client info form for agents to enter client details
+        router.replace(`/inspections/agent-client-info?id=${id}`);
       } else {
         console.log('Customer user - navigating to tabs (will show agreement in active inspections)');
         router.replace('/(tabs)');
