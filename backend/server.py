@@ -4255,6 +4255,37 @@ async def delete_user_account(
         
     except HTTPException:
         raise
+
+
+@api_router.post("/users/accept-terms")
+async def accept_terms_on_login(
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """
+    Accept Terms of Service and Privacy Policy after login
+    Used for users created via Owner Add menu who didn't go through registration
+    """
+    current_time = datetime.utcnow()
+    
+    # Update user with consent acceptance
+    await db.users.update_one(
+        {"id": current_user.id},
+        {"$set": {
+            "terms_accepted": True,
+            "terms_accepted_at": current_time,
+            "privacy_policy_accepted": True,
+            "privacy_policy_accepted_at": current_time,
+            "data_processing_consent": True
+        }}
+    )
+    
+    logging.info(f"User {current_user.id} accepted terms and privacy policy on login")
+    
+    return {
+        "success": True,
+        "message": "Terms and Privacy Policy accepted successfully"
+    }
+
     except Exception as e:
         logging.error(f"Error deleting user account: {e}")
         raise HTTPException(status_code=500, detail="Failed to delete account")
