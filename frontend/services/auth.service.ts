@@ -19,8 +19,11 @@ export interface User {
   email: string;
   name: string;
   phone?: string;
-  role: 'customer' | 'agent' | 'owner';
+  role: 'customer' | 'agent' | 'owner' | 'inspector';
   profile_picture?: string;
+  needs_consent?: boolean;
+  terms_accepted?: boolean;
+  privacy_policy_accepted?: boolean;
 }
 
 class AuthService {
