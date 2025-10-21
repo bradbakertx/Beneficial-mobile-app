@@ -25,6 +25,8 @@ const PROPERTY_TYPES = [
 export default function ManualInspectionEntry() {
   const [expanded, setExpanded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [inspectors, setInspectors] = useState<any[]>([]);
+  const [loadingInspectors, setLoadingInspectors] = useState(false);
   
   // Client Information
   const [clientName, setClientName] = useState('');
@@ -47,10 +49,35 @@ export default function ManualInspectionEntry() {
   const [numBuildings, setNumBuildings] = useState('');
   const [numUnits, setNumUnits] = useState('');
   
+  // Additional Section
+  const [wdiReport, setWdiReport] = useState(true); // Pre-checked
+  const [sprinklerSystem, setSprinklerSystem] = useState(false);
+  const [detachedBuilding, setDetachedBuilding] = useState(false);
+  const [detachedBuildingType, setDetachedBuildingType] = useState('');
+  const [detachedBuildingSqFt, setDetachedBuildingSqFt] = useState('');
+  
   // Inspection Details
+  const [selectedInspector, setSelectedInspector] = useState(-1);
   const [feeAmount, setFeeAmount] = useState('');
   const [inspectionDate, setInspectionDate] = useState('');
   const [inspectionTime, setInspectionTime] = useState('');
+
+  // Fetch inspectors when component mounts
+  React.useEffect(() => {
+    fetchInspectors();
+  }, []);
+
+  const fetchInspectors = async () => {
+    try {
+      setLoadingInspectors(true);
+      const response = await api.get('/users/inspectors');
+      setInspectors(response.data.inspectors || []);
+    } catch (error) {
+      console.error('Error fetching inspectors:', error);
+    } finally {
+      setLoadingInspectors(false);
+    }
+  };
 
   const isMultiFamilyOrCommercial = () => {
     return propertyType.includes('Multi-family') || propertyType.includes('Commercial');
