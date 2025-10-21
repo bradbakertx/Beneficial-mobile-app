@@ -962,8 +962,14 @@ async def schedule_inspection(
     if current_user.role not in [UserRole.customer, UserRole.agent]:
         raise HTTPException(status_code=403, detail="Only customers and agents can schedule inspections")
     
-    # Verify quote exists and belongs to customer
-    quote = await db.quotes.find_one({"id": scheduling_data.quote_id, "customer_id": current_user.id})
+    # Verify quote exists and belongs to customer or agent
+    if current_user.role == UserRole.agent:
+        # For agents, find quote by agent_email
+        quote = await db.quotes.find_one({"id": scheduling_data.quote_id, "agent_email": current_user.email})
+    else:
+        # For customers, find quote by customer_id
+        quote = await db.quotes.find_one({"id": scheduling_data.quote_id, "customer_id": current_user.id})
+    
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found or not authorized")
     
