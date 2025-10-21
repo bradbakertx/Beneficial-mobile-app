@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
-Backend Test Suite for Owner Chat Grouping Fix
-Tests the critical bug fix where all owner chat messages from different customers/agents 
-were appearing in one undifferentiated feed.
+Comprehensive Backend Testing for Beneficial Inspections Application
+Pre-deployment testing to catch any problems or problematic sequences
 """
 
 import requests
 import json
-import uuid
-from datetime import datetime
 import time
+import uuid
+from datetime import datetime, timedelta
+from typing import Dict, Any, Optional
 
 # Configuration
-BACKEND_URL = "https://beneficial-mobile.preview.emergentagent.com/api"
-
-# Test credentials
+BASE_URL = "https://beneficial-mobile.preview.emergentagent.com/api"
 OWNER_EMAIL = "bradbakertx@gmail.com"
 OWNER_PASSWORD = "Beneficial1!"
 
