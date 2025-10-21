@@ -156,11 +156,14 @@ export default function ChatScreen() {
 
   const fetchOwnerProfile = async () => {
     try {
+      console.log('Fetching owner profile for chat display...');
       // Fetch owner profile (accessible to all authenticated users)
       const response = await api.get('/users/owner');
+      console.log('Owner profile fetched successfully:', response.data);
       setOwnerProfile(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching owner profile:', error);
+      console.error('Error details:', error.response?.data);
     }
   };
 
