@@ -59,6 +59,14 @@ class UserInDB(UserBase):
     google_calendar_credentials: Optional[dict] = None
     notification_preferences: Optional[dict] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
+    # Privacy & Compliance fields
+    terms_accepted: bool = False
+    terms_accepted_at: Optional[datetime] = None
+    privacy_policy_accepted: bool = False
+    privacy_policy_accepted_at: Optional[datetime] = None
+    marketing_consent: bool = False
+    data_processing_consent: bool = False  # GDPR compliance
+    ip_address_at_registration: Optional[str] = None  # For audit trail
 
 
 class UserResponse(UserBase):
