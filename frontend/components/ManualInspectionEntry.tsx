@@ -602,7 +602,7 @@ const styles = StyleSheet.create({
     color: '#1C1C1E',
   },
   formScroll: {
-    maxHeight: 600,
+    flex: 1,
   },
   sectionTitle: {
     fontSize: 16,
