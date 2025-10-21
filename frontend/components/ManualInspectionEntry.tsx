@@ -64,6 +64,8 @@ export default function ManualInspectionEntry() {
   const [feeAmount, setFeeAmount] = useState('');
   const [inspectionDate, setInspectionDate] = useState('');
   const [inspectionTime, setInspectionTime] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   // Fetch inspectors when component mounts
   React.useEffect(() => {
