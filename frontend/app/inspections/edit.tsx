@@ -88,6 +88,7 @@ export default function EditInspectionScreen() {
         setFeeAmount(data.fee_amount?.toString() || '');
         setInspectionDate(data.inspection_date || '');
         setInspectionTime(data.inspection_time || '');
+        setAdditionalReportEmails(data.additional_report_emails || '');
       } else {
         // Regular inspection - load ALL fields from inspection data
         const response = await api.get(`/inspections/${id}`);
