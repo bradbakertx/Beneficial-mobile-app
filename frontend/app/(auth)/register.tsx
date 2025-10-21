@@ -190,6 +190,72 @@ export default function RegisterScreen() {
               />
             </View>
 
+            {/* Privacy & Compliance Consents */}
+            <View style={styles.consentContainer}>
+              <Text style={styles.consentTitle}>Privacy & Terms</Text>
+              
+              <TouchableOpacity 
+                style={styles.checkboxRow}
+                onPress={() => setFormData({ ...formData, termsAccepted: !formData.termsAccepted })}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, formData.termsAccepted && styles.checkboxChecked]}>
+                  {formData.termsAccepted && <Ionicons name="checkmark" size={16} color="#fff" />}
+                </View>
+                <View style={styles.checkboxTextContainer}>
+                  <Text style={styles.checkboxText}>
+                    I accept the{' '}
+                    <Text 
+                      style={styles.linkInline}
+                      onPress={() => router.push('/profile/terms-of-service')}
+                    >
+                      Terms of Service
+                    </Text>
+                    {' '}*
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.checkboxRow}
+                onPress={() => setFormData({ ...formData, privacyPolicyAccepted: !formData.privacyPolicyAccepted })}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, formData.privacyPolicyAccepted && styles.checkboxChecked]}>
+                  {formData.privacyPolicyAccepted && <Ionicons name="checkmark" size={16} color="#fff" />}
+                </View>
+                <View style={styles.checkboxTextContainer}>
+                  <Text style={styles.checkboxText}>
+                    I accept the{' '}
+                    <Text 
+                      style={styles.linkInline}
+                      onPress={() => router.push('/profile/privacy-policy')}
+                    >
+                      Privacy Policy
+                    </Text>
+                    {' '}*
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.checkboxRow}
+                onPress={() => setFormData({ ...formData, marketingConsent: !formData.marketingConsent })}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.checkbox, formData.marketingConsent && styles.checkboxChecked]}>
+                  {formData.marketingConsent && <Ionicons name="checkmark" size={16} color="#fff" />}
+                </View>
+                <View style={styles.checkboxTextContainer}>
+                  <Text style={styles.checkboxText}>
+                    I want to receive marketing communications (optional)
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <Text style={styles.requiredNote}>* Required fields</Text>
+            </View>
+
             <TouchableOpacity
               style={[styles.button, loading && styles.buttonDisabled]}
               onPress={handleRegister}
