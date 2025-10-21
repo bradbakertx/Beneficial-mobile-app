@@ -234,7 +234,7 @@ export default function ManualInspectionEntry() {
         <Text style={styles.label}>Name *</Text>
         <TextInput
           style={styles.input}
-          placeholder="John Doe"
+          placeholder=""
           value={clientName}
           onChangeText={setClientName}
         />
