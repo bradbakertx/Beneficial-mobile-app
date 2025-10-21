@@ -3237,6 +3237,57 @@ www.beneficialinspects.com"""
                             logging.info(f"Email with reports sent to agent {agent['email']} (payment completed)")
                         except Exception as e:
                             logging.error(f"Failed to send email to agent: {e}")
+                
+                # Email to additional recipients (if specified)
+                additional_emails = inspection.get("additional_report_emails", "")
+                if additional_emails and additional_emails.strip():
+                    # Split by comma and clean up whitespace
+                    email_list = [email.strip() for email in additional_emails.split(",") if email.strip()]
+                    
+                    for recipient_email in email_list:
+                        try:
+                            msg = MIMEMultipart()
+                            msg['From'] = gmail_user
+                            msg['To'] = recipient_email
+                            msg['Subject'] = f'{property_address} Inspection Reports'
+                            
+                            body = f"""Thank you for trusting Beneficial Inspections with your inspection.
+
+Here are your report files. Please read over them and if you have any questions or concerns, do not hesitate to contact us any time.
+
+You can reach {inspector_name} directly at {inspector_phone} voice or text.
+
+Thanks again!
+
+Brad Baker
+TREC Lic #7522
+San Antonio
+(210) 562-0673
+www.beneficialinspects.com"""
+                            
+                            msg.attach(MIMEText(body, 'plain'))
+                            
+                            # Attach all report files
+                            for report_file in report_files:
+                                try:
+                                    download_url = get_report_download_url(report_file["s3_key"], expiration=300)
+                                    response = requests.get(download_url)
+                                    if response.status_code == 200:
+                                        part = MIMEApplication(response.content, Name=report_file["filename"])
+                                        part['Content-Disposition'] = f'attachment; filename="{report_file["filename"]}"'
+                                        msg.attach(part)
+                                except Exception as e:
+                                    logging.error(f"Failed to attach report file {report_file['filename']}: {e}")
+                            
+                            # Send email
+                            server = smtplib.SMTP('smtp.gmail.com', 587)
+                            server.starttls()
+                            server.login(gmail_user, gmail_password)
+                            server.send_message(msg)
+                            server.quit()
+                            logging.info(f"Email with reports sent to additional recipient {recipient_email} (payment completed)")
+                        except Exception as e:
+                            logging.error(f"Failed to send email to additional recipient {recipient_email}: {e}")
             except Exception as e:
                 logging.error(f"Failed to send emails (non-critical): {e}")
         else:
