@@ -521,12 +521,36 @@ export default function ManualInspectionEntry() {
 
           <View style={styles.halfWidth}>
             <Text style={styles.label}>Inspection Time *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder=""
-              value={inspectionTime}
-              onChangeText={setInspectionTime}
-            />
+            <TouchableOpacity 
+              style={styles.datePickerButton}
+              onPress={() => setShowTimePicker(true)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="time-outline" size={24} color="#007AFF" />
+              <Text style={styles.dateText}>
+                {inspectionTime || 'Select Time'}
+              </Text>
+            </TouchableOpacity>
+
+            {showTimePicker && (
+              <DateTimePicker
+                value={selectedTime}
+                mode="time"
+                is24Hour={false}
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={(event, time) => {
+                  setShowTimePicker(Platform.OS === 'ios' ? showTimePicker : false);
+                  if (time) {
+                    setSelectedTime(time);
+                    // Format time as "8am", "11am", "2pm" etc.
+                    const hours = time.getHours();
+                    const period = hours >= 12 ? 'pm' : 'am';
+                    const displayHours = hours % 12 || 12;
+                    setInspectionTime(`${displayHours}${period}`);
+                  }
+                }}
+              />
+            )}
           </View>
         </View>
 
