@@ -408,4 +408,57 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: '600',
   },
+  consentContainer: {
+    marginVertical: 16,
+    padding: 16,
+    backgroundColor: '#F9F9F9',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+  },
+  consentTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 12,
+  },
+  checkboxRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 6,
+    borderWidth: 2,
+    borderColor: '#C7C7CC',
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+    marginTop: 2,
+  },
+  checkboxChecked: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  checkboxTextContainer: {
+    flex: 1,
+  },
+  checkboxText: {
+    fontSize: 14,
+    color: '#333',
+    lineHeight: 20,
+  },
+  linkInline: {
+    color: '#007AFF',
+    textDecorationLine: 'underline',
+  },
+  requiredNote: {
+    fontSize: 12,
+    color: '#8E8E93',
+    fontStyle: 'italic',
+    marginTop: 4,
+  },
 });
