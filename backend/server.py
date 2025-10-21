@@ -3709,6 +3709,12 @@ async def get_conversations(
                     # Skip conversations for deleted/canceled inspections
                     logging.info(f"Skipping conversation {conv_key} - inspection {conv_data['inspection_id']} no longer exists")
                     continue
+                
+                # Skip conversations for finalized or cancelled inspections
+                if inspection.get("status") in [InspectionStatus.finalized.value, InspectionStatus.cancelled.value]:
+                    logging.info(f"Skipping conversation {conv_key} - inspection {conv_data['inspection_id']} is {inspection.get('status')}")
+                    continue
+                    
                 if inspection:
                     inspection_details = {
                         "property_address": inspection.get("property_address"),
