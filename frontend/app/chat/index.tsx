@@ -308,6 +308,7 @@ export default function ChatScreen() {
               <Ionicons name="arrow-back" size={24} color="#007AFF" />
             </TouchableOpacity>
             <View style={styles.profileBubbles}>
+              {console.log('Rendering profile bubbles - user?.role:', user?.role, 'ownerProfile:', ownerProfile, 'otherPartyProfile:', otherPartyProfile)}
               {/* Current user's profile bubble (always shown) */}
               <View style={styles.profileBubbleContainer}>
                 {user?.profile_picture ? (
