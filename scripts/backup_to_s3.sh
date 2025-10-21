@@ -11,9 +11,9 @@ set -e
 # Configuration
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
 LOCAL_BACKUP_DIR="/app/backups/mongodb"
-DB_NAME="test_db"
+DB_NAME="test_database"
 RETENTION_DAYS=7
-S3_BUCKET="${AWS_S3_BUCKET_NAME:-beneficial-inspections-backups}"
+S3_BUCKET="${AWS_S3_BACKUP_BUCKET:-beneficial-inspections-backups}"
 S3_PREFIX="mongodb-backups"
 
 # AWS credentials should be in environment or .env
