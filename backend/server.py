@@ -1466,6 +1466,113 @@ async def update_agent_info(
     return InspectionResponse(**updated_inspection)
 
 
+@api_router.patch("/inspections/{inspection_id}/client-info", response_model=InspectionResponse)
+async def add_client_info_to_inspection(
+    inspection_id: str,
+    client_data: dict = Body(...),
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Agent adds client (customer) information to an inspection after selecting time slot"""
+    from push_notification_service import send_push_notification
+    from email_service import send_email
+    
+    # Only agents can add client info
+    if current_user.role != UserRole.agent:
+        raise HTTPException(status_code=403, detail="Only agents can add client information")
+    
+    # Get the inspection
+    inspection = await db.inspections.find_one({"id": inspection_id})
+    if not inspection:
+        raise HTTPException(status_code=404, detail="Inspection not found")
+    
+    # Verify agent is authorized (inspection must be linked to agent's quote)
+    if inspection.get("agent_email") != current_user.email:
+        raise HTTPException(status_code=403, detail="Not authorized to modify this inspection")
+    
+    # Validate required fields
+    client_name = client_data.get("client_name", "").strip()
+    client_email = client_data.get("client_email", "").strip()
+    client_phone = client_data.get("client_phone", "").strip()
+    
+    if not client_name or not client_email:
+        raise HTTPException(status_code=400, detail="client_name and client_email are required")
+    
+    # Check if customer with this email already exists
+    existing_customer = await db.users.find_one({"email": client_email})
+    customer_id = None
+    
+    if existing_customer:
+        # Customer exists, use their ID
+        customer_id = existing_customer.get("id")
+        logging.info(f"Found existing customer with email {client_email}, ID: {customer_id}")
+    else:
+        # Customer doesn't exist yet, customer_id will remain None
+        logging.info(f"No existing customer found with email {client_email}, will create placeholder")
+    
+    # Update inspection with client information
+    await db.inspections.update_one(
+        {"id": inspection_id},
+        {
+            "$set": {
+                "customer_id": customer_id,  # Will be None if customer doesn't exist yet
+                "customer_email": client_email,
+                "customer_name": client_name,
+                "customer_phone": client_phone if client_phone else None,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    # Send "Invite to Login/Register" email to client
+    try:
+        send_email(
+            to_email=client_email,
+            subject="You've been invited to Beneficial Inspections",
+            body=f"""
+            Hello {client_name},
+            
+            {current_user.name} has scheduled a property inspection on your behalf through Beneficial Inspections.
+            
+            Inspection Details:
+            - Property: {inspection.get('property_address')}
+            - Date: {inspection.get('scheduled_date')}
+            - Time: {inspection.get('scheduled_time')}
+            
+            To view your inspection details and sign the required Pre-Inspection Agreement, please:
+            
+            1. Download the Beneficial Inspections mobile app
+            2. Register with this email address: {client_email}
+            3. Log in to view your Active Inspections
+            
+            If you already have an account, simply log in to see your inspection.
+            
+            Best regards,
+            Beneficial Inspections
+            """
+        )
+        logging.info(f"Sent invitation email to client: {client_email}")
+    except Exception as e:
+        logging.error(f"Failed to send invitation email to {client_email}: {str(e)}")
+        # Don't fail the request if email fails
+    
+    # Send push notification to owners
+    owners = await db.users.find({"role": UserRole.owner.value}).to_list(100)
+    for owner in owners:
+        if owner.get("push_token"):
+            send_push_notification(
+                push_token=owner["push_token"],
+                title="Agent Added Client Info",
+                body=f"Agent {current_user.name} added client {client_name} for inspection at {inspection.get('property_address')}",
+                data={"type": "client_info_added", "inspection_id": inspection_id}
+            )
+    
+    logging.info(f"Client info added to inspection {inspection_id}: {client_name} ({client_email})")
+    
+    # Return updated inspection
+    updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    return InspectionResponse(**updated_inspection)
+
+
 @api_router.delete("/inspections/{inspection_id}")
 async def decline_inspection(
     inspection_id: str,
