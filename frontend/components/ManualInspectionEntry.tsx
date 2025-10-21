@@ -8,10 +8,13 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Picker } from '@react-native-picker/picker';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import api from '../services/api';
+import { format } from 'date-fns';
 
 const FOUNDATION_TYPES = ['Slab', 'Pier & Beam'];
 
