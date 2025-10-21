@@ -238,6 +238,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  agentQuoteCard: {
+    backgroundColor: '#FFF5E6',
+    borderWidth: 2,
+    borderColor: '#FF9500',
+  },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
