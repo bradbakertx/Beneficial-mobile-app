@@ -42,19 +42,24 @@ export default function ChatScreen() {
   const [inspectorProfile, setInspectorProfile] = useState<any>(null);
 
   useEffect(() => {
+    console.log('Chat useEffect - inspectionId:', inspectionId, 'customerId:', customerId, 'user?.role:', user?.role);
     fetchMessages();
     // Fetch profiles for owner chats
     if (!inspectionId) {
+      console.log('No inspectionId - this is an owner chat');
       if (user?.role === 'owner') {
+        console.log('User is owner - fetching other party profile');
         // Owner viewing chat - fetch the other party's profile (customer/agent)
         if (customerId) {
           fetchOtherPartyProfile(customerId);
         }
       } else {
+        console.log('User is customer/agent - fetching owner profile');
         // Customer/Agent viewing chat - fetch owner's profile
         fetchOwnerProfile();
       }
     } else {
+      console.log('Has inspectionId - this is an inspection group chat');
       // Inspection chat - fetch all participants
       fetchInspectionParticipants();
     }
