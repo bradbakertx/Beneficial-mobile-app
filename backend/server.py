@@ -3878,13 +3878,13 @@ async def get_unread_count(
         ]
     }).to_list(1000)
     
-    # Filter out messages from deleted inspections
+    # Filter out messages from deleted, finalized, or cancelled inspections
     valid_count = 0
     for msg in unread_messages:
         if msg.get("inspection_id"):
-            # Check if inspection still exists
+            # Check if inspection still exists AND is not finalized/cancelled
             inspection = await db.inspections.find_one({"id": msg["inspection_id"]})
-            if inspection:
+            if inspection and inspection.get("status") not in [InspectionStatus.finalized.value, InspectionStatus.cancelled.value]:
                 valid_count += 1
         else:
             # Non-inspection messages (owner chats) are always valid
