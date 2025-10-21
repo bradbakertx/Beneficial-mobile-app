@@ -237,21 +237,6 @@ export default function RegisterScreen() {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.checkboxRow}
-                onPress={() => setFormData({ ...formData, marketingConsent: !formData.marketingConsent })}
-                activeOpacity={0.7}
-              >
-                <View style={[styles.checkbox, formData.marketingConsent && styles.checkboxChecked]}>
-                  {formData.marketingConsent && <Ionicons name="checkmark" size={16} color="#fff" />}
-                </View>
-                <View style={styles.checkboxTextContainer}>
-                  <Text style={styles.checkboxText}>
-                    I want to receive marketing communications (optional)
-                  </Text>
-                </View>
-              </TouchableOpacity>
-
               <Text style={styles.requiredNote}>* Required fields</Text>
             </View>
 
