@@ -58,51 +58,105 @@ class BackendTester:
         except Exception as e:
             print(f"Request failed: {method} {url} - {str(e)}")
             raise
+
+    def test_authentication_system(self):
+        """Test 1: Authentication & Authorization"""
+        print("=== Testing Authentication & Authorization ===")
         
-    def create_test_customer(self, name, email):
-        """Create a test customer account"""
-        self.log(f"👤 Creating test customer: {name} ({email})")
-        
-        # Remove auth header temporarily for registration
-        auth_header = self.session.headers.pop("Authorization", None)
-        
-        response = self.session.post(f"{BACKEND_URL}/auth/register", json={
-            "name": name,
-            "email": email,
-            "password": "TestPassword123!",
-            "role": "customer"
-        })
-        
-        # Restore auth header
-        if auth_header:
-            self.session.headers["Authorization"] = auth_header
-        
-        if response.status_code != 200:
-            # Customer might already exist, try to login instead
-            self.log(f"⚠️  Registration failed, attempting login for existing customer...")
-            
-            # Remove auth header for login
-            auth_header = self.session.headers.pop("Authorization", None)
-            
-            login_response = self.session.post(f"{BACKEND_URL}/auth/login", json={
-                "email": email,
-                "password": "TestPassword123!"
+        # Test 1.1: Owner Login
+        try:
+            response = self.make_request('POST', '/auth/login', json={
+                "email": OWNER_EMAIL,
+                "password": OWNER_PASSWORD
             })
             
-            # Restore auth header
-            if auth_header:
-                self.session.headers["Authorization"] = auth_header
+            if response.status_code == 200:
+                data = response.json()
+                self.owner_token = data.get('session_token')
+                user_data = data.get('user', {})
                 
-            if login_response.status_code == 200:
-                customer_data = login_response.json()["user"]
-                self.log(f"✅ Using existing customer: {customer_data['name']} (ID: {customer_data['id']})")
-                return customer_data
+                if self.owner_token and user_data.get('role') == 'owner':
+                    self.log_result("Owner Login", True, f"Token received, role: {user_data.get('role')}")
+                else:
+                    self.log_result("Owner Login", False, "Missing token or incorrect role", data)
             else:
-                raise Exception(f"Customer creation/login failed: {response.status_code} - {response.text}")
-        
-        customer_data = response.json()["user"]
-        self.log(f"✅ Test customer created: {customer_data['name']} (ID: {customer_data['id']})")
-        return customer_data
+                self.log_result("Owner Login", False, f"Status: {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Owner Login", False, f"Exception: {str(e)}")
+
+        # Test 1.2: JWT Token Validation (/auth/me)
+        if self.owner_token:
+            try:
+                response = self.make_request('GET', '/auth/me', token=self.owner_token)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    if data.get('email') == OWNER_EMAIL and data.get('role') == 'owner':
+                        self.log_result("JWT Token Validation", True, f"User: {data.get('name')}, Role: {data.get('role')}")
+                    else:
+                        self.log_result("JWT Token Validation", False, "Incorrect user data", data)
+                else:
+                    self.log_result("JWT Token Validation", False, f"Status: {response.status_code}", response.text)
+            except Exception as e:
+                self.log_result("JWT Token Validation", False, f"Exception: {str(e)}")
+
+        # Test 1.3: Test Customer Registration
+        customer_email = f"test_customer_{int(time.time())}@example.com"
+        try:
+            response = self.make_request('POST', '/auth/register', json={
+                "email": customer_email,
+                "password": "TestPass123!",
+                "name": "Test Customer",
+                "role": "customer",
+                "phone": "555-0123"
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.customer_token = data.get('session_token')
+                self.log_result("Customer Registration", True, f"Customer registered: {customer_email}")
+            else:
+                self.log_result("Customer Registration", False, f"Status: {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Customer Registration", False, f"Exception: {str(e)}")
+
+        # Test 1.4: Test Inspector Registration
+        inspector_email = f"test_inspector_{int(time.time())}@example.com"
+        try:
+            response = self.make_request('POST', '/auth/register', json={
+                "email": inspector_email,
+                "password": "TestPass123!",
+                "name": "Test Inspector",
+                "role": "inspector",
+                "phone": "555-0456",
+                "license_number": "TX123456"
+            })
+            
+            if response.status_code == 200:
+                data = response.json()
+                self.inspector_token = data.get('session_token')
+                self.log_result("Inspector Registration", True, f"Inspector registered: {inspector_email}")
+            else:
+                self.log_result("Inspector Registration", False, f"Status: {response.status_code}", response.text)
+        except Exception as e:
+            self.log_result("Inspector Registration", False, f"Exception: {str(e)}")
+
+        # Test 1.5: Test Owner Registration Prevention
+        try:
+            response = self.make_request('POST', '/auth/register', json={
+                "email": "fake_owner@example.com",
+                "password": "TestPass123!",
+                "name": "Fake Owner",
+                "role": "owner",
+                "phone": "555-0789"
+            })
+            
+            if response.status_code == 403:
+                self.log_result("Owner Registration Prevention", True, "Owner registration correctly blocked")
+            else:
+                self.log_result("Owner Registration Prevention", False, f"Status: {response.status_code} (should be 403)", response.text)
+        except Exception as e:
+            self.log_result("Owner Registration Prevention", False, f"Exception: {str(e)}")
         
     def send_customer_message_to_owner(self, customer_email, customer_password, message_text):
         """Send a message from customer to owner (no recipient_id)"""
