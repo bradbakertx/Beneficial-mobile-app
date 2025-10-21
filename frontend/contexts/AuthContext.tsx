@@ -52,6 +52,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { user } = await authService.login({ email, password }, stayLoggedIn);
       setUser(user);
       
+      // Check if user needs to accept terms/privacy
+      if (user.needs_consent) {
+        setShowConsentModal(true);
+      }
+      
       // Register for push notifications after successful login
       // Note: Push notifications work via device tokens and persist even when logged out
       registerForPushNotificationsAsync().catch((error) => {
@@ -59,6 +64,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
+    }
+  };
+
+  const handleConsentAccepted = () => {
+    setShowConsentModal(false);
+    // Update user to reflect consent has been accepted
+    if (user) {
+      setUser({ ...user, needs_consent: false, terms_accepted: true, privacy_policy_accepted: true });
     }
   };
 
