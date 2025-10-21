@@ -4286,10 +4286,6 @@ async def accept_terms_on_login(
         "message": "Terms and Privacy Policy accepted successfully"
     }
 
-    except Exception as e:
-        logging.error(f"Error deleting user account: {e}")
-        raise HTTPException(status_code=500, detail="Failed to delete account")
-
 
 @api_router.patch("/users/consent")
 async def update_consent(
