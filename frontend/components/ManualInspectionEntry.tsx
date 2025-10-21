@@ -99,6 +99,12 @@ export default function ManualInspectionEntry() {
     setPropertyType(PROPERTY_TYPES[0]);
     setNumBuildings('');
     setNumUnits('');
+    setWdiReport(true);
+    setSprinklerSystem(false);
+    setDetachedBuilding(false);
+    setDetachedBuildingType('');
+    setDetachedBuildingSqFt('');
+    setSelectedInspector(-1);
     setFeeAmount('');
     setInspectionDate('');
     setInspectionTime('');
