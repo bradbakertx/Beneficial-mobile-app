@@ -989,13 +989,36 @@ async def schedule_inspection(
         fee_amount = float(quote["quote_amount"])
         logging.info(f"Copying fee_amount {fee_amount} from quote {scheduling_data.quote_id} to new inspection")
     
+    # Determine customer and agent fields based on who is scheduling
+    if current_user.role == UserRole.agent:
+        # Agent is scheduling - customer fields will be empty until agent adds client info
+        customer_id = None
+        customer_email = ""
+        customer_name = ""
+        customer_phone = None
+        agent_name = current_user.name
+        agent_email = current_user.email
+        agent_phone = getattr(current_user, 'phone', None)
+    else:
+        # Customer is scheduling
+        customer_id = current_user.id
+        customer_email = current_user.email
+        customer_name = current_user.name
+        customer_phone = getattr(current_user, 'phone', None)
+        agent_name = None
+        agent_email = None
+        agent_phone = None
+    
     inspection = InspectionInDB(
         id=inspection_id,
         quote_id=scheduling_data.quote_id,
-        customer_id=current_user.id,
-        customer_email=current_user.email,
-        customer_name=current_user.name,
-        customer_phone=getattr(current_user, 'phone', None),  # Safely get phone if it exists
+        customer_id=customer_id,
+        customer_email=customer_email,
+        customer_name=customer_name,
+        customer_phone=customer_phone,
+        agent_name=agent_name,
+        agent_email=agent_email,
+        agent_phone=agent_phone,
         property_address=property_address,
         square_feet=quote.get("square_feet"),
         year_built=quote.get("year_built"),
