@@ -793,11 +793,17 @@ async def create_quote(
 async def get_my_quotes(
     current_user: UserInDB = Depends(get_current_user_from_token)
 ):
-    """Get quotes for current customer"""
-    if current_user.role != UserRole.customer:
-        raise HTTPException(status_code=403, detail="Only customers can view their quotes")
+    """Get quotes for current customer or agent"""
+    if current_user.role not in [UserRole.customer, UserRole.agent]:
+        raise HTTPException(status_code=403, detail="Only customers and agents can view their quotes")
     
-    quotes = await db.quotes.find({"customer_id": current_user.id}).to_list(1000)
+    # For agents, find quotes where they are the agent
+    # For customers, find quotes where they are the customer
+    if current_user.role == UserRole.agent:
+        quotes = await db.quotes.find({"agent_email": current_user.email}).to_list(1000)
+    else:
+        quotes = await db.quotes.find({"customer_id": current_user.id}).to_list(1000)
+    
     return [QuoteResponse(**quote) for quote in quotes]
 
 
