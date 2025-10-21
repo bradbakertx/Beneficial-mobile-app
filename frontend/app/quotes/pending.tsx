@@ -268,6 +268,9 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 12,
   },
+  agentStatusBadge: {
+    backgroundColor: '#FF9500',
+  },
   statusText: {
     color: '#fff',
     fontSize: 11,
