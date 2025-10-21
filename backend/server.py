@@ -273,7 +273,10 @@ async def login(credentials: UserLogin):
         role=user.role,
         phone=user.phone,
         profile_picture=profile_picture_url,
-        created_at=user.created_at
+        created_at=user.created_at,
+        terms_accepted=user.terms_accepted,
+        privacy_policy_accepted=user.privacy_policy_accepted,
+        needs_consent=needs_consent
     )
     
     return TokenResponse(session_token=access_token, user=user_response)
