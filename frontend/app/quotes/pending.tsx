@@ -22,6 +22,10 @@ interface Quote {
   property_type: string;
   created_at: string;
   status: string;
+  is_agent_quote?: boolean;
+  agent_name?: string;
+  agent_email?: string;
+  agent_phone?: string;
 }
 
 export default function PendingQuotesScreen() {
