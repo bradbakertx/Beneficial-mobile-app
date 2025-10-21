@@ -84,6 +84,8 @@ if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ]; then
         echo "✓ S3 cleanup completed"
     else
         echo "⚠ S3 upload failed (backup saved locally)"
+        # Send failure alert
+        python3 /app/scripts/send_backup_alert.py failure "S3 upload failed for backup: $BACKUP_FILE"
     fi
 else
     echo "⚠ AWS credentials not configured - backup saved locally only"
