@@ -693,4 +693,19 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#333',
   },
+  datePickerButton: {
+    backgroundColor: '#F9F9F9',
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    borderRadius: 8,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  dateText: {
+    fontSize: 16,
+    color: '#1C1C1E',
+    flex: 1,
+  },
 });
