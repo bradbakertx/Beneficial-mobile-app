@@ -15,6 +15,11 @@ export default function ConsentModal({ visible, onAccept }: ConsentModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
+  // Debug logging
+  React.useEffect(() => {
+    console.log('ConsentModal visible prop changed:', visible);
+  }, [visible]);
+
   const handleAccept = async () => {
     if (!termsAccepted || !privacyAccepted) {
       Alert.alert('Required', 'You must accept both Terms of Service and Privacy Policy to continue');
