@@ -1,0 +1,13 @@
+=========================================
+MongoDB Backup with S3 Upload
+=========================================
+Start Time: Tue Oct 21 02:00:01 UTC 2025
+Database: test_database
+S3 Bucket: s3://beneficial-inspections-backups/mongodb-backups/
+=========================================
+Creating MongoDB backup...
+Compressing backup...
+✓ Backup created: backup_test_database_20251021_020001.tar.gz (Size: 60K)
+Uploading to S3...
+Installing AWS CLI...
+/app/scripts/backup_to_s3.sh: line 63: pip: command not found
