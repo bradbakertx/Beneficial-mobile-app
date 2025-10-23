@@ -197,7 +197,7 @@ export default function InspectionDetailScreen() {
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Inspection Details</Text>
-          <InfoRow label="Fee Amount" value={`$${manualInspection!.fee_amount.toFixed(2)}`} />
+          <InfoRow label="Inspection Fee" value={`$${manualInspection!.fee_amount.toFixed(2)}`} />
           <InfoRow label="Date" value={manualInspection!.inspection_date} />
           <InfoRow label="Time" value={manualInspection!.inspection_time} />
           <InfoRow label="Status" value={manualInspection!.status.charAt(0).toUpperCase() + manualInspection!.status.slice(1)} />
