@@ -99,6 +99,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
+    // Disconnect Socket.IO connection on logout
+    socketService.disconnect();
+    console.log('❌ Socket.IO disconnected on logout');
+    
     await authService.logout();
     storeLogout();
   };
