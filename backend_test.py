@@ -356,7 +356,7 @@ class SocketIOTester:
         return results
         
     async def test_message_events_api(self) -> bool:
-        """Test real-time message events"""
+        """Test real-time message events via API calls"""
         try:
             # Clear previous events
             self.received_events = []
