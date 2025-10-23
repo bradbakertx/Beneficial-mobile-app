@@ -366,7 +366,7 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
             
             {user?.role === 'customer' && (
               <>
-                <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/quotes/new')}>
+                <TouchableOpacity style={styles.actionCard} onPress={handleRequestQuotePress}>
                   <View style={styles.actionIcon}>
                     <Ionicons name="document-text" size={24} color="#007AFF" />
                   </View>
