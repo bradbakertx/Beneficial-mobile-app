@@ -894,9 +894,13 @@ async def register_push_token(
 @api_router.get("/admin/search-agents")
 async def search_agents(
     query: str = Query(..., min_length=1),
-    current_user: UserInDB = Depends(require_role(UserRole.owner))
+    current_user: UserInDB = Depends(get_current_user_from_token)
 ):
     """Search for registered agents by name (Owner only)"""
+    # Check if user is owner
+    if current_user.role != UserRole.owner:
+        raise HTTPException(status_code=403, detail="Only owners can search agents")
+    
     try:
         # Search agents whose name contains the query (case-insensitive)
         agents_cursor = db.users.find({
