@@ -596,4 +596,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#8E8E93',
   },
+  startHereOverlay: {
+    position: 'absolute',
+    top: 280,
+    right: 20,
+    zIndex: 1000,
+  },
+  startHereContainer: {
+    alignItems: 'center',
+  },
+  startHereText: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: '#FF3B30',
+    fontFamily: Platform.OS === 'ios' ? 'Bradley Hand' : 'cursive',
+    transform: [{ rotate: '-8deg' }],
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+    marginBottom: -8,
+  },
+  startHereArrow: {
+    fontSize: 56,
+    color: '#FF3B30',
+    fontWeight: 'bold',
+    marginTop: -10,
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
+  },
 });
