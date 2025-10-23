@@ -412,7 +412,7 @@ export default function EditInspectionScreen() {
 
           <Text style={styles.sectionTitle}>Inspection Details</Text>
           
-          <Text style={styles.label}>Fee Amount</Text>
+          <Text style={styles.label}>Inspection Fee</Text>
           <TextInput
             style={styles.input}
             value={feeAmount}
