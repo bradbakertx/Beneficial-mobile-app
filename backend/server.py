@@ -1426,6 +1426,10 @@ async def confirm_time_slot(
     
     # Return updated inspection
     updated_inspection = await db.inspections.find_one({"id": inspection_id})
+    
+    # Emit Socket.IO event for time slot confirmation
+    await emit_time_slot_confirmed(inspection_id, updated_inspection)
+    
     return InspectionResponse(**updated_inspection)
 
 
