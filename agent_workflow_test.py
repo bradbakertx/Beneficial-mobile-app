@@ -11,7 +11,7 @@ import sys
 from datetime import datetime, timedelta
 
 # Configuration
-BASE_URL = "https://inspect-flow-3.preview.emergentagent.com/api"
+BASE_URL = "https://benefi-inspect.preview.emergentagent.com/api"
 TEST_AGENT_EMAIL = "test.agent@example.com"
 TEST_AGENT_PASSWORD = "TestAgent123!"
 TEST_OWNER_EMAIL = "bradbakertx@gmail.com"

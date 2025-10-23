@@ -4200,7 +4200,7 @@ async def google_callback(code: str, state: str):
         logging.info(f"Database update result: matched={result.matched_count}, modified={result.modified_count}")
         
         # Redirect to frontend
-        return RedirectResponse(url="https://inspect-flow-3.preview.emergentagent.com/(tabs)")
+        return RedirectResponse(url="https://benefi-inspect.preview.emergentagent.com/(tabs)")
     except Exception as e:
         logging.error(f"Google callback error: {e}")
         raise HTTPException(status_code=400, detail=f"Failed to authenticate with Google: {str(e)}")
