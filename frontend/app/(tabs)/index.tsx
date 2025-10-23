@@ -235,6 +235,9 @@ export default function DashboardScreen() {
       onRefresh={onRefresh}
       getRoleTitle={getRoleTitle}
       router={router}
+      handleRequestQuotePress={handleRequestQuotePress}
+      showStartHere={showStartHere}
+      fadeAnim={fadeAnim}
     />
   );
 }
