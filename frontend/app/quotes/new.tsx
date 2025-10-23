@@ -614,6 +614,7 @@ const styles = StyleSheet.create({
   },
   picker: {
     height: 50,
+    color: '#1C1C1E',
   },
   pickerButton: {
     backgroundColor: '#fff',
