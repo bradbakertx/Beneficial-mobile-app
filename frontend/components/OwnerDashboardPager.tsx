@@ -100,7 +100,21 @@ export default function OwnerDashboardPager({ stats, onNavigate }: OwnerDashboar
   // Dashboard Page
   const renderDashboard = () => (
     <View style={styles.page}>
-      <Text style={styles.pageTitle}>Dashboard</Text>
+      {/* White Banner with Logo, Greeting, and Badge */}
+      <View style={styles.topBanner}>
+        <Image 
+          source={require('../assets/images/beneficial-logo-icon.jpg')}
+          style={styles.bannerLogo}
+          resizeMode="contain"
+        />
+        <View style={styles.bannerTextContainer}>
+          <Text style={styles.greeting}>Hello, Owner!</Text>
+          <Text style={styles.roleText}>Owner Dashboard</Text>
+        </View>
+        <View style={styles.ownerBadge}>
+          <Text style={styles.roleBadgeText}>Owner</Text>
+        </View>
+      </View>
       
       <View style={styles.statsGrid}>
         <TouchableOpacity 
