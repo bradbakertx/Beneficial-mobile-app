@@ -243,7 +243,7 @@ export default function DashboardScreen() {
 }
 
 // Extract dashboard content as separate component
-function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, router }: any) {
+function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, router, handleRequestQuotePress, showStartHere, fadeAnim }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView
