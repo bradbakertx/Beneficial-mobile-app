@@ -480,7 +480,7 @@ export default function ManualInspectionEntry() {
           </Picker>
         </View>
         
-        <Text style={styles.label}>Fee Amount *</Text>
+        <Text style={styles.label}>Inspection Fee *</Text>
         <TextInput
           style={styles.input}
           placeholder=""
