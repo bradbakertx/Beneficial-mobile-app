@@ -34,6 +34,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const currentUser = await authService.getCurrentUser();
         if (currentUser) {
           setUser(currentUser);
+          
+          // Establish Socket.IO connection for existing session
+          socketService.connect(token);
+          console.log('✅ Socket.IO connection restored for existing session');
         } else {
           setUser(null);
         }
