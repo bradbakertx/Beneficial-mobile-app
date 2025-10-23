@@ -217,11 +217,16 @@ const styles = StyleSheet.create({
   eyeIcon: {
     padding: 4,
   },
-  checkboxContainer: {
+  optionsRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 12,
     marginBottom: 4,
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   checkbox: {
     width: 24,
@@ -239,6 +244,11 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 15,
     color: '#1a1a1a',
+  },
+  forgotPasswordText: {
+    fontSize: 15,
+    color: '#007AFF',
+    fontWeight: '500',
   },
   button: {
     backgroundColor: '#007AFF',
