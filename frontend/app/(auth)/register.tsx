@@ -166,6 +166,7 @@ export default function RegisterScreen() {
                 style={styles.input}
                 value={formData.password}
                 onChangeText={(text) => setFormData({ ...formData, password: text })}
+                placeholder="Password"
                 secureTextEntry={!showPassword}
                 placeholderTextColor="#999"
               />
@@ -187,6 +188,7 @@ export default function RegisterScreen() {
                 style={styles.input}
                 value={formData.confirmPassword}
                 onChangeText={(text) => setFormData({ ...formData, confirmPassword: text })}
+                placeholder="Confirm Password"
                 secureTextEntry={!showPassword}
                 placeholderTextColor="#999"
               />
