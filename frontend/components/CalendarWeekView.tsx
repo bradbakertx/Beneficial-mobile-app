@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   calendarScroll: {
-    maxHeight: 400,
+    maxHeight: 600, // Increased from 400 to show more hours
   },
   dayHeadersRow: {
     flexDirection: 'row',
