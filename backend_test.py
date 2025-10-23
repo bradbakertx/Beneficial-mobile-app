@@ -235,7 +235,7 @@ class SocketIOTester:
                     logger.info("🧪 Testing quote price update...")
                     async with self.session.patch(
                         f"{BASE_URL}/admin/quotes/{quote_id}/price?quote_amount=500.00",
-                        headers={"Authorization": f"Bearer {self.customer_token}"}
+                        headers={"Authorization": f"Bearer {self.jwt_token}"}
                     ) as price_response:
                         if price_response.status == 200:
                             logger.info("✅ Quote price set successfully")
