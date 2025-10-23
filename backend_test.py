@@ -1,53 +1,137 @@
 #!/usr/bin/env python3
 """
-Comprehensive Backend Testing for Beneficial Inspections Application
-Pre-deployment testing to catch any problems or problematic sequences
+Comprehensive Backend Testing for Socket.IO Real-Time Updates
+Tests Socket.IO server functionality, JWT authentication, and real-time event emissions
 """
 
-import requests
+import asyncio
+import aiohttp
+import socketio
 import json
-import time
-import uuid
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
+import logging
+import sys
+from datetime import datetime
+from typing import Dict, List, Optional
 
-# Configuration
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Test Configuration
 BASE_URL = "https://benefi-inspect.preview.emergentagent.com/api"
-OWNER_EMAIL = "bradbakertx@gmail.com"
-OWNER_PASSWORD = "Beneficial1!"
+SOCKET_URL = "https://benefi-inspect.preview.emergentagent.com"
+TEST_CREDENTIALS = {
+    "email": "bradbakertx@gmail.com",
+    "password": "Beneficial1!"
+}
 
-class BackendTester:
+class SocketIOTester:
     def __init__(self):
-        self.session = requests.Session()
-        self.owner_token = None
-        self.customer_token = None
-        self.inspector_token = None
+        self.session = None
+        self.jwt_token = None
+        self.user_data = None
+        self.sio_client = None
+        self.received_events = []
         self.test_results = []
         
-    def log_result(self, test_name: str, success: bool, details: str = "", response_data: Any = None):
-        """Log test result"""
-        result = {
-            "test": test_name,
-            "success": success,
-            "details": details,
-            "timestamp": datetime.now().isoformat(),
-            "response_data": response_data
-        }
-        self.test_results.append(result)
-        status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name}")
-        if details:
-            print(f"   Details: {details}")
-        if not success and response_data:
-            print(f"   Response: {response_data}")
-        print()
-
-    def make_request(self, method: str, endpoint: str, token: str = None, **kwargs) -> requests.Response:
-        """Make HTTP request with optional authentication"""
-        url = f"{BASE_URL}{endpoint}"
-        headers = kwargs.get('headers', {})
+    async def setup_session(self):
+        """Initialize HTTP session"""
+        self.session = aiohttp.ClientSession()
         
-        if token:
+    async def cleanup(self):
+        """Cleanup resources"""
+        if self.sio_client and self.sio_client.connected:
+            await self.sio_client.disconnect()
+        if self.session:
+            await self.session.close()
+            
+    async def login(self) -> bool:
+        """Login and get JWT token"""
+        try:
+            async with self.session.post(
+                f"{BASE_URL}/auth/login",
+                json=TEST_CREDENTIALS
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    self.jwt_token = data.get("session_token")
+                    self.user_data = data.get("user")
+                    logger.info(f"✅ Login successful for {self.user_data.get('name')} ({self.user_data.get('role')})")
+                    return True
+                else:
+                    error_text = await response.text()
+                    logger.error(f"❌ Login failed: {response.status} - {error_text}")
+                    return False
+        except Exception as e:
+            logger.error(f"❌ Login error: {str(e)}")
+            return False
+            
+    async def test_socket_connection(self) -> bool:
+        """Test Socket.IO connection with JWT authentication"""
+        try:
+            # Create Socket.IO client
+            self.sio_client = socketio.AsyncClient(logger=False, engineio_logger=False)
+            
+            # Event handlers
+            @self.sio_client.event
+            async def connect():
+                logger.info("🔌 Socket.IO connected successfully")
+                
+            @self.sio_client.event
+            async def disconnect():
+                logger.info("🔌 Socket.IO disconnected")
+                
+            @self.sio_client.event
+            async def connection_established(data):
+                logger.info(f"✅ Connection established event received: {data}")
+                self.received_events.append({"event": "connection_established", "data": data})
+                
+            # Generic event handler for all real-time events
+            @self.sio_client.event
+            async def new_quote(data):
+                logger.info(f"📤 Received new_quote event: {data}")
+                self.received_events.append({"event": "new_quote", "data": data})
+                
+            @self.sio_client.event
+            async def quote_updated(data):
+                logger.info(f"📤 Received quote_updated event: {data}")
+                self.received_events.append({"event": "quote_updated", "data": data})
+                
+            @self.sio_client.event
+            async def new_inspection(data):
+                logger.info(f"📤 Received new_inspection event: {data}")
+                self.received_events.append({"event": "new_inspection", "data": data})
+                
+            @self.sio_client.event
+            async def time_slot_confirmed(data):
+                logger.info(f"📤 Received time_slot_confirmed event: {data}")
+                self.received_events.append({"event": "time_slot_confirmed", "data": data})
+                
+            @self.sio_client.event
+            async def new_message(data):
+                logger.info(f"📤 Received new_message event: {data}")
+                self.received_events.append({"event": "new_message", "data": data})
+            
+            # Connect with JWT token
+            await self.sio_client.connect(
+                SOCKET_URL,
+                auth={"token": self.jwt_token},
+                transports=['websocket', 'polling']
+            )
+            
+            # Wait for connection to establish
+            await asyncio.sleep(2)
+            
+            if self.sio_client.connected:
+                logger.info("✅ Socket.IO connection test PASSED")
+                return True
+            else:
+                logger.error("❌ Socket.IO connection test FAILED - Not connected")
+                return False
+                
+        except Exception as e:
+            logger.error(f"❌ Socket.IO connection error: {str(e)}")
+            return False
             headers['Authorization'] = f'Bearer {token}'
         
         kwargs['headers'] = headers
