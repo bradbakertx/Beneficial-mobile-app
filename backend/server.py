@@ -960,6 +960,12 @@ async def set_quote_price(
             print(f"Failed to send email to customer: {e}")
     
     updated_quote = await db.quotes.find_one({"id": quote_id})
+    
+    # Emit Socket.IO event to customer for real-time quote update
+    customer_id = quote.get("customer_id")
+    if customer_id:
+        await emit_quote_updated(quote_id, customer_id, updated_quote)
+    
     return QuoteResponse(**updated_quote)
 
 
