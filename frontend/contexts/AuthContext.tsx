@@ -69,6 +69,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       registerForPushNotificationsAsync().catch((error) => {
         console.error('Failed to register for push notifications:', error);
       });
+      
+      // Establish Socket.IO connection for real-time updates
+      const token = await authService.getToken();
+      if (token) {
+        socketService.connect(token);
+        console.log('✅ Socket.IO connection initiated on login');
+      }
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
     }
