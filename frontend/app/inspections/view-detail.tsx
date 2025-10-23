@@ -92,6 +92,15 @@ export default function InspectionDetailScreen() {
         const manualResponse = await api.get(`/admin/manual-inspection/${id}`);
         setManualInspection(manualResponse.data);
         setIsManual(true);
+        
+        // Also fetch from inspections collection to get payment status
+        try {
+          const inspectionResponse = await api.get(`/inspections/${id}`);
+          setInspection(inspectionResponse.data);
+        } catch (inspError) {
+          console.log('Could not fetch payment status for manual inspection');
+        }
+        
         setLoading(false);
         return; // Found manual inspection, done
       } catch (manualError) {
