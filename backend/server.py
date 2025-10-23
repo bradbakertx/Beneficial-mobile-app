@@ -4606,8 +4606,10 @@ async def shutdown_db_client():
 
 # Create Socket.IO ASGI app and mount it to FastAPI
 # This combines both FastAPI routes and Socket.IO WebSocket handling
-socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+# The socket_app handles both HTTP/REST (via other_asgi_app) and WebSocket/Socket.IO
+asgi_app = socketio.ASGIApp(sio, other_asgi_app=app)
 
-# Export socket_app as the main app for uvicorn
-# This allows both HTTP/REST API endpoints and Socket.IO WebSocket connections
-app = socket_app
+# For uvicorn to serve, we need to keep 'app' name but point it to the combined ASGI app
+# Store reference to original FastAPI app for internal use
+fastapi_app = app
+app = asgi_app
