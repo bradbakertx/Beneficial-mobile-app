@@ -221,8 +221,8 @@ class SocketIOTester:
         return results
         
     async def test_inspection_events_api(self) -> Dict[str, bool]:
-        """Test real-time inspection events"""
-        results = {"new_inspection": False, "time_slot_confirmed": False}
+        """Test real-time inspection events via API calls"""
+        results = {"inspection_created": False, "time_confirmed": False}
         
         try:
             # Clear previous events
