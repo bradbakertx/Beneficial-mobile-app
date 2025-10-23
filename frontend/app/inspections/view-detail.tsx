@@ -204,7 +204,7 @@ export default function InspectionDetailScreen() {
         </View>
 
         {/* Mark as Paid Button - Owner Only, if not already paid */}
-        {user?.role === 'owner' && manualInspection!.fee_amount && (
+        {user?.role === 'owner' && !inspection?.is_paid && manualInspection!.fee_amount && (
           <TouchableOpacity
             style={styles.markPaidButton}
             onPress={() => setShowPaymentModal(true)}
