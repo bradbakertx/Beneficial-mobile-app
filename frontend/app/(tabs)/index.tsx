@@ -201,95 +201,91 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* White Banner with Logo, Greeting, and Badge */}
-        <View style={styles.topBanner}>
-          <Image 
-            source={require('../../assets/images/beneficial-logo-icon.jpg')}
-            style={styles.bannerLogo}
-            resizeMode="contain"
+        {/* Owner Dashboard with Pager */}
+        {(user?.role === 'owner' || user?.role === 'admin') ? (
+          <OwnerDashboardPager 
+            stats={stats} 
+            onNavigate={(route) => router.push(route)}
           />
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.greeting}>Hello, {user?.name}!</Text>
-            <Text style={styles.roleText}>{getRoleTitle()}</Text>
-          </View>
-          <View style={[
-            styles.roleBadge,
-            user?.role === 'customer' && styles.customerBadge,
-            user?.role === 'agent' && styles.agentBadge,
-            user?.role === 'inspector' && styles.inspectorBadge,
-            user?.role === 'owner' && styles.ownerBadge
-          ]}>
-            <Text style={styles.roleBadgeText}>
-              {user?.role === 'customer' ? 'Customer' : 
-               user?.role === 'agent' ? 'Agent' : 
-               user?.role === 'inspector' ? 'Inspector' :
-               'Owner'}
-            </Text>
-          </View>
-        </View>
+        ) : (
+          <>
+            {/* White Banner with Logo, Greeting, and Badge */}
+            <View style={styles.topBanner}>
+              <Image 
+                source={require('../../assets/images/beneficial-logo-icon.jpg')}
+                style={styles.bannerLogo}
+                resizeMode="contain"
+              />
+              <View style={styles.bannerTextContainer}>
+                <Text style={styles.greeting}>Hello, {user?.name}!</Text>
+                <Text style={styles.roleText}>{getRoleTitle()}</Text>
+              </View>
+              <View style={[
+                styles.roleBadge,
+                user?.role === 'customer' && styles.customerBadge,
+                user?.role === 'agent' && styles.agentBadge,
+                user?.role === 'inspector' && styles.inspectorBadge
+              ]}>
+                <Text style={styles.roleBadgeText}>
+                  {user?.role === 'customer' ? 'Customer' : 
+                   user?.role === 'agent' ? 'Agent' : 
+                   'Inspector'}
+                </Text>
+              </View>
+            </View>
 
-        {/* Stats Cards */}
-        <View style={styles.statsGrid}>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => {
-              // Route customers to their quotes, owners to pending quotes
-              const route = user?.role === 'customer' ? '/quotes/customer-list' : '/quotes/pending';
-              router.push(route);
-            }}
-          >
-            <Ionicons name="document-text-outline" size={32} color="#007AFF" />
-            <Text style={styles.statNumber}>{stats?.pending_quotes || 0}</Text>
-            <Text style={styles.statLabel}>Pending Quotes</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => {
-              // Route customers and agents to their inspections tab, owners to active inspections screen
-              const route = (user?.role === 'customer' || user?.role === 'agent')
-                ? '/(tabs)/inspections'  // Customer/Agent inspections tab shows scheduled inspections with chat buttons
-                : '/inspections/active';  // Owner's active inspections screen with edit buttons
-              router.push(route);
-            }}
-          >
-            <Ionicons name="clipboard-outline" size={32} color="#34C759" />
-            <Text style={styles.statNumber}>{stats?.active_inspections || 0}</Text>
-            <Text style={styles.statLabel}>Active Inspections</Text>
-          </TouchableOpacity>
-        </View>
+            {/* Stats Cards */}
+            <View style={styles.statsGrid}>
+              <TouchableOpacity 
+                style={styles.statCard}
+                onPress={() => {
+                  const route = user?.role === 'customer' ? '/quotes/customer-list' : '/quotes/pending';
+                  router.push(route);
+                }}
+              >
+                <Ionicons name="document-text-outline" size={32} color="#007AFF" />
+                <Text style={styles.statNumber}>{stats?.pending_quotes || 0}</Text>
+                <Text style={styles.statLabel}>Pending Quotes</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.statCard}
+                onPress={() => {
+                  const route = (user?.role === 'customer' || user?.role === 'agent')
+                    ? '/(tabs)/inspections'
+                    : '/inspections/active';
+                  router.push(route);
+                }}
+              >
+                <Ionicons name="clipboard-outline" size={32} color="#34C759" />
+                <Text style={styles.statNumber}>{stats?.active_inspections || 0}</Text>
+                <Text style={styles.statLabel}>Active Inspections</Text>
+              </TouchableOpacity>
+            </View>
 
-        <View style={styles.statsGrid}>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => {
-              // Route customers and owners to different screens
-              const route = user?.role === 'customer' 
-                ? '/inspections/customer-pending-scheduling' 
-                : '/inspections/pending-scheduling-list';
-              router.push(route);
-            }}
-          >
-            <Ionicons name="checkmark-circle-outline" size={32} color="#5856D6" />
-            <Text style={styles.statNumber}>{stats?.pending_scheduling || 0}</Text>
-            <Text style={styles.statLabel}>Pending Scheduling</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.statCard}
-            onPress={() => router.push('/(tabs)/chat')}
-          >
-            <Ionicons name="chatbubble-ellipses-outline" size={32} color="#FF9500" />
-            <Text style={styles.statNumber}>{stats?.unread_messages || 0}</Text>
-            <Text style={styles.statLabel}>Unread Messages</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Google Calendar Week View - Owner Only */}
-        {(user?.role === 'owner' || user?.role === 'admin') && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>My Schedule</Text>
-            <CalendarWeekView />
-            <ManualInspectionEntry />
-          </View>
+            <View style={styles.statsGrid}>
+              <TouchableOpacity 
+                style={styles.statCard}
+                onPress={() => {
+                  const route = user?.role === 'customer' 
+                    ? '/inspections/customer-pending-scheduling' 
+                    : '/inspections/pending-scheduling-list';
+                  router.push(route);
+                }}
+              >
+                <Ionicons name="checkmark-circle-outline" size={32} color="#5856D6" />
+                <Text style={styles.statNumber}>{stats?.pending_scheduling || 0}</Text>
+                <Text style={styles.statLabel}>Pending Scheduling</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.statCard}
+                onPress={() => router.push('/(tabs)/chat')}
+              >
+                <Ionicons name="chatbubble-ellipses-outline" size={32} color="#FF9500" />
+                <Text style={styles.statNumber}>{stats?.unread_messages || 0}</Text>
+                <Text style={styles.statLabel}>Unread Messages</Text>
+              </TouchableOpacity>
+            </View>
+          </>
         )}
 
         {/* Inspector Schedule - Inspector Only */}
