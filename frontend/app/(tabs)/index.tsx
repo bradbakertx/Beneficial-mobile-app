@@ -417,6 +417,22 @@ function DashboardContent({ user, stats, refreshing, onRefresh, getRoleTitle, ro
             )}
           </View>
         )}
+
+        {/* Handwritten "Start Here" Overlay for First-Time Customers */}
+        {user?.role === 'customer' && showStartHere && (
+          <Animated.View 
+            style={[
+              styles.startHereOverlay,
+              { opacity: fadeAnim }
+            ]}
+            pointerEvents="none"
+          >
+            <View style={styles.startHereContainer}>
+              <Text style={styles.startHereText}>Start Here!</Text>
+              <Text style={styles.startHereArrow}>↓</Text>
+            </View>
+          </Animated.View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
