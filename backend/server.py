@@ -2425,6 +2425,10 @@ async def create_manual_inspection(
         status=InspectionStatus.scheduled,
         scheduled_date=inspection_data.inspection_date,
         scheduled_time=inspection_data.inspection_time,
+        fee_amount=inspection_data.fee_amount,  # Store fee directly on inspection
+        agent_name=inspection_data.agent_name,  # Include agent info for agent access
+        agent_email=inspection_data.agent_email,
+        agent_phone=inspection_data.agent_phone,
         created_at=datetime.utcnow(),
         updated_at=datetime.utcnow()
     )
