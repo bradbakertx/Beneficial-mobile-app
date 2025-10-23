@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
   },
   startHereOverlay: {
     position: 'absolute',
-    top: 280,
+    top: 380,
     right: 20,
     zIndex: 1000,
   },
