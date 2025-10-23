@@ -3715,6 +3715,14 @@ async def send_message(
                 }
             )
     
+    # Emit Socket.IO event for real-time message delivery
+    recipient_ids = []
+    if recipient_id:
+        recipient_ids.append(recipient_id)
+    # Also notify sender for immediate feedback
+    recipient_ids.append(current_user.id)
+    await emit_new_message(message.dict(), recipient_ids)
+    
     return MessageResponse(**message.dict())
 
 
