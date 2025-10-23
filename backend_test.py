@@ -30,6 +30,8 @@ class SocketIOTester:
         self.session = None
         self.jwt_token = None
         self.user_data = None
+        self.customer_token = None
+        self.customer_data = None
         self.sio_client = None
         self.received_events = []
         self.test_results = []
