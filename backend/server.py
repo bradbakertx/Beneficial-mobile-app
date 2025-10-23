@@ -4599,10 +4599,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Create Socket.IO ASGI app and mount it to FastAPI
-socket_app = socketio.ASGIApp(sio, app)
-
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
     logger.info("Database connection closed")
+
+# Create Socket.IO ASGI app and mount it to FastAPI
+# This combines both FastAPI routes and Socket.IO WebSocket handling
+socket_app = socketio.ASGIApp(sio, other_asgi_app=app)
+
+# Export socket_app as the main app for uvicorn
+# This allows both HTTP/REST API endpoints and Socket.IO WebSocket connections
+app = socket_app
