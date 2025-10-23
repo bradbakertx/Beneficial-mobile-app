@@ -220,7 +220,7 @@ class SocketIOTester:
             
         return results
         
-    async def test_inspection_events(self) -> Dict[str, bool]:
+    async def test_inspection_events_api(self) -> Dict[str, bool]:
         """Test real-time inspection events"""
         results = {"new_inspection": False, "time_slot_confirmed": False}
         
