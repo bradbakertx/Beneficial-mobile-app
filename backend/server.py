@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 import uuid
 from datetime import datetime
+import socketio
 
 from models import (
     UserCreate, UserLogin, UserResponse, TokenResponse, UserInDB, UserRole,
@@ -26,6 +27,16 @@ from auth import (
 )
 
 security = HTTPBearer()
+
+# Import Socket.IO server
+from socket_server import (
+    sio, 
+    emit_new_quote, emit_quote_updated,
+    emit_new_inspection, emit_inspection_updated,
+    emit_time_slots_offered, emit_time_slot_confirmed,
+    emit_new_message, emit_calendar_updated,
+    emit_reschedule_request
+)
 
 
 # Helper function to normalize time formats for comparison
