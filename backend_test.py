@@ -479,14 +479,23 @@ class SocketIOTester:
             
             # Test 1: Authentication
             logger.info("\n" + "="*60)
-            logger.info("TEST 1: Authentication & Login")
+            logger.info("TEST 1: Authentication & Setup")
             logger.info("="*60)
             
+            # Login as owner first
             login_success = await self.login()
-            self.test_results.append(("Authentication", login_success))
+            self.test_results.append(("Owner Authentication", login_success))
             
             if not login_success:
                 logger.error("❌ Cannot proceed without authentication")
+                return
+                
+            # Create test customer for quote/inspection testing
+            customer_success = await self.create_test_customer()
+            self.test_results.append(("Test Customer Creation", customer_success))
+            
+            if not customer_success:
+                logger.error("❌ Cannot proceed without test customer")
                 return
                 
             # Test 2: Socket.IO Connection
