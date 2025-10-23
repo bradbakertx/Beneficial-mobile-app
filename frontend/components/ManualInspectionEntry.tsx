@@ -125,7 +125,7 @@ export default function ManualInspectionEntry() {
     if (!propertyCity.trim()) return 'City is required';
     if (!propertyZip.trim()) return 'Zip code is required';
     if (selectedInspector === -1) return 'Please select an inspector';
-    if (!feeAmount.trim()) return 'Fee amount is required';
+    if (!feeAmount.trim()) return 'Inspection fee is required';
     if (!inspectionDate.trim()) return 'Inspection date is required';
     if (!inspectionTime.trim()) return 'Inspection time is required';
     
