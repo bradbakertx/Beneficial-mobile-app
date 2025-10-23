@@ -19,6 +19,7 @@ import CalendarWeekView from '../../components/CalendarWeekView';
 import ManualInspectionEntry from '../../components/ManualInspectionEntry';
 import InspectorCalendarView from '../../components/InspectorCalendarView';
 import CustomerDashboardWrapper from '../../components/CustomerDashboardWrapper';
+import OwnerDashboardPager from '../../components/OwnerDashboardPager';
 
 interface DashboardStats {
   pending_quotes: number;
