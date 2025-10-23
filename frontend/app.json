@@ -38,6 +38,7 @@
         "android.permission.READ_MEDIA_IMAGES",
         "android.permission.READ_MEDIA_VIDEO"
       ],
+      "useNextNotificationsApi": true,
       "edgeToEdgeEnabled": true
     },
     "web": {
