@@ -4575,6 +4575,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Create Socket.IO ASGI app and mount it to FastAPI
+socket_app = socketio.ASGIApp(sio, app)
+
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
+    logger.info("Database connection closed")
