@@ -429,6 +429,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  biometricButton: {
+    flexDirection: 'row',
+    backgroundColor: '#F0F7FF',
+    borderWidth: 2,
+    borderColor: '#007AFF',
+    borderRadius: 12,
+    padding: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
+    gap: 8,
+  },
+  biometricButtonText: {
+    color: '#007AFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  disableBiometricButton: {
+    marginTop: 12,
+    alignItems: 'center',
+    padding: 8,
+  },
+  disableBiometricText: {
+    fontSize: 13,
+    color: '#666',
+    textDecorationLine: 'underline',
+  },
   linkButton: {
     marginTop: 24,
     alignItems: 'center',
