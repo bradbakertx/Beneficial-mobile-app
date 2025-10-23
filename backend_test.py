@@ -152,7 +152,7 @@ class SocketIOTester:
             logger.error(f"❌ Socket.IO connection error: {str(e)}")
             return False
             
-    async def test_quote_events(self) -> Dict[str, bool]:
+    async def test_quote_events_api(self) -> Dict[str, bool]:
         """Test real-time quote events"""
         results = {"new_quote": False, "quote_updated": False}
         
