@@ -218,7 +218,7 @@ class SocketIOTester:
             async with self.session.post(
                 f"{BASE_URL}/quotes",
                 json=quote_data,
-                headers={"Authorization": f"Bearer {self.jwt_token}"}
+                headers={"Authorization": f"Bearer {self.customer_token}"}
             ) as response:
                 if response.status == 200:
                     quote_response = await response.json()
@@ -235,7 +235,7 @@ class SocketIOTester:
                     logger.info("🧪 Testing quote price update...")
                     async with self.session.patch(
                         f"{BASE_URL}/admin/quotes/{quote_id}/price?quote_amount=500.00",
-                        headers={"Authorization": f"Bearer {self.jwt_token}"}
+                        headers={"Authorization": f"Bearer {self.customer_token}"}
                     ) as price_response:
                         if price_response.status == 200:
                             logger.info("✅ Quote price set successfully")
@@ -287,7 +287,7 @@ class SocketIOTester:
             async with self.session.post(
                 f"{BASE_URL}/quotes",
                 json=quote_data,
-                headers={"Authorization": f"Bearer {self.jwt_token}"}
+                headers={"Authorization": f"Bearer {self.customer_token}"}
             ) as response:
                 if response.status != 200:
                     logger.error("❌ Failed to create quote for inspection test")
@@ -299,7 +299,7 @@ class SocketIOTester:
             # Set quote price
             async with self.session.patch(
                 f"{BASE_URL}/admin/quotes/{quote_id}/price?quote_amount=450.00",
-                headers={"Authorization": f"Bearer {self.jwt_token}"}
+                headers={"Authorization": f"Bearer {self.customer_token}"}
             ) as response:
                 if response.status != 200:
                     logger.error("❌ Failed to set quote price for inspection test")
@@ -317,7 +317,7 @@ class SocketIOTester:
             async with self.session.post(
                 f"{BASE_URL}/inspections",
                 json=inspection_data,
-                headers={"Authorization": f"Bearer {self.jwt_token}"}
+                headers={"Authorization": f"Bearer {self.customer_token}"}
             ) as response:
                 if response.status == 200:
                     inspection_response = await response.json()
@@ -350,7 +350,7 @@ class SocketIOTester:
                     async with self.session.patch(
                         f"{BASE_URL}/admin/inspections/{inspection_id}/offer-times",
                         json=time_slots_data,
-                        headers={"Authorization": f"Bearer {self.jwt_token}"}
+                        headers={"Authorization": f"Bearer {self.customer_token}"}
                     ) as offer_response:
                         if offer_response.status == 200:
                             logger.info("✅ Time slots offered successfully")
@@ -367,7 +367,7 @@ class SocketIOTester:
                             async with self.session.patch(
                                 f"{BASE_URL}/inspections/{inspection_id}/confirm-time",
                                 json=confirm_data,
-                                headers={"Authorization": f"Bearer {self.jwt_token}"}
+                                headers={"Authorization": f"Bearer {self.customer_token}"}
                             ) as confirm_response:
                                 if confirm_response.status == 200:
                                     logger.info("✅ Time slot confirmed successfully")
@@ -409,7 +409,7 @@ class SocketIOTester:
             async with self.session.post(
                 f"{BASE_URL}/messages",
                 json=message_data,
-                headers={"Authorization": f"Bearer {self.jwt_token}"}
+                headers={"Authorization": f"Bearer {self.customer_token}"}
             ) as response:
                 if response.status == 200:
                     message_response = await response.json()
