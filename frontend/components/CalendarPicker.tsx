@@ -169,7 +169,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   weekDayText: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
     color: '#8E8E93',
   },
