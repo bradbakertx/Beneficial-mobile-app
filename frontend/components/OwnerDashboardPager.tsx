@@ -316,11 +316,48 @@ const styles = StyleSheet.create({
     width: SCREEN_WIDTH,
     paddingHorizontal: 16,
   },
-  pageTitle: {
-    fontSize: 28,
+  topBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF',
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  bannerLogo: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+  },
+  bannerTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  greeting: {
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#1A1A1A',
-    marginBottom: 20,
+  },
+  roleText: {
+    fontSize: 14,
+    color: '#666',
+    marginTop: 2,
+  },
+  ownerBadge: {
+    backgroundColor: '#FF9500',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  roleBadgeText: {
+    color: '#FFF',
+    fontSize: 12,
+    fontWeight: '600',
   },
   statsGrid: {
     flexDirection: 'row',
