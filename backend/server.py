@@ -1596,8 +1596,13 @@ async def get_my_inspections(
 ):
     """Get inspections for current customer, agent, or inspector"""
     if current_user.role == UserRole.customer:
-        # Customers see their own inspections
-        inspections = await db.inspections.find({"customer_id": current_user.id}).to_list(1000)
+        # Customers see their own inspections (including manual entries by email)
+        inspections = await db.inspections.find({
+            "$or": [
+                {"customer_id": current_user.id},
+                {"customer_email": current_user.email}  # Include manual entries
+            ]
+        }).to_list(1000)
     elif current_user.role == UserRole.agent:
         # Agents see inspections where they're listed as the agent
         inspections = await db.inspections.find({"agent_email": current_user.email}).to_list(1000)
@@ -1612,11 +1617,19 @@ async def get_my_inspections(
     else:
         raise HTTPException(status_code=403, detail="Only customers, agents, and inspectors can view their inspections")
     
-    # Add fee_amount from linked quote
+    # Add fee_amount from linked quote or manual_inspection
     for inspection in inspections:
         quote_id = inspection.get("quote_id")
         logging.info(f"Processing inspection {inspection.get('id')}, quote_id: {quote_id}")
-        if quote_id:
+        
+        # Check if this is a manual entry
+        if quote_id == "manual-entry":
+            # Get fee from manual_inspections collection
+            manual_inspection = await db.manual_inspections.find_one({"id": inspection["id"]})
+            if manual_inspection and manual_inspection.get("fee_amount"):
+                inspection["fee_amount"] = float(manual_inspection["fee_amount"])
+                logging.info(f"Added fee_amount from manual inspection: {inspection['fee_amount']}")
+        elif quote_id:
             quote = await db.quotes.find_one({"id": quote_id})
             logging.info(f"Quote found: {quote is not None}, quote_amount: {quote.get('quote_amount') if quote else 'N/A'}")
             if quote and quote.get("quote_amount"):
