@@ -105,6 +105,7 @@ export default function RegisterScreen() {
                 style={styles.input}
                 value={formData.name}
                 onChangeText={(text) => setFormData({ ...formData, name: text })}
+                placeholder="Full Name"
                 placeholderTextColor="#999"
               />
             </View>
@@ -115,6 +116,7 @@ export default function RegisterScreen() {
                 style={styles.input}
                 value={formData.email}
                 onChangeText={(text) => setFormData({ ...formData, email: text })}
+                placeholder="Email Address"
                 autoCapitalize="none"
                 keyboardType="email-address"
                 placeholderTextColor="#999"
@@ -127,6 +129,7 @@ export default function RegisterScreen() {
                 style={styles.input}
                 value={formData.phone}
                 onChangeText={(text) => setFormData({ ...formData, phone: text })}
+                placeholder="Phone Number"
                 keyboardType="phone-pad"
                 placeholderTextColor="#999"
               />
