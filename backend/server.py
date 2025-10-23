@@ -498,6 +498,386 @@ async def change_password(
         raise HTTPException(status_code=500, detail=f"Failed to change password: {str(e)}")
 
 
+@api_router.post("/auth/forgot-password")
+async def forgot_password(email: str = Body(..., embed=True)):
+    """Send OTP to user's email for password reset"""
+    import secrets
+    from email_service import send_email
+    
+    # Always return success to prevent email enumeration attacks
+    standard_response = {
+        "success": True, 
+        "message": "If an account exists with this email, you will receive a password reset code shortly."
+    }
+    
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": email.lower().strip()})
+        
+        if not user:
+            # Return success even if user doesn't exist (security best practice)
+            logger.info(f"Password reset requested for non-existent email: {email}")
+            return standard_response
+        
+        # Rate limiting: Check attempts in last hour
+        if user.get("otp_last_attempt_at"):
+            time_since_last_attempt = datetime.utcnow() - user["otp_last_attempt_at"]
+            if time_since_last_attempt.total_seconds() < 3600:  # Within 1 hour
+                if user.get("otp_attempts", 0) >= 3:
+                    logger.warning(f"Rate limit exceeded for password reset: {email}")
+                    return standard_response  # Don't reveal rate limiting
+        
+        # Generate 6-digit OTP
+        otp_code = ''.join([str(secrets.randbelow(10)) for _ in range(6)])
+        
+        # Hash the OTP before storing
+        from auth import get_password_hash
+        hashed_otp = get_password_hash(otp_code)
+        
+        # Calculate expiration (15 minutes from now)
+        expires_at = datetime.utcnow() + timedelta(minutes=15)
+        
+        # Reset attempts if more than 1 hour has passed
+        current_attempts = 0
+        if user.get("otp_last_attempt_at"):
+            time_since_last = datetime.utcnow() - user["otp_last_attempt_at"]
+            if time_since_last.total_seconds() < 3600:
+                current_attempts = user.get("otp_attempts", 0)
+        
+        # Update user with OTP details
+        await db.users.update_one(
+            {"id": user["id"]},
+            {
+                "$set": {
+                    "otp_code": hashed_otp,
+                    "otp_expires_at": expires_at,
+                    "otp_created_at": datetime.utcnow(),
+                    "otp_attempts": current_attempts + 1,
+                    "otp_last_attempt_at": datetime.utcnow()
+                }
+            }
+        )
+        
+        # Send branded HTML email with OTP
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }}
+                .header {{
+                    background: linear-gradient(135deg, #007AFF 0%, #0051D5 100%);
+                    color: white;
+                    padding: 30px;
+                    text-align: center;
+                    border-radius: 10px 10px 0 0;
+                }}
+                .header h1 {{
+                    margin: 0;
+                    font-size: 24px;
+                }}
+                .content {{
+                    background: white;
+                    padding: 40px 30px;
+                    border: 1px solid #e0e0e0;
+                    border-top: none;
+                }}
+                .otp-box {{
+                    background: #f8f9fa;
+                    border: 2px dashed #007AFF;
+                    border-radius: 8px;
+                    padding: 20px;
+                    text-align: center;
+                    margin: 30px 0;
+                }}
+                .otp-code {{
+                    font-size: 36px;
+                    font-weight: bold;
+                    letter-spacing: 8px;
+                    color: #007AFF;
+                    font-family: 'Courier New', monospace;
+                }}
+                .warning {{
+                    background: #fff3cd;
+                    border-left: 4px solid #ffc107;
+                    padding: 15px;
+                    margin: 20px 0;
+                    border-radius: 4px;
+                }}
+                .footer {{
+                    background: #f8f9fa;
+                    padding: 20px 30px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                    border-radius: 0 0 10px 10px;
+                    border: 1px solid #e0e0e0;
+                    border-top: none;
+                }}
+                .button {{
+                    display: inline-block;
+                    padding: 12px 30px;
+                    background: #007AFF;
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    margin: 20px 0;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🔐 Password Reset Request</h1>
+            </div>
+            <div class="content">
+                <p>Hello,</p>
+                <p>We received a request to reset your password for your <strong>Beneficial Inspections</strong> account.</p>
+                
+                <div class="otp-box">
+                    <p style="margin: 0 0 10px 0; font-size: 14px; color: #666;">Your verification code:</p>
+                    <div class="otp-code">{otp_code}</div>
+                    <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">Valid for 15 minutes</p>
+                </div>
+                
+                <p>Enter this code in the app to reset your password.</p>
+                
+                <div class="warning">
+                    <strong>⚠️ Security Alert</strong><br>
+                    If you didn't request this password reset, please ignore this email. Your account remains secure.
+                </div>
+                
+                <p style="margin-top: 30px; font-size: 14px; color: #666;">
+                    This code will expire in <strong>15 minutes</strong>.<br>
+                    For security reasons, never share this code with anyone.
+                </p>
+            </div>
+            <div class="footer">
+                <p><strong>Beneficial Inspections</strong></p>
+                <p>Professional Property Inspection Services</p>
+                <p style="margin-top: 15px;">
+                    This is an automated message. Please do not reply to this email.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        text_body = f"""
+        Password Reset Request
+        
+        We received a request to reset your password for your Beneficial Inspections account.
+        
+        Your verification code: {otp_code}
+        
+        This code will expire in 15 minutes.
+        
+        If you didn't request this password reset, please ignore this email.
+        
+        For security reasons, never share this code with anyone.
+        
+        - Beneficial Inspections Team
+        """
+        
+        # Send email
+        send_email(
+            to_email=email,
+            subject="Password Reset Code - Beneficial Inspections",
+            html_body=html_body,
+            text_body=text_body
+        )
+        
+        logger.info(f"Password reset OTP sent to {email}")
+        
+    except Exception as e:
+        logger.error(f"Error in forgot password for {email}: {str(e)}")
+        # Still return success to prevent information leakage
+    
+    return standard_response
+
+
+@api_router.post("/auth/verify-otp")
+async def verify_otp(email: str = Body(...), otp: str = Body(...)):
+    """Verify OTP code for password reset"""
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": email.lower().strip()})
+        
+        if not user:
+            raise HTTPException(status_code=400, detail="Invalid or expired code")
+        
+        # Check if OTP exists
+        if not user.get("otp_code") or not user.get("otp_expires_at"):
+            raise HTTPException(status_code=400, detail="Invalid or expired code")
+        
+        # Check if OTP is expired
+        if datetime.utcnow() > user["otp_expires_at"]:
+            raise HTTPException(status_code=400, detail="Code has expired. Please request a new one")
+        
+        # Verify OTP
+        from auth import verify_password
+        if not verify_password(otp, user["otp_code"]):
+            raise HTTPException(status_code=400, detail="Invalid code")
+        
+        logger.info(f"OTP verified successfully for {email}")
+        
+        return {
+            "success": True,
+            "message": "Code verified successfully",
+            "email": email
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error verifying OTP for {email}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to verify code")
+
+
+@api_router.post("/auth/reset-password-with-otp")
+async def reset_password_with_otp(
+    email: str = Body(...),
+    otp: str = Body(...),
+    new_password: str = Body(...)
+):
+    """Reset password using verified OTP"""
+    try:
+        # Find user by email
+        user = await db.users.find_one({"email": email.lower().strip()})
+        
+        if not user:
+            raise HTTPException(status_code=400, detail="Invalid request")
+        
+        # Check if OTP exists and not expired
+        if not user.get("otp_code") or not user.get("otp_expires_at"):
+            raise HTTPException(status_code=400, detail="Invalid or expired code")
+        
+        if datetime.utcnow() > user["otp_expires_at"]:
+            raise HTTPException(status_code=400, detail="Code has expired")
+        
+        # Verify OTP one more time
+        from auth import verify_password
+        if not verify_password(otp, user["otp_code"]):
+            raise HTTPException(status_code=400, detail="Invalid code")
+        
+        # Validate new password
+        if len(new_password) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        
+        # Hash new password
+        new_hashed_password = get_password_hash(new_password)
+        
+        # Update password and clear OTP fields
+        await db.users.update_one(
+            {"id": user["id"]},
+            {
+                "$set": {
+                    "hashed_password": new_hashed_password
+                },
+                "$unset": {
+                    "otp_code": "",
+                    "otp_expires_at": "",
+                    "otp_created_at": "",
+                    "otp_attempts": "",
+                    "otp_last_attempt_at": ""
+                }
+            }
+        )
+        
+        # Send confirmation email
+        from email_service import send_email
+        confirmation_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+                    line-height: 1.6;
+                    color: #333;
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
+                }}
+                .header {{
+                    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+                    color: white;
+                    padding: 30px;
+                    text-align: center;
+                    border-radius: 10px 10px 0 0;
+                }}
+                .content {{
+                    background: white;
+                    padding: 40px 30px;
+                    border: 1px solid #e0e0e0;
+                    border-top: none;
+                }}
+                .success-icon {{
+                    font-size: 48px;
+                    text-align: center;
+                    margin: 20px 0;
+                }}
+                .footer {{
+                    background: #f8f9fa;
+                    padding: 20px 30px;
+                    text-align: center;
+                    font-size: 12px;
+                    color: #666;
+                    border-radius: 0 0 10px 10px;
+                    border: 1px solid #e0e0e0;
+                    border-top: none;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>✅ Password Changed Successfully</h1>
+            </div>
+            <div class="content">
+                <div class="success-icon">🔒</div>
+                <p>Hello,</p>
+                <p>Your password for <strong>Beneficial Inspections</strong> has been successfully changed.</p>
+                <p>You can now log in with your new password.</p>
+                <p style="margin-top: 30px; background: #fff3cd; padding: 15px; border-radius: 4px;">
+                    <strong>⚠️ Security Notice</strong><br>
+                    If you didn't make this change, please contact us immediately at {GMAIL_USER}
+                </p>
+            </div>
+            <div class="footer">
+                <p><strong>Beneficial Inspections</strong></p>
+                <p>Professional Property Inspection Services</p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        send_email(
+            to_email=email,
+            subject="Password Changed - Beneficial Inspections",
+            html_body=confirmation_html,
+            text_body=f"Your password for Beneficial Inspections has been successfully changed. If you didn't make this change, please contact us immediately."
+        )
+        
+        logger.info(f"Password reset successfully for {email}")
+        
+        return {
+            "success": True,
+            "message": "Password reset successfully"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error resetting password for {email}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to reset password")
+
+
 @api_router.post("/auth/register-push-token")
 async def register_push_token(
     push_token: str,
