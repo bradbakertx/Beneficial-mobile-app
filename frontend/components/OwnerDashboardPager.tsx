@@ -140,6 +140,11 @@ export default function OwnerDashboardPager({ stats, onNavigate }: OwnerDashboar
         </TouchableOpacity>
       </View>
 
+      {/* Manual Inspection Entry */}
+      <View style={styles.manualEntrySection}>
+        <ManualInspectionEntry />
+      </View>
+
       {/* Page Indicator */}
       <View style={styles.pageIndicatorContainer}>
         <Text style={styles.swipeHint}>← Swipe for Owner Utilities →</Text>
