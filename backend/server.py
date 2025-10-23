@@ -1087,6 +1087,9 @@ async def schedule_inspection(
                 data={"type": "new_inspection", "inspection_id": inspection_id}
             )
     
+    # Emit Socket.IO event for real-time inspection notification
+    await emit_new_inspection(inspection_id, inspection.dict())
+    
     return InspectionResponse(**inspection.dict())
 
 
