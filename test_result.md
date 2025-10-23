@@ -105,6 +105,18 @@
 user_problem_statement: Redesign Agent workflow for "Request a Quote". Agents should only fill out Property Information and Additional section. Agent quotes should appear on Owner's Pending Quotes list as orange cards. After Agent accepts quote and selects time slot, a form should open to enter Client (Customer) information. When Customer logs in, Pre-Inspection Agreement should automatically open for signature.
 
 backend:
+  - task: "Forgot Password - OTP-Based Reset"
+    implemented: true
+    working: "NA"
+    file: "backend/models.py, backend/server.py, frontend/app/(auth)/forgot-password.tsx, frontend/app/(auth)/verify-otp.tsx, frontend/app/(auth)/reset-password.tsx, frontend/app/(auth)/login.tsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "COMPLETE IMPLEMENTATION: Backend - Extended UserInDB model with OTP fields (otp_code hashed with bcrypt, otp_expires_at for 15min expiration, otp_attempts, otp_last_attempt_at for rate limiting). Created 3 endpoints: 1) POST /auth/forgot-password - generates 6-digit OTP, hashes and stores it, sends branded HTML email, rate limits to 3 attempts/hour, no email enumeration vulnerability. 2) POST /auth/verify-otp - verifies OTP code and expiration. 3) POST /auth/reset-password-with-otp - validates OTP, updates password, clears OTP fields, sends confirmation email. HTML email templates with branded styling for both OTP delivery and password change confirmation. Frontend - Created 3 new screens: forgot-password.tsx (email input), verify-otp.tsx (6-digit OTP input with auto-focus and resend), reset-password.tsx (new password with validation). Added 'Forgot Password?' link to login screen positioned next to 'Stay logged in'. All screens have proper keyboard handling, loading states, error handling, and mobile-optimized UI. Ready for comprehensive testing of email delivery, OTP validation, rate limiting, and password reset flow."
+
   - task: "Socket.IO Real-Time Updates"
     implemented: true
     working: false
