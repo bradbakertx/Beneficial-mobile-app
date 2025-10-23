@@ -232,7 +232,7 @@ Property: {property_address}
 Date: {scheduled_date}
 Time: {scheduled_time}
 
-{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you. Please ensure someone is available to provide access to the property.'}
+{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you.'}
 
 Best regards,
 Beneficial Inspections
@@ -270,7 +270,7 @@ bradbakertx@gmail.com
                 <p><strong>Time:</strong> {scheduled_time}</p>
             </div>
             
-            <p>{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you. Please ensure someone is available to provide access to the property.'}</p>
+            <p>{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you.'}</p>
         </div>
         <div class="footer">
             <p><strong>Beneficial Inspections</strong></p>
@@ -375,7 +375,7 @@ Property: {property_address}
 Date: {inspection_date}
 Time: {inspection_time}
 
-{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you. Please ensure someone is available to provide access to the property.'}
+{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you.'}
 
 A calendar invitation is attached to this email.
 
@@ -416,7 +416,7 @@ bradbakertx@gmail.com
                 <p><strong>Time:</strong> {inspection_time}</p>
             </div>
             
-            <p>{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you. Please ensure someone is available to provide access to the property.'}</p>
+            <p>{'As the inspector, please ensure you arrive on time and are prepared with all necessary equipment.' if is_owner else 'We look forward to serving you.'}</p>
             
             <p><strong>A calendar invitation is attached to this email.</strong></p>
         </div>
