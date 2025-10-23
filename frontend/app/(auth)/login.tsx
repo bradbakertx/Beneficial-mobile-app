@@ -264,6 +264,36 @@ export default function LoginScreen() {
               )}
             </TouchableOpacity>
 
+            {/* Biometric Login Button */}
+            {biometricEnabled && (
+              <TouchableOpacity
+                style={styles.biometricButton}
+                onPress={handleBiometricLogin}
+                disabled={loading}
+              >
+                <Ionicons 
+                  name={biometricType === 'Face ID' ? 'scan' : 'finger-print'} 
+                  size={24} 
+                  color="#007AFF" 
+                />
+                <Text style={styles.biometricButtonText}>
+                  Login with {biometricType}
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Disable Biometric Option */}
+            {biometricEnabled && (
+              <TouchableOpacity
+                onPress={disableBiometricLogin}
+                style={styles.disableBiometricButton}
+              >
+                <Text style={styles.disableBiometricText}>
+                  Disable {biometricType} Login
+                </Text>
+              </TouchableOpacity>
+            )}
+
             <TouchableOpacity
               onPress={() => router.push('/(auth)/register')}
               style={styles.linkButton}
