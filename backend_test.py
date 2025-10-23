@@ -66,6 +66,41 @@ class SocketIOTester:
             logger.error(f"❌ Login error: {str(e)}")
             return False
             
+    async def create_test_customer(self) -> bool:
+        """Create a test customer account for testing"""
+        try:
+            import time
+            customer_email = f"socketio_test_customer_{int(time.time())}@example.com"
+            customer_data = {
+                "email": customer_email,
+                "password": "TestPass123!",
+                "name": "Socket.IO Test Customer",
+                "role": "customer",
+                "phone": "555-0199",
+                "terms_accepted": True,
+                "privacy_policy_accepted": True,
+                "marketing_consent": False
+            }
+            
+            async with self.session.post(
+                f"{BASE_URL}/auth/register",
+                json=customer_data
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    # Store customer credentials for later use
+                    self.customer_token = data.get("session_token")
+                    self.customer_data = data.get("user")
+                    logger.info(f"✅ Test customer created: {customer_email}")
+                    return True
+                else:
+                    error_text = await response.text()
+                    logger.error(f"❌ Failed to create test customer: {response.status} - {error_text}")
+                    return False
+        except Exception as e:
+            logger.error(f"❌ Customer creation error: {str(e)}")
+            return False
+            
     async def test_socket_connection(self) -> bool:
         """Test Socket.IO connection with JWT authentication"""
         try:
