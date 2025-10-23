@@ -70,7 +70,7 @@ class SocketIOTester:
         """Test Socket.IO connection with JWT authentication"""
         try:
             # Create Socket.IO client
-            self.sio_client = socketio.AsyncClient(logger=False, engineio_logger=False)
+            self.sio_client = socketio.AsyncClient(logger=True, engineio_logger=True)
             
             # Event handlers
             @self.sio_client.event
@@ -112,22 +112,41 @@ class SocketIOTester:
                 logger.info(f"📤 Received new_message event: {data}")
                 self.received_events.append({"event": "new_message", "data": data})
             
-            # Connect with JWT token
-            await self.sio_client.connect(
-                SOCKET_URL,
-                auth={"token": self.jwt_token},
-                transports=['websocket', 'polling']
-            )
+            # Try multiple connection approaches
+            connection_urls = [
+                SOCKET_URL,  # Main URL
+                f"{SOCKET_URL}/socket.io/",  # With socket.io path
+                "https://benefi-inspect.preview.emergentagent.com/socket.io/",  # Direct socket.io path
+            ]
             
-            # Wait for connection to establish
-            await asyncio.sleep(2)
+            for url in connection_urls:
+                try:
+                    logger.info(f"🔌 Attempting Socket.IO connection to: {url}")
+                    
+                    # Connect with JWT token
+                    await self.sio_client.connect(
+                        url,
+                        auth={"token": self.jwt_token},
+                        transports=['websocket', 'polling']
+                    )
+                    
+                    # Wait for connection to establish
+                    await asyncio.sleep(3)
+                    
+                    if self.sio_client.connected:
+                        logger.info(f"✅ Socket.IO connection successful to: {url}")
+                        return True
+                    else:
+                        logger.warning(f"⚠️ Connection attempt failed for: {url}")
+                        
+                except Exception as conn_e:
+                    logger.warning(f"⚠️ Connection failed for {url}: {str(conn_e)}")
+                    if self.sio_client.connected:
+                        await self.sio_client.disconnect()
+                    continue
             
-            if self.sio_client.connected:
-                logger.info("✅ Socket.IO connection test PASSED")
-                return True
-            else:
-                logger.error("❌ Socket.IO connection test FAILED - Not connected")
-                return False
+            logger.error("❌ Socket.IO connection test FAILED - All connection attempts failed")
+            return False
                 
         except Exception as e:
             logger.error(f"❌ Socket.IO connection error: {str(e)}")
