@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import authService, { User } from '../services/auth.service';
 import { useAuthStore } from '../store/authStore';
 import { registerForPushNotificationsAsync, setupNotificationListeners } from '../services/notifications.service';
+import socketService from '../services/socket.service';
 import ConsentModal from '../components/ConsentModal';
 
 interface AuthContextType {
