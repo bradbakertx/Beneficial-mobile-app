@@ -71,6 +71,12 @@ class UserInDB(UserBase):
     marketing_consent: bool = False
     data_processing_consent: bool = False  # GDPR compliance
     ip_address_at_registration: Optional[str] = None  # For audit trail
+    # Password Reset OTP fields
+    otp_code: Optional[str] = None  # Hashed OTP code
+    otp_expires_at: Optional[datetime] = None  # OTP expiration time (15 minutes)
+    otp_created_at: Optional[datetime] = None  # When OTP was created
+    otp_attempts: int = 0  # Rate limiting: track attempts
+    otp_last_attempt_at: Optional[datetime] = None  # Track last attempt for rate limiting
 
 
 class UserResponse(UserBase):
