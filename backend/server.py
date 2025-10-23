@@ -891,6 +891,40 @@ async def register_push_token(
     return {"success": True, "message": "Push token registered"}
 
 
+@api_router.get("/admin/search-agents")
+async def search_agents(
+    query: str = Query(..., min_length=1),
+    current_user: UserInDB = Depends(require_role(UserRole.owner))
+):
+    """Search for registered agents by name (Owner only)"""
+    try:
+        # Search agents whose name contains the query (case-insensitive)
+        agents_cursor = db.users.find({
+            "role": UserRole.agent.value,
+            "name": {"$regex": query, "$options": "i"}
+        })
+        
+        agents = await agents_cursor.to_list(length=50)  # Limit to 50 results
+        
+        # Return only relevant information
+        agent_results = []
+        for agent in agents:
+            agent_results.append({
+                "id": agent["id"],
+                "name": agent["name"],
+                "email": agent["email"],
+                "phone": agent.get("phone", "Not provided")
+            })
+        
+        logger.info(f"Agent search by owner {current_user.id}: query='{query}', found={len(agent_results)} agents")
+        
+        return {"agents": agent_results, "count": len(agent_results)}
+        
+    except Exception as e:
+        logger.error(f"Error searching agents: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to search agents")
+
+
 @api_router.get("/users/notification-preferences")
 async def get_notification_preferences(
     current_user: UserInDB = Depends(get_current_user_from_token)
