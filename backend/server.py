@@ -797,6 +797,9 @@ async def create_quote(
                 data={"type": "new_quote", "quote_id": quote_id, "is_agent_quote": str(is_agent_quote)}
             )
     
+    # Emit Socket.IO event for real-time updates
+    await emit_new_quote(quote_id, quote.dict(), is_agent_quote)
+    
     return QuoteResponse(**quote.dict())
 
 
