@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     borderColor: '#007AFF',
   },
   dayText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#1C1C1E',
   },
   otherMonthText: {
