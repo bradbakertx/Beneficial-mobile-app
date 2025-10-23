@@ -9,8 +9,10 @@ import {
   RefreshControl,
   Image,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -20,6 +22,8 @@ import ManualInspectionEntry from '../../components/ManualInspectionEntry';
 import InspectorCalendarView from '../../components/InspectorCalendarView';
 import CustomerDashboardWrapper from '../../components/CustomerDashboardWrapper';
 import OwnerDashboardPager from '../../components/OwnerDashboardPager';
+
+const FIRST_TIME_KEY = '@customer_first_time_quote';
 
 interface DashboardStats {
   pending_quotes: number;
