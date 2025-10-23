@@ -98,17 +98,26 @@ export default function LoginScreen() {
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity
-              style={styles.checkboxContainer}
-              onPress={() => setStayLoggedIn(!stayLoggedIn)}
-            >
-              <View style={[styles.checkbox, stayLoggedIn && styles.checkboxChecked]}>
-                {stayLoggedIn && (
-                  <Ionicons name="checkmark" size={16} color="#fff" />
-                )}
-              </View>
-              <Text style={styles.checkboxLabel}>Stay logged in</Text>
-            </TouchableOpacity>
+            <View style={styles.optionsRow}>
+              <TouchableOpacity
+                style={styles.checkboxContainer}
+                onPress={() => setStayLoggedIn(!stayLoggedIn)}
+              >
+                <View style={[styles.checkbox, stayLoggedIn && styles.checkboxChecked]}>
+                  {stayLoggedIn && (
+                    <Ionicons name="checkmark" size={16} color="#fff" />
+                  )}
+                </View>
+                <Text style={styles.checkboxLabel}>Stay logged in</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => router.push('/(auth)/forgot-password')}
+                disabled={loading}
+              >
+                <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+              </TouchableOpacity>
+            </View>
 
             <TouchableOpacity
               style={[styles.button, loading && styles.buttonDisabled]}
