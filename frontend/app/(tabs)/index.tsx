@@ -140,7 +140,47 @@ export default function DashboardScreen() {
 
   useEffect(() => {
     fetchDashboardData();
-  }, []);
+    checkFirstTimeUser();
+  }, [user]);
+
+  const checkFirstTimeUser = async () => {
+    if (user?.role === 'customer') {
+      try {
+        const hasSeenBefore = await AsyncStorage.getItem(FIRST_TIME_KEY);
+        if (!hasSeenBefore) {
+          // Show the Start Here overlay
+          setShowStartHere(true);
+          // Fade in animation
+          Animated.timing(fadeAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }).start();
+        }
+      } catch (error) {
+        console.error('Error checking first time:', error);
+      }
+    }
+  };
+
+  const handleRequestQuotePress = async () => {
+    // Hide the overlay and mark as seen
+    if (showStartHere) {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setShowStartHere(false);
+      });
+      try {
+        await AsyncStorage.setItem(FIRST_TIME_KEY, 'true');
+      } catch (error) {
+        console.error('Error saving first time:', error);
+      }
+    }
+    router.push('/quotes/new');
+  };
 
   const onRefresh = () => {
     setRefreshing(true);
