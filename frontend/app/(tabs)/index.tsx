@@ -38,6 +38,8 @@ export default function DashboardScreen() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [showStartHere, setShowStartHere] = useState(false);
+  const fadeAnim = useState(new Animated.Value(0))[0];
 
   const fetchDashboardData = async () => {
     try {
