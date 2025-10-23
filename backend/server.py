@@ -1651,9 +1651,19 @@ async def get_inspection(
     if not inspection:
         raise HTTPException(status_code=404, detail="Inspection not found")
     
-    # Check permissions
-    if current_user.role == UserRole.customer and inspection["customer_id"] != current_user.id:
-        raise HTTPException(status_code=403, detail="Not authorized to view this inspection")
+    # Check permissions - allow manual entries by email match
+    if current_user.role == UserRole.customer:
+        if inspection["customer_id"] != current_user.id and inspection.get("customer_email") != current_user.email:
+            raise HTTPException(status_code=403, detail="Not authorized to view this inspection")
+    elif current_user.role == UserRole.agent:
+        if inspection.get("agent_email") != current_user.email:
+            raise HTTPException(status_code=403, detail="Not authorized to view this inspection")
+    
+    # Add fee_amount if it's a manual entry and not already present
+    if inspection.get("quote_id") == "manual-entry" and not inspection.get("fee_amount"):
+        manual_inspection = await db.manual_inspections.find_one({"id": inspection_id})
+        if manual_inspection and manual_inspection.get("fee_amount"):
+            inspection["fee_amount"] = float(manual_inspection["fee_amount"])
     
     return InspectionResponse(**inspection)
 
