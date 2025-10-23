@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,10 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../contexts/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as LocalAuthentication from 'expo-local-authentication';
+import * as SecureStore from 'expo-secure-store';
+
+const BIOMETRIC_CREDENTIALS_KEY = 'biometric_credentials';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -24,8 +28,45 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [stayLoggedIn, setStayLoggedIn] = useState(true); // Default to true for convenience
   const [loading, setLoading] = useState(false);
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+  const [biometricType, setBiometricType] = useState<string>('');
   const { login } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    checkBiometricAvailability();
+  }, []);
+
+  const checkBiometricAvailability = async () => {
+    try {
+      const compatible = await LocalAuthentication.hasHardwareAsync();
+      const enrolled = await LocalAuthentication.isEnrolledAsync();
+      const available = compatible && enrolled;
+      
+      setBiometricAvailable(available);
+
+      if (available) {
+        // Check what type of biometric is available
+        const types = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        if (types.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION)) {
+          setBiometricType('Face ID');
+        } else if (types.includes(LocalAuthentication.AuthenticationType.FINGERPRINT)) {
+          setBiometricType('Fingerprint');
+        } else if (types.includes(LocalAuthentication.AuthenticationType.IRIS)) {
+          setBiometricType('Iris');
+        } else {
+          setBiometricType('Biometric');
+        }
+
+        // Check if user has biometric credentials saved
+        const credentials = await SecureStore.getItemAsync(BIOMETRIC_CREDENTIALS_KEY);
+        setBiometricEnabled(!!credentials);
+      }
+    } catch (error) {
+      console.error('Biometric check error:', error);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -36,12 +77,104 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await login(email.toLowerCase().trim(), password, stayLoggedIn);
-      router.replace('/(tabs)');
+      
+      // After successful login, ask if they want to enable biometric login
+      if (biometricAvailable && !biometricEnabled) {
+        Alert.alert(
+          'Enable Biometric Login?',
+          `Would you like to use ${biometricType} for faster login next time?`,
+          [
+            {
+              text: 'No Thanks',
+              style: 'cancel',
+              onPress: () => router.replace('/(tabs)')
+            },
+            {
+              text: 'Enable',
+              onPress: async () => {
+                await saveBiometricCredentials(email.toLowerCase().trim(), password);
+                router.replace('/(tabs)');
+              }
+            }
+          ]
+        );
+      } else {
+        router.replace('/(tabs)');
+      }
     } catch (error: any) {
       Alert.alert('Login Failed', error.message);
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveBiometricCredentials = async (email: string, password: string) => {
+    try {
+      const credentials = JSON.stringify({ email, password });
+      await SecureStore.setItemAsync(BIOMETRIC_CREDENTIALS_KEY, credentials);
+      setBiometricEnabled(true);
+      Alert.alert('Success', `${biometricType} login enabled!`);
+    } catch (error) {
+      console.error('Error saving biometric credentials:', error);
+      Alert.alert('Error', 'Failed to enable biometric login');
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    try {
+      // Authenticate with biometrics
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'Login with biometrics',
+        fallbackLabel: 'Use password',
+        cancelLabel: 'Cancel',
+      });
+
+      if (result.success) {
+        // Retrieve stored credentials
+        const credentialsJson = await SecureStore.getItemAsync(BIOMETRIC_CREDENTIALS_KEY);
+        if (credentialsJson) {
+          const { email, password } = JSON.parse(credentialsJson);
+          setLoading(true);
+          try {
+            await login(email, password, true);
+            router.replace('/(tabs)');
+          } catch (error: any) {
+            Alert.alert('Login Failed', error.message);
+          } finally {
+            setLoading(false);
+          }
+        }
+      } else {
+        // Authentication cancelled or failed
+        if (result.error === 'user_cancel') {
+          // User cancelled, do nothing
+        } else {
+          Alert.alert('Authentication Failed', 'Please try again or use your password');
+        }
+      }
+    } catch (error) {
+      console.error('Biometric login error:', error);
+      Alert.alert('Error', 'Biometric authentication failed');
+    }
+  };
+
+  const disableBiometricLogin = async () => {
+    Alert.alert(
+      'Disable Biometric Login',
+      `Are you sure you want to disable ${biometricType} login?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Disable',
+          style: 'destructive',
+          onPress: async () => {
+            await SecureStore.deleteItemAsync(BIOMETRIC_CREDENTIALS_KEY);
+            setBiometricEnabled(false);
+            Alert.alert('Disabled', 'Biometric login has been disabled');
+          }
+        }
+      ]
+    );
   };
 
   return (
