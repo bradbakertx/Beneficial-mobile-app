@@ -161,7 +161,6 @@ export default function OwnerDashboardPager({ stats, onNavigate }: OwnerDashboar
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>My Schedule</Text>
         <CalendarWeekView />
-        <ManualInspectionEntry />
       </View>
 
       {/* Agent Search */}
