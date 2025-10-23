@@ -193,6 +193,17 @@ export default function InspectionDetailScreen() {
           <InfoRow label="Time" value={manualInspection!.inspection_time} />
           <InfoRow label="Status" value={manualInspection!.status.charAt(0).toUpperCase() + manualInspection!.status.slice(1)} />
         </View>
+
+        {/* Mark as Paid Button - Owner Only, if not already paid */}
+        {user?.role === 'owner' && manualInspection!.fee_amount && (
+          <TouchableOpacity
+            style={styles.markPaidButton}
+            onPress={() => setShowPaymentModal(true)}
+          >
+            <Ionicons name="cash" size={20} color="#FFF" />
+            <Text style={styles.markPaidButtonText}>Mark as Paid</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
     );
   };
