@@ -35,9 +35,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (currentUser) {
           setUser(currentUser);
           
-          // Establish Socket.IO connection for existing session
-          socketService.connect(token);
-          console.log('✅ Socket.IO connection restored for existing session');
+          // Establish Socket.IO connection for existing session (non-blocking)
+          try {
+            socketService.connect(token);
+            console.log('✅ Socket.IO connection restored for existing session');
+          } catch (socketError) {
+            console.warn('⚠️ Socket.IO connection failed (non-critical):', socketError);
+          }
         } else {
           setUser(null);
         }
