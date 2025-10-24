@@ -2,12 +2,18 @@
   "expo": {
     "name": "Beneficial Inspections",
     "slug": "beneficial-inspections",
+    "owner": "bradbakertx",
     "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "beneficialinspections",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
+    "extra": {
+      "eas": {
+        "projectId": "719c9117-88f3-44eb-9967-9844dda81654"
+      }
+    },
     "splash": {
       "image": "./assets/images/splash-icon.png",
       "resizeMode": "contain",
