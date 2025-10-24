@@ -13,7 +13,7 @@ import random
 import string
 
 # Configuration
-BASE_URL = "https://build-fix-8.preview.emergentagent.com/api"
+BASE_URL = "https://inspectapp-4.preview.emergentagent.com/api"
 EXISTING_USER_EMAIL = "bradbakertx@gmail.com"
 EXISTING_USER_PASSWORD = "Beneficial1!"
 

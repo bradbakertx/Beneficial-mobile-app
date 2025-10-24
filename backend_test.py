@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 import sys
 
 # Configuration
-BASE_URL = "https://build-fix-8.preview.emergentagent.com/api"
+BASE_URL = "https://inspectapp-4.preview.emergentagent.com/api"
 TEST_EMAIL = "test@example.com"
 EXISTING_USER_EMAIL = "bradbakertx@gmail.com"
 EXISTING_USER_PASSWORD = "Beneficial1!"
