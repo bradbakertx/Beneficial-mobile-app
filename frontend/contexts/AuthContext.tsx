@@ -111,9 +111,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    // Disconnect Socket.IO connection on logout
-    socketService.disconnect();
-    console.log('❌ Socket.IO disconnected on logout');
+    // Disconnect Socket.IO connection on logout (non-blocking)
+    try {
+      socketService.disconnect();
+      console.log('❌ Socket.IO disconnected on logout');
+    } catch (socketError) {
+      console.warn('⚠️ Socket.IO disconnect failed (non-critical):', socketError);
+    }
     
     await authService.logout();
     storeLogout();
