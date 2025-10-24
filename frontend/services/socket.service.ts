@@ -37,20 +37,24 @@ class SocketService {
       return;
     }
 
-    this.socket.on('connect', () => {
-      console.log('✅ Socket.IO connected:', this.socket?.id);
-    });
+    try {
+      this.socket.on('connect', () => {
+        console.log('✅ Socket.IO connected:', this.socket?.id);
+      });
 
-    this.socket.on('disconnect', (reason) => {
-      console.log('❌ Socket.IO disconnected:', reason);
-    });
+      this.socket.on('disconnect', (reason) => {
+        console.log('❌ Socket.IO disconnected:', reason);
+      });
 
-    this.socket.on('connect_error', (error) => {
-      console.error('Socket.IO connection error:', error);
-    });
+      this.socket.on('connect_error', (error) => {
+        console.error('⚠️ Socket.IO connection error (non-critical):', error.message);
+      });
 
-    // Set up event listeners
-    this.setupEventListeners();
+      // Set up event listeners
+      this.setupEventListeners();
+    } catch (error) {
+      console.error('❌ Socket.IO event setup failed:', error);
+    }
   }
 
   private setupEventListeners() {
