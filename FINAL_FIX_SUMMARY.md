@@ -9,7 +9,7 @@
 
 ### Problem 2: "java.io.IOException: Failed to download remote update" Fatal Error
 **Error**: Mobile device unable to download the app bundle from Expo
-**Root Cause**: URL mismatch - `EXPO_PACKAGER_HOSTNAME` was set to `https://benefi-inspect.preview.emergentagent.com` but the actual ngrok tunnel was at `inspectapp.ngrok.io`. This caused the manifest to point to the wrong URLs.
+**Root Cause**: URL mismatch - `EXPO_PACKAGER_HOSTNAME` was set to `https://build-fix-8.preview.emergentagent.com` but the actual ngrok tunnel was at `inspectapp.ngrok.io`. This caused the manifest to point to the wrong URLs.
 **Solution**: Removed `EXPO_PACKAGER_HOSTNAME` from `/app/frontend/.env` to let Expo automatically use the correct ngrok tunnel URL
 
 ## Files Modified
@@ -27,7 +27,7 @@ Added CORS configuration:
 ### 2. `/app/frontend/.env`
 Removed the line:
 ```
-EXPO_PACKAGER_HOSTNAME=https://benefi-inspect.preview.emergentagent.com
+EXPO_PACKAGER_HOSTNAME=https://build-fix-8.preview.emergentagent.com
 ```
 
 ### 3. `/app/frontend/app/inspections/agreement.tsx`
@@ -74,7 +74,7 @@ The mobile preview should now:
 ## Technical Notes
 
 - The ngrok tunnel at `inspectapp.ngrok.io` is the correct URL for mobile access
-- The `EXPO_PUBLIC_BACKEND_URL` remains pointing to `https://benefi-inspect.preview.emergentagent.com` for API calls (this is correct)
+- The `EXPO_PUBLIC_BACKEND_URL` remains pointing to `https://build-fix-8.preview.emergentagent.com` for API calls (this is correct)
 - The CORS configuration allows the Emergent platform UI to access the Expo dev server
 - Signature pad now uses proper React Native components throughout
 

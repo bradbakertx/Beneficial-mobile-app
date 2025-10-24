@@ -11,7 +11,7 @@ import time
 from datetime import datetime
 
 # Configuration
-BASE_URL = "https://benefi-inspect.preview.emergentagent.com/api"
+BASE_URL = "https://build-fix-8.preview.emergentagent.com/api"
 TEST_EMAIL = "bradbakertx@gmail.com"
 TEST_PASSWORD = "Beneficial1!"
 
