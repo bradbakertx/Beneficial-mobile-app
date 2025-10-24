@@ -8,22 +8,34 @@ class SocketService {
   private listeners: Map<string, Set<Function>> = new Map();
 
   connect(token: string) {
-    if (this.socket?.connected) {
-      console.log('Socket already connected');
+    try {
+      if (this.socket?.connected) {
+        console.log('Socket already connected');
+        return;
+      }
+
+      // Defensive check for backend URL
+      if (!BACKEND_URL || BACKEND_URL.trim() === '') {
+        console.warn('⚠️ Socket.IO: No backend URL configured, skipping connection');
+        return;
+      }
+
+      console.log('Connecting to Socket.IO:', BACKEND_URL);
+      
+      this.socket = io(BACKEND_URL, {
+        auth: {
+          token: token
+        },
+        transports: ['websocket', 'polling'],
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionAttempts: 5,
+        timeout: 10000, // 10 second timeout
+      });
+    } catch (error) {
+      console.error('❌ Socket.IO connection initialization failed:', error);
       return;
     }
-
-    console.log('Connecting to Socket.IO:', BACKEND_URL);
-    
-    this.socket = io(BACKEND_URL, {
-      auth: {
-        token: token
-      },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionAttempts: 5,
-    });
 
     this.socket.on('connect', () => {
       console.log('✅ Socket.IO connected:', this.socket?.id);
