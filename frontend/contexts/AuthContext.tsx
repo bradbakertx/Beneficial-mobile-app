@@ -78,11 +78,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error('Failed to register for push notifications:', error);
       });
       
-      // Establish Socket.IO connection for real-time updates
+      // Establish Socket.IO connection for real-time updates (non-blocking)
       const token = await authService.getToken();
       if (token) {
-        socketService.connect(token);
-        console.log('✅ Socket.IO connection initiated on login');
+        try {
+          socketService.connect(token);
+          console.log('✅ Socket.IO connection initiated on login');
+        } catch (socketError) {
+          console.warn('⚠️ Socket.IO connection failed (non-critical):', socketError);
+        }
       }
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || 'Login failed');
