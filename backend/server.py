@@ -1410,6 +1410,92 @@ async def set_quote_price(
     return QuoteResponse(**updated_quote)
 
 
+
+@api_router.patch("/quotes/{quote_id}/approve")
+async def approve_quote_by_agent(
+    quote_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Agent approves a quote (Agent only)"""
+    if current_user.role != UserRole.agent:
+        raise HTTPException(status_code=403, detail="Only agents can approve quotes")
+    
+    quote = await db.quotes.find_one({"id": quote_id})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify this quote belongs to this agent
+    if quote.get("agent_email") != current_user.email:
+        raise HTTPException(status_code=403, detail="You can only approve your own quotes")
+    
+    # Verify quote is in agent_review status
+    if quote.get("status") != QuoteStatus.agent_review.value:
+        raise HTTPException(status_code=400, detail="Quote is not in review status")
+    
+    # Update quote status to accepted (ready for scheduling)
+    await db.quotes.update_one(
+        {"id": quote_id},
+        {
+            "$set": {
+                "status": QuoteStatus.accepted.value,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    updated_quote = await db.quotes.find_one({"id": quote_id})
+    
+    # Emit Socket.IO event to owner
+    owner = await db.users.find_one({"role": UserRole.owner.value})
+    if owner:
+        await emit_quote_updated(quote_id, owner["id"], updated_quote)
+    
+    return QuoteResponse(**updated_quote)
+
+
+@api_router.patch("/quotes/{quote_id}/decline")
+async def decline_quote_by_agent(
+    quote_id: str,
+    current_user: UserInDB = Depends(get_current_user_from_token)
+):
+    """Agent declines a quote (Agent only)"""
+    if current_user.role != UserRole.agent:
+        raise HTTPException(status_code=403, detail="Only agents can decline quotes")
+    
+    quote = await db.quotes.find_one({"id": quote_id})
+    if not quote:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    
+    # Verify this quote belongs to this agent
+    if quote.get("agent_email") != current_user.email:
+        raise HTTPException(status_code=403, detail="You can only decline your own quotes")
+    
+    # Verify quote is in agent_review status
+    if quote.get("status") != QuoteStatus.agent_review.value:
+        raise HTTPException(status_code=400, detail="Quote is not in review status")
+    
+    # Update quote status to rejected
+    await db.quotes.update_one(
+        {"id": quote_id},
+        {
+            "$set": {
+                "status": QuoteStatus.rejected.value,
+                "updated_at": datetime.utcnow()
+            }
+        }
+    )
+    
+    updated_quote = await db.quotes.find_one({"id": quote_id})
+    
+    # Emit Socket.IO event to owner
+    owner = await db.users.find_one({"role": UserRole.owner.value})
+    if owner:
+        await emit_quote_updated(quote_id, owner["id"], updated_quote)
+    
+    return QuoteResponse(**updated_quote)
+
+
+
 # ============= INSPECTION ENDPOINTS =============
 
 @api_router.post("/inspections", response_model=InspectionResponse)
