@@ -341,15 +341,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   dayName: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#8E8E93',
     fontWeight: '500',
+    marginBottom: 2,
   },
   dayNumber: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '600',
     color: '#1C1C1E',
-    marginTop: 4,
   },
   today: {
     color: '#007AFF',
