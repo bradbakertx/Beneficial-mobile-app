@@ -28,17 +28,30 @@ export interface User {
 
 class AuthService {
   async login(data: LoginData, stayLoggedIn: boolean = true): Promise<{ token: string; user: User }> {
-    const response = await api.post('/auth/login', data);
-    const { session_token, user } = response.data;
-    
-    // Always store the token and user data
-    await AsyncStorage.setItem('session_token', session_token);
-    await AsyncStorage.setItem('user_data', JSON.stringify(user));
-    
-    // Store the preference for staying logged in
-    await AsyncStorage.setItem('stay_logged_in', JSON.stringify(stayLoggedIn));
-    
-    return { token: session_token, user };
+    try {
+      console.log('[AuthService] Attempting login for:', data.email);
+      console.log('[AuthService] API Base URL:', api.defaults.baseURL);
+      
+      const response = await api.post('/auth/login', data);
+      const { session_token, user } = response.data;
+      
+      console.log('[AuthService] Login successful');
+      
+      // Always store the token and user data
+      await AsyncStorage.setItem('session_token', session_token);
+      await AsyncStorage.setItem('user_data', JSON.stringify(user));
+      
+      // Store the preference for staying logged in
+      await AsyncStorage.setItem('stay_logged_in', JSON.stringify(stayLoggedIn));
+      
+      return { token: session_token, user };
+    } catch (error: any) {
+      console.error('[AuthService] Login failed:', error.message);
+      console.error('[AuthService] Error response:', error.response?.data);
+      console.error('[AuthService] Error status:', error.response?.status);
+      console.error('[AuthService] Full error:', error);
+      throw error;
+    }
   }
 
   async register(data: RegisterData): Promise<{ token: string; user: User }> {
