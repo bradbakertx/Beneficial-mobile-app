@@ -7,6 +7,11 @@ import Constants from 'expo-constants';
 const backendUrl = Constants.expoConfig?.extra?.backendUrl || process.env.EXPO_PUBLIC_BACKEND_URL;
 const API_URL = backendUrl && backendUrl.trim() !== '' ? backendUrl : '';
 
+console.log('[API] Backend URL from env:', process.env.EXPO_PUBLIC_BACKEND_URL);
+console.log('[API] Backend URL from Constants:', Constants.expoConfig?.extra?.backendUrl);
+console.log('[API] Final API_URL:', API_URL);
+console.log('[API] Full baseURL:', API_URL ? `${API_URL}/api` : '/api');
+
 const api = axios.create({
   baseURL: API_URL ? `${API_URL}/api` : '/api',
   timeout: 30000,
