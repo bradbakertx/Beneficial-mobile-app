@@ -125,7 +125,7 @@ export default function QuotesScreen() {
   };
 
   const renderQuoteItem = ({ item }: { item: Quote }) => (
-    <TouchableOpacity style={styles.quoteCard}>
+    <View style={styles.quoteCard}>
       <View style={styles.quoteHeader}>
         <View style={styles.quoteInfo}>
           <Text style={styles.quoteAddress} numberOfLines={1}>
@@ -134,7 +134,7 @@ export default function QuotesScreen() {
           <Text style={styles.quoteType}>{item.property_type}</Text>
         </View>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(item.status) }]}>
-          <Text style={styles.statusText}>{item.status}</Text>
+          <Text style={styles.statusText}>{getStatusLabel(item.status)}</Text>
         </View>
       </View>
       
@@ -156,7 +156,27 @@ export default function QuotesScreen() {
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+
+      {/* Show approval buttons for agents when status is agent_review */}
+      {user?.role === 'agent' && item.status === 'agent_review' && (
+        <View style={styles.actionButtons}>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.approveButton]} 
+            onPress={() => handleApprove(item.id)}
+          >
+            <Ionicons name="checkmark-circle" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Approve</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={[styles.actionButton, styles.declineButton]} 
+            onPress={() => handleDecline(item.id)}
+          >
+            <Ionicons name="close-circle" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Decline</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 
   if (loading) {
