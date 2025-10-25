@@ -163,23 +163,28 @@ export default function DashboardScreen() {
     }
   };
 
-  const handleRequestQuotePress = async () => {
+  const handleRequestQuotePress = () => {
+    console.log('Request Quote button pressed');
     // Hide the overlay and mark as seen
     if (showStartHere) {
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 300,
         useNativeDriver: true,
-      }).start(() => {
+      }).start(async () => {
         setShowStartHere(false);
+        try {
+          await AsyncStorage.setItem(FIRST_TIME_KEY, 'true');
+        } catch (error) {
+          console.error('Error saving first time:', error);
+        }
+        // Navigate after animation completes
+        router.push('/quotes/new');
       });
-      try {
-        await AsyncStorage.setItem(FIRST_TIME_KEY, 'true');
-      } catch (error) {
-        console.error('Error saving first time:', error);
-      }
+    } else {
+      // No overlay, navigate immediately
+      router.push('/quotes/new');
     }
-    router.push('/quotes/new');
   };
 
   const onRefresh = () => {
