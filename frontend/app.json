@@ -13,6 +13,7 @@
       "router": {
         "origin": false
       },
+      "backendUrl": "https://inspectapp-4.preview.emergentagent.com",
       "eas": {
         "projectId": "719c9117-88f3-44eb-9967-9844dda81654"
       }
