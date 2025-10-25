@@ -14,6 +14,7 @@ class UserRole(str, Enum):
 class QuoteStatus(str, Enum):
     pending = "pending"
     quoted = "quoted"
+    agent_review = "agent_review"  # New status: waiting for agent approval/decline
     accepted = "accepted"
     rejected = "rejected"
 
