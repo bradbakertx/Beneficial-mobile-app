@@ -67,12 +67,61 @@ export default function QuotesScreen() {
       case 'pending':
         return '#FF9500';
       case 'approved':
+      case 'accepted':
         return '#34C759';
       case 'rejected':
         return '#FF3B30';
+      case 'agent_review':
+        return '#007AFF';
+      case 'quoted':
+        return '#5856D6';
       default:
         return '#8E8E93';
     }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'agent_review':
+        return 'Review';
+      case 'quoted':
+        return 'Quoted';
+      default:
+        return status.charAt(0).toUpperCase() + status.slice(1);
+    }
+  };
+
+  const handleApprove = async (quoteId: string) => {
+    try {
+      await api.patch(`/quotes/${quoteId}/approve`);
+      Alert.alert('Success', 'Quote approved successfully');
+      fetchQuotes();
+    } catch (error: any) {
+      Alert.alert('Error', error.response?.data?.detail || 'Failed to approve quote');
+    }
+  };
+
+  const handleDecline = async (quoteId: string) => {
+    Alert.alert(
+      'Decline Quote',
+      'Are you sure you want to decline this quote?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Decline',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.patch(`/quotes/${quoteId}/decline`);
+              Alert.alert('Success', 'Quote declined');
+              fetchQuotes();
+            } catch (error: any) {
+              Alert.alert('Error', error.response?.data?.detail || 'Failed to decline quote');
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderQuoteItem = ({ item }: { item: Quote }) => (
