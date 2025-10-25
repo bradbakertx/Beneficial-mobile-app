@@ -1329,60 +1329,83 @@ async def set_quote_price(
     if not quote:
         raise HTTPException(status_code=404, detail="Quote not found")
     
+    # Determine the new status based on whether this is an agent quote
+    # If agent quote and no customer_id (no customer info added yet), set to agent_review
+    # Otherwise, set to quoted
+    is_agent_quote = quote.get("is_agent_quote", False)
+    has_customer_id = quote.get("customer_id") is not None
+    
+    if is_agent_quote and not has_customer_id:
+        new_status = QuoteStatus.agent_review.value
+    else:
+        new_status = QuoteStatus.quoted.value
+    
     # Update quote
     await db.quotes.update_one(
         {"id": quote_id},
         {
             "$set": {
                 "quote_amount": quote_amount,
-                "status": QuoteStatus.quoted.value,
+                "status": new_status,
                 "updated_at": datetime.utcnow()
             }
         }
     )
     
-    # Send push notification to customer
-    customer = await db.users.find_one({"id": quote["customer_id"]})
-    if customer and customer.get("push_token"):
-        property_addr = quote.get("property_address", "your property")
-        send_push_notification(
-            push_token=customer["push_token"],
-            title="Quote Received",
-            body=f"You received a quote of ${quote_amount:.2f} for {property_addr}",
-            data={"type": "quote_received", "quote_id": quote_id, "amount": quote_amount}
-        )
-    
-    # Send email notification to customer
-    from email_service import send_email
-    customer_email = quote.get("customer_email")
-    if customer_email:
-        email_body = f"""
-        Hello {quote.get('customer_name', 'Customer')},
-        
-        You have received a quote for your inspection request at {quote.get('property_address', 'your property')}.
-        
-        Quote Amount: ${quote_amount:.2f}
-        
-        Please log in to your account to review and accept the quote.
-        
-        Best regards,
-        Beneficial Inspections
-        """
-        try:
-            send_email(
-                to_email=customer_email,
-                subject=f"Inspection Quote - ${quote_amount:.2f}",
-                body=email_body
+    # Only send notifications to customer if status is "quoted"
+    if new_status == QuoteStatus.quoted.value:
+        # Send push notification to customer
+        customer = await db.users.find_one({"id": quote["customer_id"]})
+        if customer and customer.get("push_token"):
+            property_addr = quote.get("property_address", "your property")
+            send_push_notification(
+                push_token=customer["push_token"],
+                title="Quote Received",
+                body=f"You received a quote of ${quote_amount:.2f} for {property_addr}",
+                data={"type": "quote_received", "quote_id": quote_id, "amount": quote_amount}
             )
-        except Exception as e:
-            print(f"Failed to send email to customer: {e}")
+        
+        # Send email notification to customer
+        from email_service import send_email
+        customer_email = quote.get("customer_email")
+        if customer_email:
+            email_body = f"""
+            Hello {quote.get('customer_name', 'Customer')},
+            
+            You have received a quote for your inspection request at {quote.get('property_address', 'your property')}.
+            
+            Quote Amount: ${quote_amount:.2f}
+            
+            Please log in to your account to review and accept the quote.
+            
+            Best regards,
+            Beneficial Inspections
+            """
+            try:
+                send_email(
+                    to_email=customer_email,
+                    subject=f"Inspection Quote - ${quote_amount:.2f}",
+                    body=email_body
+                )
+            except Exception as e:
+                print(f"Failed to send email to customer: {e}")
     
     updated_quote = await db.quotes.find_one({"id": quote_id})
     
-    # Emit Socket.IO event to customer for real-time quote update
-    customer_id = quote.get("customer_id")
-    if customer_id:
-        await emit_quote_updated(quote_id, customer_id, updated_quote)
+    # Emit Socket.IO event for real-time update
+    # For agent_review status, emit to agent; for quoted status, emit to customer
+    if new_status == QuoteStatus.agent_review.value:
+        # Notify agent
+        agent_email = quote.get("agent_email")
+        if agent_email:
+            agent = await db.users.find_one({"email": agent_email})
+            if agent:
+                await emit_quote_updated(quote_id, agent["id"], updated_quote)
+    elif new_status == QuoteStatus.quoted.value:
+        # Notify customer
+        customer_id = quote.get("customer_id")
+        if customer_id:
+            await emit_quote_updated(quote_id, customer_id, updated_quote)
     
     return QuoteResponse(**updated_quote)
 
