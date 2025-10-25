@@ -456,7 +456,8 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     padding: 24,
-    paddingBottom: 80, // Extra bottom padding to ensure all content is scrollable
+    paddingBottom: 100, // Extra bottom padding to ensure all content is scrollable
+    flexGrow: 1,
   },
   modalText: {
     fontSize: 16,
